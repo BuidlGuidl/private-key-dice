@@ -22,6 +22,7 @@ This will become a demonstration to use during presentations with a live audienc
 - We should display winners on the host screen so everyone can see when there was a winner.
 
 ### Users
+- Unsure of the number of users we will have at one time, a good guess is in the 10-30 range.
 - The users should see a cool dice rolling display on their (phone) screens.  This will get tricky as more dice are added, up to a max of 64.
 - If they match the hosts, a cool winning message will be display and some of the value in the hosts private key will be sent to them.  Need a cool message they can show off to others.
 - All the user's dice will roll at the same time. e.g if the count of dice is currently 24, and example roll from a user would be F18053525893D3537EAB615C
