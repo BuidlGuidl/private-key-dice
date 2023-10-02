@@ -38,3 +38,16 @@ This will become a demonstration to use during presentations with a live audienc
 
 Step by step "fork-and-pull" Github contributing using CLI refresher here:  
 https://gist.github.com/ZakGriffith/69d1eb8baebddd7d370b87a65a7e3ec0 
+
+
+### initial notes from austin:
+
+the essence of what I want to demonstrate is that technically you can guess someone's private key but if you use enough bytes randomness it becomes impossible 
+
+the idea comes from my buddy griffin who does a "guess the number" kind of game that is similar -- I want to use our amazing hex dice from mr dee and SE2 to make a pretty mobile experience that is controlled from and admin screen 
+
+this would be a demo for technical groups and normies - I lock money up in a private key where we know all of the bytes except one and everyone has to click to roll the dice and if they land on the right hex character it makes a private key, checks if there is money on it, and sweeps it with a celebration screen 
+
+then from the admin side I lock up a little money and we roll two dice and then three and then four - we'll have to experiment with where it gets so difficult a room wont be able to get it and then we can allow them to upgrade their roller to *automatic roll* and *group brute force roll* where everyone works on different sections trying to find the solution  
+
+the payoff is when I have 64 dice on a single screen and I show some smart contract with billions of dollars in it -- all your phone has to do is guess the right 64 hex characters and that billion dollars is yours 
