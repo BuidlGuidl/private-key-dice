@@ -49,7 +49,7 @@ export const createGame = async (req: Request, res: Response) => {
       diceCount,
       mode,
       privateKey: privateKeyHash,
-      hiddenSlots, // Corrected variable name
+      hiddenSlots, 
       prize,
     });
 
@@ -148,7 +148,7 @@ export const changeGameMode = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Game is not paused." });
     }
 
-    // Validate the new mode (e.g., "auto" or "manual")
+
     if (mode !== "auto" && mode !== "manual") {
       return res.status(400).json({ error: "Invalid game mode." });
     }
@@ -178,7 +178,7 @@ export const changePrize = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Game is not ongoing." });
     }
 
-    // Update the prize
+
     game.prize = newPrize;
     const updatedGame = await game.save();
 
@@ -207,7 +207,7 @@ export const kickUser = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "User not found in the game." });
     }
 
-    // Remove the user from the game's users array
+  
     game.users.splice(userIndex, 1);
     const updatedGame = await game.save();
 

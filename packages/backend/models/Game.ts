@@ -37,7 +37,6 @@ const gameSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: function (value: [number]) {
-          // Check if the array only contains numbers
           if (!Array.isArray(value) || value.some(num => typeof num !== "number")) {
             return false;
           }
