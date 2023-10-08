@@ -15,8 +15,8 @@ contract YourContract {
     error OnlyHostAllowed();
     error InvalidDiceCount();
 
-    event ModeChanged(address indexed caller, Mode newMode);
-    event DiceCountChanged(address indexed caller, uint8 newDiceCount);
+    event ModeChanged(Mode newMode);
+    event DiceCountChanged(uint8 newDiceCount);
 
     modifier onlyHost() {
         if (msg.sender != host) revert OnlyHostAllowed();
@@ -30,12 +30,12 @@ contract YourContract {
 
     function setMode(Mode _mode) external onlyHost {
         currentMode = _mode;
-        emit ModeChanged(msg.sender, _mode);
+        emit ModeChanged(_mode);
     }
 
     function setDiceCount(uint8 _count) external onlyHost {
         if (_count < 1 || _count > 64) revert InvalidDiceCount();
         diceCount = _count;
-        emit DiceCountChanged(msg.sender, _count);
+        emit DiceCountChanged(_count);
     }
 }
