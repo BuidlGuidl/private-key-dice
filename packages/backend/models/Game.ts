@@ -2,9 +2,13 @@ import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema(
   {
+    adminAddress: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
-      enum: ["ongoing", "paused", "finished"],
+      enum: ["lobby", "ongoing", "paused", "finished"],
       required: true,
     },
     inviteCode: {
@@ -32,27 +36,15 @@ const gameSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    hiddenSlots: {
-      type: [Number],
+    hiddenChars: {
+      type: Object,
       required: true,
-      validate: {
-        validator: function (value: [number]) {
-          if (!Array.isArray(value) || value.some(num => typeof num !== "number")) {
-            return false;
-          }
-
-          // Check if the array only contains unique numbers from 0 to 63
-          const uniqueNumbers = [...new Set(value)];
-          return uniqueNumbers.every(num => num >= 0 && num <= 63);
-        },
-        message: "The users array must contain unique numbers from 1 to 64.",
-      },
     },
     prize: {
       type: Number,
       required: true,
     },
-    users: {
+    players: {
       type: [String],
       default: [],
       validate: {
@@ -61,7 +53,7 @@ const gameSchema = new mongoose.Schema(
           const uniqueStrings = [...new Set(value)];
           return uniqueStrings.length === value.length;
         },
-        message: "The users array must contain unique strings.",
+        message: "The players array must contain unique strings.",
       },
     },
     winner: {

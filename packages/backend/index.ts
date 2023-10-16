@@ -5,6 +5,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
+import adminRoutes from "./routes/admin";
+import playerRoutes from "./routes/player";
+import gameRoutes from "./routes/game";
 
 /* CONFIGURATIONS */
 
@@ -22,9 +25,21 @@ app.use(cors());
 const PORT = process.env.PORT || 6001;
 const MONGO_URL = process.env.MONGO_URL || "";
 
-mongoose
-  .connect(MONGO_URL)
-  .then(() => {
-    app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
-  })
-  .catch(error => console.log(`${error} did not connect`));
+app.use("/admin", adminRoutes);
+app.use("/player", playerRoutes);
+app.use("/game", gameRoutes);
+
+const connectWithRetry = () => {
+  console.log("connecting");
+  mongoose
+    .connect(MONGO_URL)
+    .then(() => {
+      app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
+    })
+    .catch(error => {
+      console.log(`${error} did not connect`);
+      setTimeout(connectWithRetry, 3000);
+    });
+};
+
+connectWithRetry();

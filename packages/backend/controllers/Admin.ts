@@ -2,6 +2,8 @@ import Game from "../models/Game";
 import Invites from "../models/Invites";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../backend.config";
 
 async function generateUniqueInvite(length: number) {
   let invites = await Invites.findOne();
@@ -37,24 +39,29 @@ async function generateUniqueInvite(length: number) {
 
 export const createGame = async (req: Request, res: Response) => {
   try {
-    const { maxPlayers, diceCount, hiddenSlots, privateKey, prize, mode } = req.body;
+    const { maxPlayers, diceCount, hiddenChars, privateKey, prize, mode, adminAddress } = req.body;
 
     const salt = await bcrypt.genSalt();
-    const privateKeyHash = await bcrypt.hash(privateKey, salt);
+    // const privateKeyHash = await bcrypt.hash(privateKey, salt);
 
     const newGame = new Game({
+      adminAddress,
       status: "ongoing",
-      inviteCode: generateUniqueInvite(8),
+      inviteCode: await generateUniqueInvite(8),
       maxPlayers,
       diceCount,
       mode,
-      privateKey: privateKeyHash,
-      hiddenSlots, 
+      privateKey,
+      hiddenChars,
       prize,
     });
 
+    let token;
+
+    if (JWT_SECRET) token = jwt.sign({ address: adminAddress }, JWT_SECRET);
+
     const savedGame = await newGame.save();
-    res.status(201).json(savedGame);
+    res.status(201).json({ token, game: savedGame });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
@@ -112,8 +119,8 @@ export const resumeGame = async (req: Request, res: Response) => {
 
 export const endGame = async (req: Request, res: Response) => {
   try {
-    const { gameId } = req.params;
-    const game = await Game.findById(gameId);
+    const { id } = req.params;
+    const game = await Game.findById(id);
 
     if (!game) {
       return res.status(404).json({ error: "Game not found." });
@@ -125,6 +132,10 @@ export const endGame = async (req: Request, res: Response) => {
 
     // Update game status to "finished"
     game.status = "finished";
+    if (req.body) {
+      const { winner } = req.body;
+      game.winner = winner;
+    }
     const updatedGame = await game.save();
 
     res.status(200).json(updatedGame);
@@ -147,7 +158,6 @@ export const changeGameMode = async (req: Request, res: Response) => {
     if (game.status !== "paused") {
       return res.status(400).json({ error: "Game is not paused." });
     }
-
 
     if (mode !== "auto" && mode !== "manual") {
       return res.status(400).json({ error: "Invalid game mode." });
@@ -178,7 +188,6 @@ export const changePrize = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Game is not ongoing." });
     }
 
-
     game.prize = newPrize;
     const updatedGame = await game.save();
 
@@ -188,10 +197,10 @@ export const changePrize = async (req: Request, res: Response) => {
   }
 };
 
-export const kickUser = async (req: Request, res: Response) => {
+export const kickPlayer = async (req: Request, res: Response) => {
   try {
     const { gameId } = req.params;
-    const { userAddress } = req.body;
+    const { playerAddress } = req.body;
     const game = await Game.findById(gameId);
 
     if (!game) {
@@ -202,45 +211,12 @@ export const kickUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Game is not ongoing." });
     }
 
-    const userIndex = game.users.indexOf(userAddress);
-    if (userIndex === -1) {
-      return res.status(404).json({ error: "User not found in the game." });
+    const playerIndex = game.players.indexOf(playerAddress);
+    if (playerIndex === -1) {
+      return res.status(404).json({ error: "Player not found in the game." });
     }
 
-  
-    game.users.splice(userIndex, 1);
-    const updatedGame = await game.save();
-
-    res.status(200).json(updatedGame);
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
-  }
-};
-
-export const changeHiddenSlots = async (req: Request, res: Response) => {
-  try {
-    const { gameId } = req.params;
-    const { hiddenSlot } = req.body;
-
-    const game = await Game.findById(gameId);
-
-    if (!game) {
-      return res.status(404).json({ error: "Game not found." });
-    }
-
-    if (game.status !== "paused") {
-      return res.status(400).json({ error: "Game has to be paused." });
-    }
-
-    // Ensure hiddenSlot is an array
-    if (!Array.isArray(hiddenSlot)) {
-      return res.status(400).json({ error: "Invalid hiddenSlot format." });
-    }
-
-    // Update the hiddenSlots array and diceCount
-    game.hiddenSlots = hiddenSlot;
-    game.diceCount = hiddenSlot.length;
-
+    game.players.splice(playerIndex, 1);
     const updatedGame = await game.save();
 
     res.status(200).json(updatedGame);
