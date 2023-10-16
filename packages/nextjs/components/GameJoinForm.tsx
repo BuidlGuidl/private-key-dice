@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { InputBase } from "./scaffold-eth";
 import { useAccount } from "wagmi";
 import { saveGameState } from "~~/utils/diceDemo/game";
+import serverConfig from "~~/server.config";
 
 const GameJoinForm = () => {
   const router = useRouter();
@@ -12,9 +13,10 @@ const GameJoinForm = () => {
   };
 
   const { address: playerAddress } = useAccount();
+  const serverUrl = serverConfig.isLocal? serverConfig.localUrl : serverConfig.liveUrl
 
   const handleJoinGame = async () => {
-    const response = await fetch(`http://localhost:4001/player/join`, {
+    const response = await fetch(`${serverUrl}/player/join`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer`,

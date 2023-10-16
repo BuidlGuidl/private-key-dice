@@ -4,10 +4,12 @@ import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
 import Congrats from "~~/components/Congrats";
 import { loadGameState, updateGameState } from "~~/utils/diceDemo/game";
+import serverConfig from "~~/server.config";
 
 function GamePage() {
   const router = useRouter();
   const { id } = router.query;
+  const serverUrl = serverConfig.isLocal? serverConfig.localUrl : serverConfig.liveUrl
 
   const { token, game: gameState } = loadGameState();
   const { address } = useAccount();
@@ -59,7 +61,7 @@ function GamePage() {
   };
 
   const endGame = async () => {
-    const response = await fetch(`http://localhost:4001/game/${game._id}`, {
+    const response = await fetch(`${serverUrl}/game/${game._id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,

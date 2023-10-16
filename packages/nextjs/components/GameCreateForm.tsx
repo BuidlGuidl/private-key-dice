@@ -4,6 +4,7 @@ import { EtherInput, InputBase } from "./scaffold-eth";
 import { useAccount } from "wagmi";
 import { loadBurnerSK } from "~~/hooks/scaffold-eth";
 import { saveGameState } from "~~/utils/diceDemo/game";
+import serverConfig from "~~/server.config";
 
 interface FormData {
   maxPlayers: number;
@@ -20,6 +21,8 @@ interface FormData {
 const GameCreationForm = () => {
   const router = useRouter();
   const { address: adminAddress } = useAccount();
+
+  const serverUrl = serverConfig.isLocal? serverConfig.localUrl : serverConfig.liveUrl
 
   const [formData, setFormData] = useState<FormData>({
     maxPlayers: 5,
@@ -86,7 +89,7 @@ const GameCreationForm = () => {
 
   const handleSubmit = async () => {
     console.log(formData);
-    const createGameResponse = await fetch("http://localhost:4001/admin/create", {
+    const createGameResponse = await fetch(`${serverUrl}/admin/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
