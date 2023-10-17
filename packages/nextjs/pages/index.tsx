@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Link from "next/link";
 import type { NextPage } from "next";
 import GameCreationForm from "~~/components/GameCreateForm";
 import GameJoinForm from "~~/components/GameJoinForm";
