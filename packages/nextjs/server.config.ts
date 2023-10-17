@@ -1,6 +1,6 @@
 const serverConfig = {
   isLocal: true,
-  localUrl: "http://localhost:4001",
+  localUrl: "http://localhost:6001",
   liveUrl: "https://weak-teal-haddock-sari.cyclic.app/",
 };
 
