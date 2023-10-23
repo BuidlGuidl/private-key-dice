@@ -31,6 +31,7 @@ export const join = async (req: Request, res: Response) => {
 
     game.players.push(playerAddress);
     const savedGame = await game.save();
+    req.io?.emit(`gameUpdate_${game._id}`, savedGame);
     return res.status(200).json({ token, game: savedGame });
   } catch (err) {
     return res.status(500).json({ error: (err as Error).message });

@@ -69,8 +69,9 @@ export const createGame = async (req: Request, res: Response) => {
 
 export const pauseGame = async (req: Request, res: Response) => {
   try {
-    const { gameId } = req.params;
-    const game = await Game.findById(gameId);
+    const { id } = req.params;
+    const game = await Game.findById(id);
+    console.log(game);
 
     if (!game) {
       return res.status(404).json({ error: "Game not found." });
@@ -84,6 +85,7 @@ export const pauseGame = async (req: Request, res: Response) => {
     game.status = "paused";
     const updatedGame = await game.save();
 
+    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -92,8 +94,8 @@ export const pauseGame = async (req: Request, res: Response) => {
 
 export const resumeGame = async (req: Request, res: Response) => {
   try {
-    const { gameId } = req.params;
-    const game = await Game.findById(gameId);
+    const { id } = req.params;
+    const game = await Game.findById(id);
 
     if (!game) {
       return res.status(404).json({ error: "Game not found." });
@@ -111,6 +113,7 @@ export const resumeGame = async (req: Request, res: Response) => {
     game.status = "ongoing";
     const updatedGame = await game.save();
 
+    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -138,6 +141,7 @@ export const endGame = async (req: Request, res: Response) => {
     }
     const updatedGame = await game.save();
 
+    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -146,18 +150,19 @@ export const endGame = async (req: Request, res: Response) => {
 
 export const changeGameMode = async (req: Request, res: Response) => {
   try {
-    const { gameId } = req.params;
+    const { id } = req.params;
     const { mode } = req.body;
 
-    const game = await Game.findById(gameId);
+    const game = await Game.findById(id);
+    console.log(game);
 
     if (!game) {
       return res.status(404).json({ error: "Game not found." });
     }
 
-    if (game.status !== "paused") {
-      return res.status(400).json({ error: "Game is not paused." });
-    }
+    // if (game.status !== "paused") {
+    //   return res.status(400).json({ error: "Game is not paused." });
+    // }
 
     if (mode !== "auto" && mode !== "manual") {
       return res.status(400).json({ error: "Invalid game mode." });
@@ -166,7 +171,7 @@ export const changeGameMode = async (req: Request, res: Response) => {
     game.mode = mode;
 
     const updatedGame = await game.save();
-
+    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -199,9 +204,9 @@ export const changePrize = async (req: Request, res: Response) => {
 
 export const kickPlayer = async (req: Request, res: Response) => {
   try {
-    const { gameId } = req.params;
+    const { id } = req.params;
     const { playerAddress } = req.body;
-    const game = await Game.findById(gameId);
+    const game = await Game.findById(id);
 
     if (!game) {
       return res.status(404).json({ error: "Game not found." });
@@ -219,6 +224,7 @@ export const kickPlayer = async (req: Request, res: Response) => {
     game.players.splice(playerIndex, 1);
     const updatedGame = await game.save();
 
+    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
