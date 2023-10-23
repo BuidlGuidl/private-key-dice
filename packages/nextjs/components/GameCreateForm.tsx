@@ -162,10 +162,26 @@ const GameCreationForm = () => {
           <h1>Mode</h1>
           <ul className="menu menu-horizontal menu-xs bg-base-300 rounded-md activemenu">
             <li value="manual" onClick={() => handleModeChange("manual")}>
-              <a className={formData.mode === "manual" ? "active" : "bg-base-300"}>Manual</a>
+              <a
+                className={
+                  formData.mode === "manual"
+                    ? "bg-base-100 px-3 rounded-full py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
+                    : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
+                }
+              >
+                Manual
+              </a>
             </li>
             <li value="auto" onClick={() => handleModeChange("auto")}>
-              <a className={formData.mode === "auto" ? "active" : "bg-base-300"}>Auto</a>
+              <a
+                className={
+                  formData.mode === "auto"
+                    ? "bg-base-100 px-3 rounded-full py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
+                    : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
+                }
+              >
+                Auto
+              </a>
             </li>
           </ul>
         </label>
