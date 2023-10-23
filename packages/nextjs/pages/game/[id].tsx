@@ -162,7 +162,7 @@ function GamePage() {
           <div className="md:w-1/3 border-r">
             <div className="font-bold py-2 border-b px-4 flex items-center justify-between">
               <h1 className=" md:text-2xl text-xl upercase tracking-wide ">INFO</h1>
-              <h1>Role: {isAdmin ? "Admin" : "Player"}</h1>
+              <h1>Role: {isAdmin ? "Host" : "Player"}</h1>
             </div>
             <div className="p-4 ">
               <div className="p-2 bg-base-300 rounded-md">
