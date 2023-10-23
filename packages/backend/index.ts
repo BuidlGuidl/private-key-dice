@@ -34,7 +34,7 @@ app.use(cors());
 
 /*Sockets Setup*/
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
 
 io.on("connection", socket => {
   console.log("A user connected to Scoket");
