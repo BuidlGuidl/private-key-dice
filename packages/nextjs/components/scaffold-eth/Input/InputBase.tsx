@@ -17,6 +17,8 @@ export const InputBase = <T extends { toString: () => string } | undefined = str
   prefix,
   suffix,
   type,
+  min,
+  max,
 }: InputBaseProps<T>) => {
   let modifier = "";
   if (error) {
@@ -44,6 +46,8 @@ export const InputBase = <T extends { toString: () => string } | undefined = str
         disabled={disabled}
         autoComplete="off"
         type={type}
+        min={min}
+        max={max}
       />
       {suffix}
     </div>
