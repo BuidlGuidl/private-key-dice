@@ -5,6 +5,8 @@ export interface CommonInputProps<T = string> {
   placeholder?: string;
   disabled?: boolean;
   type?: string;
+  min?: string;
+  max?: string;
 }
 
 export enum IntegerVariant {
