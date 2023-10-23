@@ -36,7 +36,7 @@ const Home: NextPage = () => {
                 <a
                   className={
                     gameState == "createGame"
-                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
+                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer  transition ease-in-out delay-150"
                       : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
                   }
                 >
@@ -47,7 +47,7 @@ const Home: NextPage = () => {
                 <a
                   className={
                     gameState == "joinGame"
-                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
+                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer "
                       : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
                   }
                 >
