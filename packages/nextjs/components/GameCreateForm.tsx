@@ -3,8 +3,8 @@ import { useRouter } from "next/router";
 import { EtherInput, InputBase } from "./scaffold-eth";
 import { useAccount } from "wagmi";
 import { loadBurnerSK } from "~~/hooks/scaffold-eth";
-import { saveGameState } from "~~/utils/diceDemo/game";
 import serverConfig from "~~/server.config";
+import { saveGameState } from "~~/utils/diceDemo/game";
 
 interface FormData {
   maxPlayers: number;
@@ -22,7 +22,7 @@ const GameCreationForm = () => {
   const router = useRouter();
   const { address: adminAddress } = useAccount();
 
-  const serverUrl = serverConfig.isLocal? serverConfig.localUrl : serverConfig.liveUrl
+  const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
 
   const [formData, setFormData] = useState<FormData>({
     maxPlayers: 5,
@@ -131,11 +131,11 @@ const GameCreationForm = () => {
       <form>
         <label>
           <h1> Select Private Key Slots to Hide</h1>
-          <div className="flex flex-wrap mt-5">
+          <div className="grid md:grid-cols-10 grid-cols-8 mt-5">
             {privateKey.split("").map((char, index) => (
               <div
                 key={index}
-                className={`cursor-pointer hover:scale-120 hover:bg-gray-300 border p-3 ${
+                className={`cursor-pointer hover:scale-120 hover:bg-gray-300 border p-3 text-center  ${
                   selectedSlots.includes(index) ? "bg-primary hover:bg-primary" : ""
                 }`}
                 onClick={() => handleCharClick(index)}
@@ -146,10 +146,11 @@ const GameCreationForm = () => {
           </div>
         </label>
         <br />
-        <br />
         <label>
           <h1> No of Players</h1>
           <InputBase
+            min={"5"}
+            max={"30"}
             name="maxPlayers"
             type="number"
             value={formData.maxPlayers}
@@ -157,10 +158,9 @@ const GameCreationForm = () => {
           />
         </label>
         <br />
-        <br />
         <label>
           <h1>Mode</h1>
-          <ul className="menu menu-horizontal bg-base-300 rounded-full activemenu">
+          <ul className="menu menu-horizontal menu-xs bg-base-300 rounded-md activemenu">
             <li value="manual" onClick={() => handleModeChange("manual")}>
               <a className={formData.mode === "manual" ? "active" : "bg-base-300"}>Manual</a>
             </li>
@@ -176,12 +176,11 @@ const GameCreationForm = () => {
           <EtherInput value={formData.prize} onChange={handlePrizeChange} />
         </label>
         <br />
-        <br />
         <button
           disabled={parseFloat(formData.prize) == 0 || formData.prize == "" || selectedSlots.length == 0}
           type="button"
           onClick={handleSubmit}
-          className="btn btn-primary"
+          className="btn  btn-primary"
         >
           Create Game
         </button>

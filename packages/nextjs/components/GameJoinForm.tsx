@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { InputBase } from "./scaffold-eth";
 import { useAccount } from "wagmi";
-import { saveGameState } from "~~/utils/diceDemo/game";
 import serverConfig from "~~/server.config";
+import { saveGameState } from "~~/utils/diceDemo/game";
 
 const GameJoinForm = () => {
   const router = useRouter();
@@ -13,7 +13,7 @@ const GameJoinForm = () => {
   };
 
   const { address: playerAddress } = useAccount();
-  const serverUrl = serverConfig.isLocal? serverConfig.localUrl : serverConfig.liveUrl
+  const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
 
   const handleJoinGame = async () => {
     const response = await fetch(`${serverUrl}/player/join`, {
@@ -36,7 +36,7 @@ const GameJoinForm = () => {
   };
 
   return (
-    <div className="w-full">
+    <div>
       <h1> Enter Invite Code</h1>
       <InputBase name="inviteCode" value={inviteCode} placeholder="Invite Code" onChange={handleChange} />
       <button className="btn btn-primary mt-6" onClick={handleJoinGame}>
