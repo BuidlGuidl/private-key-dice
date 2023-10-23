@@ -31,12 +31,12 @@ const Home: NextPage = () => {
             </div>
           </div>
           <div className="mx-auto w-4/5">
-            <ul className="menu menu-horizontal justify-center w-fit p-4 bg-base-300 rounded-full mb-8">
+            <ul className="menu menu-horizontal justify-center w-fit p-2 bg-base-300 rounded-full mb-8">
               <li onClick={() => setGameState("createGame")}>
                 <a
                   className={
                     gameState == "createGame"
-                      ? "bg-base-100 px-3 rounded-full py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
+                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
                       : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
                   }
                 >
@@ -47,7 +47,7 @@ const Home: NextPage = () => {
                 <a
                   className={
                     gameState == "joinGame"
-                      ? "bg-base-100 px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
+                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
                       : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
                   }
                 >

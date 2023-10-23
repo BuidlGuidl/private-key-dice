@@ -165,8 +165,8 @@ const GameCreationForm = () => {
               <a
                 className={
                   formData.mode === "manual"
-                    ? "bg-base-100 px-3 rounded-full py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
-                    : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
+                    ? "bg-primary px-3 rounded-md py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
+                    : "px-3 rounded-md py-1 cursor-pointer hover:bg-secondary"
                 }
               >
                 Manual
@@ -176,8 +176,8 @@ const GameCreationForm = () => {
               <a
                 className={
                   formData.mode === "auto"
-                    ? "bg-base-100 px-3 rounded-full py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
-                    : "px-3 rounded-full py-1 cursor-pointer hover:bg-secondary"
+                    ? "bg-primary px-3 rounded-md py-1 cursor-pointer hover:bg-secondary transition ease-in-out delay-150"
+                    : "px-3 rounded-md py-1 cursor-pointer hover:bg-secondary"
                 }
               >
                 Auto
