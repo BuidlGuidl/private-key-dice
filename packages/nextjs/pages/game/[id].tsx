@@ -168,7 +168,7 @@ function GamePage() {
 
   return (
     <div>
-      <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[50%] w-11/12 mx-auto">
+      <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[60%] w-11/12 mx-auto">
         <div className="flex lg:flex-wrap md:flex-row flex-col border rounded-xl">
           <div className="md:w-1/3 border-r">
             <div className="font-bold py-2 border-b px-4 flex items-center justify-between">

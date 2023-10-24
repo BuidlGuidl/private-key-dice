@@ -9,7 +9,7 @@ const Home: NextPage = () => {
   return (
     <>
       <MetaHeader />
-      <div className="flex  flex-col gap-4 xs:w-4/5 xl:w-[50%] w-11/12 mx-auto">
+      <div className="flex  flex-col gap-4 xs:w-4/5 xl:w-[60%] w-11/12 mx-auto">
         <div className="md:grid md:grid-cols-2 md:gap-2 mt-5">
           <div className="mb-10 p-4">
             <div className="p-6  rounded-xl shadow-xl font-semibold">
