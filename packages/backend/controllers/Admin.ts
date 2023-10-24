@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../backend.config";
+import { channel } from "..";
 
 async function generateUniqueInvite(length: number) {
   let invites = await Invites.findOne();
@@ -85,7 +86,7 @@ export const pauseGame = async (req: Request, res: Response) => {
     game.status = "paused";
     const updatedGame = await game.save();
 
-    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
+    channel.publish(`gameUpdate_${game._id}`, updatedGame);
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -113,7 +114,9 @@ export const resumeGame = async (req: Request, res: Response) => {
     game.status = "ongoing";
     const updatedGame = await game.save();
 
-    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
+   
+    channel.publish(`gameUpdate_${game._id}`, updatedGame);
+   
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -141,7 +144,9 @@ export const endGame = async (req: Request, res: Response) => {
     }
     const updatedGame = await game.save();
 
-    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
+   
+    channel.publish(`gameUpdate_${game._id}`, updatedGame);
+   
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -171,7 +176,9 @@ export const changeGameMode = async (req: Request, res: Response) => {
     game.mode = mode;
 
     const updatedGame = await game.save();
-    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
+   
+    channel.publish(`gameUpdate_${game._id}`, updatedGame);
+   
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -224,7 +231,9 @@ export const kickPlayer = async (req: Request, res: Response) => {
     game.players.splice(playerIndex, 1);
     const updatedGame = await game.save();
 
-    req.io?.emit(`gameUpdate_${game._id}`, updatedGame);
+   
+    channel.publish(`gameUpdate_${game._id}`, updatedGame);
+   
     res.status(200).json(updatedGame);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });

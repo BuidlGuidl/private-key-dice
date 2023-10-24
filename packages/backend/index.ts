@@ -8,14 +8,13 @@ import morgan from "morgan";
 import adminRoutes from "./routes/admin";
 import playerRoutes from "./routes/player";
 import gameRoutes from "./routes/game";
-import { Server } from "socket.io";
 import http from "http";
+import Ably from "ably";
 
 declare global {
   namespace Express {
     interface Request {
       user?: any;
-      io?: Server;
     }
   }
 }
@@ -32,22 +31,12 @@ app.use(bodyParser.json({ limit: "30mb" }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 
-/*Sockets Setup*/
+/**Ably Setup */
+
+const ably = new Ably.Realtime({ key: "6aT3Lw.6ED1lg:VVlpr7VcTHfCwrH82plg2IBPkVzYLj0FQl-4RFls3WY" });
+export const channel = ably.channels.get("gameUpdate");
+
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
-
-io.on("connection", socket => {
-  console.log("A user connected to Scoket");
-  socket.on("disconnect", () => {
-    console.log("A user disconnected from Sockets");
-  });
-});
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  req.io = io;
-  next();
-});
-
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
 const MONGO_URL = process.env.MONGO_URL || "";
