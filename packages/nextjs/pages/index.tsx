@@ -9,10 +9,10 @@ const Home: NextPage = () => {
   return (
     <>
       <MetaHeader />
-      <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[50%] w-11/12 mx-auto">
+      <div className="flex  flex-col gap-4 xs:w-4/5 xl:w-[50%] w-11/12 mx-auto">
         <div className="md:grid md:grid-cols-2 md:gap-2 mt-5">
           <div className="mb-10 p-4">
-            <div className="px-6 py-10 rounded-xl shadow-xl font-semibold">
+            <div className="p-6  rounded-xl shadow-xl font-semibold">
               <p>
                 Welcome to &ldquo;Crypto Dice Hunt&rdquo; - a crypto treasure hunt where you will race against others,
                 rolling dices, to beat the security of private keys.
@@ -36,7 +36,7 @@ const Home: NextPage = () => {
                 <a
                   className={
                     gameState == "createGame"
-                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer  transition ease-in-out delay-150"
+                      ? "bg-accent px-3 rounded-full py-1 cursor-pointer  transition ease-in-out delay-150"
                       : "px-3 rounded-full py-1 cursor-pointer hover:bg-base-100"
                   }
                 >
@@ -47,7 +47,7 @@ const Home: NextPage = () => {
                 <a
                   className={
                     gameState == "joinGame"
-                      ? "bg-primary px-3 rounded-full py-1 cursor-pointer "
+                      ? "bg-accent px-3 rounded-full py-1 cursor-pointer "
                       : "px-3 rounded-full py-1 cursor-pointer hover:bg-base-100"
                   }
                 >

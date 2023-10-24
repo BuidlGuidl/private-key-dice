@@ -1,9 +1,9 @@
 // pages/game/[id].js
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import Ably from "ably";
 import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
-import io from "socket.io-client";
 import { useAccount } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import Congrats from "~~/components/Congrats";
@@ -23,6 +23,8 @@ function GamePage() {
   const [isRolling, setIsRolling] = useState(false);
   const [rolled, setRolled] = useState(false);
   const [rolledResult, setRolledResult] = useState<string[]>([]);
+  const [rolls, setRolls] = useState<string[]>([]);
+  const [spinning, setSpinning] = useState(false);
   const [game, setGame] = useState(gameState);
   const [isOpen, setIsOpen] = useState(true);
   const [inviteCopied, setInviteCopied] = useState(false);
@@ -49,16 +51,20 @@ function GamePage() {
   const rollTheDice = () => {
     // setRolled(false);
     setIsRolling(true);
-
-    const rolls = [];
+    setSpinning(true);
+    const rolls: string[] = [];
     for (let index = 0; index < game.diceCount; index++) {
       rolls.push(generateRandomHex());
     }
+    setRolls(rolls);
     setIsRolling(false);
-    setRolledResult(rolls);
     if (!rolled) {
       setRolled(true);
     }
+    setTimeout(() => {
+      setSpinning(false);
+      setRolledResult(rolls);
+    }, 3500);
   };
 
   const length = calculateLength();
@@ -127,13 +133,18 @@ function GamePage() {
   }, [rolledResult]);
 
   useEffect(() => {
-    const socket = io(serverUrl);
-    socket.on(`gameUpdate_${game?._id}`, updatedGameData => {
-      setGame(updatedGameData);
-      updateGameState(JSON.stringify(updatedGameData));
+    const ably = new Ably.Realtime({ key: "6aT3Lw.6ED1lg:VVlpr7VcTHfCwrH82plg2IBPkVzYLj0FQl-4RFls3WY" });
+    const channel = ably.channels.get("gameUpdate");
+
+    channel.subscribe(`gameUpdate_${game?._id}`, message => {
+      console.log(message.data);
+      setGame(message.data);
+      updateGameState(JSON.stringify(message.data));
     });
+
     return () => {
-      socket.disconnect();
+      channel.unsubscribe(`gameUpdate_${game?._id}`);
+      ably.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -165,40 +176,42 @@ function GamePage() {
               <h1>Role: {isAdmin ? "Host" : "Player"}</h1>
             </div>
             <div className="p-4 ">
-              <div className="p-2 bg-base-300 rounded-md">
-                <div className="flex items-center justify-center">
-                  <span>Invite Code: {id}</span>
-                  {inviteCopied ? (
-                    <CheckCircleIcon
-                      className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <CopyToClipboard
-                      text={id?.toString() || ""}
-                      onCopy={() => {
-                        setInviteCopied(true);
-                        setTimeout(() => {
-                          setInviteCopied(false);
-                        }, 800);
-                      }}
-                    >
-                      <DocumentDuplicateIcon
+              {isAdmin && (
+                <div className="p-2 bg-base-300 rounded-md">
+                  <div className="flex items-center justify-center">
+                    <span>Invite Code: {id}</span>
+                    {inviteCopied ? (
+                      <CheckCircleIcon
                         className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
                         aria-hidden="true"
                       />
-                    </CopyToClipboard>
-                  )}
+                    ) : (
+                      <CopyToClipboard
+                        text={id?.toString() || ""}
+                        onCopy={() => {
+                          setInviteCopied(true);
+                          setTimeout(() => {
+                            setInviteCopied(false);
+                          }, 800);
+                        }}
+                      >
+                        <DocumentDuplicateIcon
+                          className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
+                          aria-hidden="true"
+                        />
+                      </CopyToClipboard>
+                    )}
+                  </div>
+                  <div>
+                    <QRCode
+                      value={id?.toString() || ""}
+                      className=" h-full mx-auto mt-2 w-3/4"
+                      level="H"
+                      renderAs="svg"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <QRCode
-                    value={id?.toString() || ""}
-                    className=" h-full mx-auto mt-2 w-3/4"
-                    level="H"
-                    renderAs="svg"
-                  />
-                </div>
-              </div>
+              )}
               <div className="flex flex-col items-center gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2">
                 <div className="flex gap-2 justify-center">
                   <span> Status: {game.status}</span>
@@ -275,10 +288,12 @@ function GamePage() {
               onClick={() => {
                 rollTheDice();
               }}
-              disabled={isRolling || game.status == "finished" || game.mode == "auto"}
+              disabled={isRolling || spinning || game.status == "finished" || game.mode == "auto"}
             >
+              {spinning && <span className="loading loading-spinner"></span>}
               Roll
             </button>
+            {rolledResult.length > 0 && !spinning && <p className="">Result: {rolledResult.join(" , ")}</p>}
             <div className="flex flex-wrap justify-center gap-2 mt-8">
               {Object.entries(game.hiddenChars).map(([key], index) => (
                 <div key={key}>
@@ -286,16 +301,17 @@ function GamePage() {
                     isRolling ? (
                       <video key="rolling" width={length} height={length} loop src="/rolls/Spin.webm" autoPlay />
                     ) : (
-                      <video
-                        key="rolled"
-                        width={length}
-                        height={length}
-                        src={`/rolls/${rolledResult[index]}.webm`}
-                        autoPlay
-                      />
+                      <video key="rolled" width={length} height={length} src={`/rolls/${rolls[index]}.webm`} autoPlay />
                     )
                   ) : (
-                    <video ref={videoRef} key="last" width={length} height={length} src={`/rolls/0.webm`} />
+                    <video
+                      ref={videoRef}
+                      key="last"
+                      width={length}
+                      height={length}
+                      src={`/rolls/0.webm`}
+                      // onEnded={() => setVideoFinished(true)}
+                    />
                   )}
                 </div>
               ))}
