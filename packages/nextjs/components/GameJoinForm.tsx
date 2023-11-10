@@ -39,7 +39,7 @@ const GameJoinForm = () => {
     setInviteCode("");
   };
 
-  const handleScan = data => {
+  const handleScan = (data: string | null) => {
     if (data) {
       setTimeout(() => {
         setInviteCode(data);
