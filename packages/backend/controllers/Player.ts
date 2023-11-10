@@ -34,9 +34,9 @@ export const join = async (req: Request, res: Response) => {
     const savedGame = await game.save();
 
     channel.publish(`gameUpdate_${game._id}`, savedGame);
-    return res.status(200).json({ token, game: savedGame });
+    res.status(200).json({ token, game: savedGame });
   } catch (err) {
-    return res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: (err as Error).message });
   }
 };
 

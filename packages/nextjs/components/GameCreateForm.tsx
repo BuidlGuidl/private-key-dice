@@ -30,7 +30,7 @@ const GameCreationForm = () => {
     mode: "manual",
     privateKey: loadBurnerSK().toString().substring(2),
     hiddenChars: {},
-    prize: "0",
+    prize: "",
     adminAddress,
   });
   const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
@@ -87,8 +87,8 @@ const GameCreationForm = () => {
     });
   };
 
-  const handleSubmit = async () => {
-    console.log(formData);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     const createGameResponse = await fetch(`${serverUrl}/admin/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -108,7 +108,7 @@ const GameCreationForm = () => {
       mode: "auto",
       privateKey: loadBurnerSK(),
       hiddenChars: {},
-      prize: "0",
+      prize: "",
       adminAddress,
     });
   };
@@ -128,14 +128,14 @@ const GameCreationForm = () => {
 
   return (
     <div>
-      <form>
+      <form onSubmit={handleSubmit}>
         <label>
           <h1> Select Private Key Slots to Hide</h1>
           <div className="grid md:grid-cols-10 grid-cols-8 mt-5">
             {privateKey.split("").map((char, index) => (
               <div
                 key={index}
-                className={`cursor-pointer hover:scale-120 hover:bg-gray-300 border p-3 text-center  ${
+                className={`cursor-pointer hover:scale-120 hover:bg-gray-300 border p-3 text-center ${
                   selectedSlots.includes(index) ? "bg-primary hover:bg-primary" : ""
                 }`}
                 onClick={() => handleCharClick(index)}
@@ -194,11 +194,11 @@ const GameCreationForm = () => {
         <br />
         <button
           disabled={parseFloat(formData.prize) == 0 || formData.prize == "" || selectedSlots.length == 0}
-          type="button"
-          onClick={handleSubmit}
-          className="btn  btn-primary"
+          type="submit"
+          // onClick={handleSubmit}
+          className="btn btn-sm  btn-primary"
         >
-          Create Game
+          Start Game
         </button>
       </form>
     </div>
