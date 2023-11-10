@@ -33,8 +33,7 @@ app.use(cors());
 
 /**Ably Setup */
 
-const ably = new Ably.Realtime({ key: "6aT3Lw.6ED1lg:VVlpr7VcTHfCwrH82plg2IBPkVzYLj0FQl-4RFls3WY" });
-export const channel = ably.channels.get("gameUpdate");
+export const ably = new Ably.Realtime({ key: "6aT3Lw.6ED1lg:VVlpr7VcTHfCwrH82plg2IBPkVzYLj0FQl-4RFls3WY" });
 
 const server = http.createServer(app);
 /* MONGOOSE SETUP */
@@ -45,7 +44,9 @@ app.use("/admin", adminRoutes);
 app.use("/player", playerRoutes);
 app.use("/game", gameRoutes);
 
-const connectWithRetry = () => {
+const connectWithRetry = async () => {
+  await ably.connection.once("connected");
+  ably.channels.get(`gameUpdate`);
   console.log("connecting");
   mongoose
     .connect(MONGO_URL)

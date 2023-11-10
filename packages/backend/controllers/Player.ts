@@ -1,7 +1,7 @@
 import Game from "../models/Game";
 import { Response, Request } from "express";
 import jwt from "jsonwebtoken";
-import { channel } from "..";
+import { ably } from "..";
 
 const JWT_SECRET = process.env.JWT_SECRET || "superhardstring";
 
@@ -32,8 +32,9 @@ export const join = async (req: Request, res: Response) => {
 
     game.players.push(playerAddress);
     const savedGame = await game.save();
-
-    channel.publish(`gameUpdate_${game._id}`, savedGame);
+    
+    const channel = ably.channels.get(`gameUpdate`);
+    channel.publish(`gameUpdate`, savedGame);
     res.status(200).json({ token, game: savedGame });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });

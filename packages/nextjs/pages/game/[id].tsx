@@ -149,20 +149,21 @@ function GamePage() {
 
   useEffect(() => {
     const ably = new Ably.Realtime({ key: "6aT3Lw.6ED1lg:VVlpr7VcTHfCwrH82plg2IBPkVzYLj0FQl-4RFls3WY" });
-    const channel = ably.channels.get("gameUpdate");
+    const channel = ably.channels.get(`gameUpdate`);
 
-    channel.subscribe(`gameUpdate_${game?._id}`, message => {
-      console.groupCollapsed("updated");
-      setGame(message.data);
-      updateGameState(JSON.stringify(message.data));
+    channel.subscribe(message => {
+      if (game?._id === message.data._id) {
+        setGame(message.data);
+        updateGameState(JSON.stringify(message.data));
+      }
     });
 
     return () => {
-      channel.unsubscribe(`gameUpdate_${game?._id}`);
+      channel.unsubscribe(`gameUpdate`);
       ably.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [game]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
