@@ -28,7 +28,7 @@ const Congrats = ({
   const transferTx = useTransactor(walletClient);
   const { game: gameString } = loadGameState();
   const game = JSON.parse(gameString || "{}");
-  const privateKey = "0x" + game.privateKey;
+  const privateKey = "0x" + game?.privateKey;
 
   const account = privateKeyToAccount(privateKey as Hex);
 

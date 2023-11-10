@@ -1,4 +1,5 @@
 export interface Game {
+  _id: string;
   adminAddress: string;
   status: "lobby" | "ongoing" | "paused" | "finished";
   inviteCode: string;
