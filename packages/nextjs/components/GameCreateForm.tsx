@@ -35,8 +35,8 @@ const GameCreationForm = () => {
     adminAddress,
   });
   const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
-
   const [privateKey, setPrivateKey] = useState("");
+  const [loading, setloading] = useState(false);
 
   useEffect(() => {
     const pk = loadBurnerSK().toString().substring(2);
@@ -90,6 +90,7 @@ const GameCreationForm = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setloading(true);
     const createGameResponse = await fetch(`${serverUrl}/admin/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -97,13 +98,13 @@ const GameCreationForm = () => {
     });
 
     const createdGame = await createGameResponse.json();
+    setloading(false);
     if (createdGame.error) {
       notification.error(createdGame.error);
       return;
     }
 
     saveGameState(JSON.stringify(createdGame));
-
     router.push({
       pathname: `/game/[id]`,
       query: { id: createdGame.game.inviteCode },
@@ -206,6 +207,7 @@ const GameCreationForm = () => {
           // onClick={handleSubmit}
           className="btn btn-sm  btn-primary"
         >
+          {loading && <span className="loading loading-spinner"></span>}
           Start Game
         </button>
       </form>

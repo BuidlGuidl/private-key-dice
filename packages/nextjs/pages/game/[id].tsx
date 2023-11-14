@@ -19,6 +19,9 @@ function GamePage() {
   const { id } = router.query;
   const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
 
+  const currentUrl = window.location.href;
+  const rootPath = new URL(currentUrl).origin;
+
   const { loadGameState, updateGameState } = useGameData();
 
   const { address } = useAccount();
@@ -33,6 +36,9 @@ function GamePage() {
   const [token, setToken] = useState("");
   const [isOpen, setIsOpen] = useState(true);
   const [inviteCopied, setInviteCopied] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState("");
+  const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
+
   const congratulatoryMessage = "Congratulations! You won the game!";
   const condolenceMessage = "Sorry Fren! You Lost";
   const [autoRolling, setAutoRolling] = useState(false);
@@ -150,6 +156,7 @@ function GamePage() {
 
     setGame(gameState);
     setToken(token);
+    setInviteUrl(rootPath + "?invite=" + gameState.inviteCode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -265,6 +272,23 @@ function GamePage() {
                         level="H"
                         renderAs="svg"
                       />
+                    </div>
+                    <div className="flex justify-center mt-2 cursor-pointer">
+                      {inviteUrlCopied ? (
+                        <span className="underline">Copied invite Url</span>
+                      ) : (
+                        <CopyToClipboard
+                          text={inviteUrl}
+                          onCopy={() => {
+                            setInviteUrlCopied(true);
+                            setTimeout(() => {
+                              setInviteUrlCopied(false);
+                            }, 800);
+                          }}
+                        >
+                          <span>Copy invite Url</span>
+                        </CopyToClipboard>
+                      )}
                     </div>
                   </div>
                 )}

@@ -17,6 +17,7 @@ const GameJoinForm = ({
   const router = useRouter();
   const labelRef = useRef<HTMLLabelElement | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (value: string) => {
     setInviteCode(value);
@@ -27,6 +28,7 @@ const GameJoinForm = ({
 
   const handleJoinGame = async (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
     const response = await fetch(`${serverUrl}/player/join`, {
       method: "PATCH",
       headers: {
@@ -37,6 +39,7 @@ const GameJoinForm = ({
     });
 
     const updatedGame = await response.json();
+    setLoading(false);
     if (updatedGame.error) {
       notification.error(updatedGame.error);
       return;
@@ -95,6 +98,7 @@ const GameJoinForm = ({
           />
         </label>
         <button className="btn btn-sm btn-primary mt-6" type="submit">
+          {loading && <span className="loading loading-spinner"></span>}
           Join Game
         </button>
       </form>
