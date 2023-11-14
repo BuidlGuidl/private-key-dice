@@ -33,7 +33,7 @@ app.use(cors());
 
 /**Ably Setup */
 
-export const ably = new Ably.Realtime({ key: "6aT3Lw.6ED1lg:VVlpr7VcTHfCwrH82plg2IBPkVzYLj0FQl-4RFls3WY" });
+export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY });
 
 const server = http.createServer(app);
 /* MONGOOSE SETUP */
