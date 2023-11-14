@@ -1,11 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import type { NextPage } from "next";
 import GameCreationForm from "~~/components/GameCreateForm";
 import GameJoinForm from "~~/components/GameJoinForm";
 import { MetaHeader } from "~~/components/MetaHeader";
 
 const Home: NextPage = () => {
-  const [gameState, setGameState] = useState("startGame");
+  const router = useRouter();
+
+  const { invite } = router.query;
+  const [gameState, setGameState] = useState<"createGame" | "joinGame">("joinGame");
+  const [inviteCode, setInviteCode] = useState("");
+
+  useEffect(() => {
+    if (invite) {
+      setGameState("joinGame");
+      setInviteCode(invite as string);
+    }
+  }, [invite]);
+
   return (
     <>
       <MetaHeader />
@@ -31,18 +44,6 @@ const Home: NextPage = () => {
 
           <div className="mx-auto w-4/5">
             <ul className="menu menu-horizontal justify-center w-fit p-2 bg-base-300 rounded-full mb-8">
-              <li onClick={() => setGameState("startGame")}>
-                <a
-                  className={
-                    gameState == "startGame"
-                      ? "bg-accent px-3 rounded-full py-1 cursor-pointer  transition ease-in-out delay-150"
-                      : "px-3 rounded-full py-1 cursor-pointer hover:bg-base-100"
-                  }
-                >
-                  Start Game
-                </a>
-              </li>
-
               <li onClick={() => setGameState("joinGame")}>
                 <a
                   className={
@@ -54,9 +55,20 @@ const Home: NextPage = () => {
                   Join Game
                 </a>
               </li>
+              <li onClick={() => setGameState("createGame")}>
+                <a
+                  className={
+                    gameState == "createGame"
+                      ? "bg-accent px-3 rounded-full py-1 cursor-pointer  transition ease-in-out delay-150"
+                      : "px-3 rounded-full py-1 cursor-pointer hover:bg-base-100"
+                  }
+                >
+                  Start Game
+                </a>
+              </li>
             </ul>
-            {gameState == "startGame" && <GameCreationForm />}
-            {gameState == "joinGame" && <GameJoinForm />}
+            {gameState == "createGame" && <GameCreationForm />}
+            {gameState == "joinGame" && <GameJoinForm inviteCode={inviteCode} setInviteCode={setInviteCode} />}
           </div>
         </div>
       </div>

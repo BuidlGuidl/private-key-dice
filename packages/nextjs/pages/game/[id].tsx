@@ -6,11 +6,13 @@ import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useAccount } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import Condolence from "~~/components/Condolence";
 import Congrats from "~~/components/Congrats";
 import { Address } from "~~/components/scaffold-eth";
 import useGameData from "~~/hooks/useGameData";
 import serverConfig from "~~/server.config";
 import { Game } from "~~/types/game/game";
+import { notification } from "~~/utils/scaffold-eth";
 
 function GamePage() {
   const router = useRouter();
@@ -32,6 +34,8 @@ function GamePage() {
   const [isOpen, setIsOpen] = useState(true);
   const [inviteCopied, setInviteCopied] = useState(false);
   const congratulatoryMessage = "Congratulations! You won the game!";
+  const condolenceMessage = "Sorry Fren! You Lost";
+  const [autoRolling, setAutoRolling] = useState(false);
 
   const [screenwidth, setScreenWidth] = useState(768);
 
@@ -92,7 +96,7 @@ function GamePage() {
   };
 
   const toggleMode = async () => {
-    await fetch(`${serverUrl}/admin/changemode/${game?._id}`, {
+    const response = await fetch(`${serverUrl}/admin/changemode/${game?._id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -100,20 +104,32 @@ function GamePage() {
       },
       body: JSON.stringify({ mode: game?.mode == "manual" ? "auto" : "manual" }),
     });
+
+    const responseData = await response.json();
+    if (responseData.error) {
+      notification.error(responseData.error);
+      return;
+    }
   };
 
   const pauseResumeGame = async () => {
-    await fetch(`${serverUrl}/admin/${game?.status == "ongoing" ? "pause" : "resume"}/${game?._id}`, {
+    const response = await fetch(`${serverUrl}/admin/${game?.status == "ongoing" ? "pause" : "resume"}/${game?._id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
+
+    const responseData = await response.json();
+    if (responseData.error) {
+      notification.error(responseData.error);
+      return;
+    }
   };
 
   const kickPlayer = async (playerAddress: string) => {
-    await fetch(`${serverUrl}/admin/kickplayer/${game?._id}`, {
+    const response = await fetch(`${serverUrl}/admin/kickplayer/${game?._id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -121,6 +137,12 @@ function GamePage() {
       },
       body: JSON.stringify({ playerAddress: playerAddress }),
     });
+
+    const responseData = await response.json();
+    if (responseData.error) {
+      notification.error(responseData.error);
+      return;
+    }
   };
 
   useEffect(() => {
@@ -128,7 +150,6 @@ function GamePage() {
 
     setGame(gameState);
     setToken(token);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -142,6 +163,7 @@ function GamePage() {
     const isHiiddenChars = compareResult();
     if (isHiiddenChars) {
       endGame();
+      setAutoRolling(false);
       setIsOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,12 +200,26 @@ function GamePage() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   while (game?.mode == "auto") {
-  //     rollTheDice();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [game]);
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    const autoRoll = () => {
+      if (autoRolling && game?.mode === "auto") {
+        rollTheDice();
+        timeout = setTimeout(autoRoll, 5000);
+      }
+    };
+
+    if (game?.winner) {
+      return;
+    }
+
+    autoRoll();
+
+    return () => {
+      clearTimeout(timeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRolling, game]);
 
   if (game) {
     return (
@@ -193,7 +229,7 @@ function GamePage() {
             <div className="md:w-1/3 border-r">
               <div className="font-bold py-2 border-b px-4 flex items-center justify-between">
                 <h1 className=" md:text-2xl text-xl upercase tracking-wide ">INFO</h1>
-                <h1>Role: {isAdmin ? "Host" : "Player"}</h1>
+                <h1>Role: {isAdmin ? "Host" : isPlayer ? "Player" : "Kicked"}</h1>
               </div>
               <div className="p-4 ">
                 {isAdmin && (
@@ -246,17 +282,43 @@ function GamePage() {
                       />
                     )}
                   </div>
-                  <div className="flex gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 justify-center">
+                  <div className="flex flex-col gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 items-center">
                     <span> Mode: {game.mode}</span>
                     {isAdmin && (
-                      <input
-                        id="mode-toggle"
-                        type="checkbox"
-                        className="toggle toggle-primary bg-primary tooltip tooltip-bottom tooltip-primary"
-                        data-tip={game?.mode == "manual" ? "auto" : "manual"}
-                        onChange={toggleMode}
-                        checked={game?.mode == "manual"}
-                      />
+                      // <input
+                      //   id="mode-toggle"
+                      //   type="checkbox"
+                      //   className="toggle toggle-primary bg-primary tooltip tooltip-bottom tooltip-primary"
+                      //   data-tip={game?.mode == "manual" ? "auto" : "manual"}
+                      //   onChange={toggleMode}
+                      //   checked={game?.mode == "manual"}
+                      // />
+                      <div className="flex justify-around w-full">
+                        <label className="flex cursor-pointer gap-2">
+                          <span>Auto</span>
+                          <input
+                            type="radio"
+                            name="radio-10"
+                            className="radio checked:bg-blue-500"
+                            checked={game?.mode == "auto"}
+                            onClick={() => {
+                              if (game?.mode == "manual") toggleMode();
+                            }}
+                          />
+                        </label>
+                        <label className="flex cursor-pointer gap-2">
+                          <span>Manual</span>
+                          <input
+                            type="radio"
+                            name="radio-10"
+                            className="radio checked:bg-blue-500"
+                            checked={game?.mode == "manual"}
+                            onClick={() => {
+                              if (game?.mode == "auto") toggleMode();
+                            }}
+                          />
+                        </label>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -306,39 +368,50 @@ function GamePage() {
               <button
                 className="btn btn-primary px-10"
                 onClick={() => {
-                  rollTheDice();
+                  game.mode === "auto" ? setAutoRolling(true) : rollTheDice();
                 }}
-                disabled={isRolling || spinning || game.status == "finished" || game.mode == "auto"}
+                disabled={isRolling || spinning || game.status == "finished" || autoRolling}
               >
-                {spinning && <span className="loading loading-spinner"></span>}
-                Roll
+                {(spinning || autoRolling) && <span className="loading loading-spinner"></span>}
+                {game.mode === "auto" ? " Auto Roll" : "Roll"}
               </button>
-              {rolledResult.length > 0 && !spinning && <p className="">Result: {rolledResult.join(" , ")}</p>}
-              <div className="flex flex-wrap justify-center gap-2 mt-8">
-                {Object.entries(game.hiddenChars).map(([key], index) => (
-                  <div key={key}>
-                    {rolled ? (
-                      isRolling ? (
-                        <video key="rolling" width={length} height={length} loop src="/rolls/Spin.webm" autoPlay />
+              <div>
+                <div className="flex justify-center gap-2 mt-2">
+                  <span>Result:</span>
+                  {rolledResult.length > 0 && !spinning && <span className=""> {rolledResult.join(" , ")}</span>}
+                </div>
+                <div className="flex flex-wrap justify-center gap-2 mt-8">
+                  {Object.entries(game.hiddenChars).map(([key], index) => (
+                    <div key={key}>
+                      {rolled ? (
+                        isRolling ? (
+                          <video key="rolling" width={length} height={length} loop src="/rolls/Spin.webm" autoPlay />
+                        ) : (
+                          <video
+                            key="rolled"
+                            width={length}
+                            height={length}
+                            src={`/rolls/${rolls[index]}.webm`}
+                            autoPlay
+                          />
+                        )
                       ) : (
-                        <video
-                          key="rolled"
-                          width={length}
-                          height={length}
-                          src={`/rolls/${rolls[index]}.webm`}
-                          autoPlay
-                        />
-                      )
-                    ) : (
-                      <video ref={videoRef} key="last" width={length} height={length} src={`/rolls/0.webm`} />
-                    )}
-                  </div>
-                ))}
-              </div>
+                        <video ref={videoRef} key="last" width={length} height={length} src={`/rolls/0.webm`} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>{" "}
+              {game?.winner == address && (
+                <Congrats isOpen={isOpen} setIsOpen={setIsOpen} message={congratulatoryMessage} />
+              )}
+              {game.winner && game?.winner != address && (
+                <Condolence isOpen={isOpen} setIsOpen={setIsOpen} message={condolenceMessage} />
+              )}
             </div>
           )}
+          {!isAdmin && !isPlayer && <p className="text-center text-2xl">Sorry fren, You have been kicked</p>}
         </div>
-        {game?.winner == address && <Congrats isOpen={isOpen} setIsOpen={setIsOpen} message={congratulatoryMessage} />}
       </div>
     );
   } else {

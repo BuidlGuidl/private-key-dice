@@ -4,8 +4,8 @@ import { http } from "viem";
 import { parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { useTransactor } from "~~/hooks/scaffold-eth";
+import useGameData from "~~/hooks/useGameData";
 import scaffoldConfig from "~~/scaffold.config";
-import { loadGameState } from "~~/utils/diceDemo/game";
 
 const Congrats = ({
   isOpen,
@@ -25,15 +25,15 @@ const Congrats = ({
     transport: http(),
   });
 
+  const { loadGameState } = useGameData();
   const transferTx = useTransactor(walletClient);
-  const { game: gameString } = loadGameState();
-  const game = JSON.parse(gameString || "{}");
+  const { game } = loadGameState();
   const privateKey = "0x" + game?.privateKey;
 
   const account = privateKeyToAccount(privateKey as Hex);
 
   return (
-    <div className="border-2 rounded-xl overflow-hidden border-black w-fit text-xs bg-base-200 h-full">
+    <div className=" overflow-hidden w-fit text-xs bg-base-200 h-full">
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-20 md:text-sm text-[0.7rem]">
           <div className="modal-box flex flex-col items-center">

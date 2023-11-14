@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { loadBurnerSK } from "~~/hooks/scaffold-eth";
 import serverConfig from "~~/server.config";
 import { saveGameState } from "~~/utils/diceDemo/game";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface FormData {
   maxPlayers: number;
@@ -96,11 +97,18 @@ const GameCreationForm = () => {
     });
 
     const createdGame = await createGameResponse.json();
+    if (createdGame.error) {
+      notification.error(createdGame.error);
+      return;
+    }
+
     saveGameState(JSON.stringify(createdGame));
+
     router.push({
       pathname: `/game/[id]`,
       query: { id: createdGame.game.inviteCode },
     });
+    notification.success("Created game successfully");
 
     setFormData({
       maxPlayers: 5,
