@@ -19,7 +19,7 @@ function GamePage() {
   const router = useRouter();
   const { id } = router.query;
   const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
-
+  const ablyApiKey = process.env.NEXT_PUBLIC_ABLY_API_KEY;
   const { loadGameState, updateGameState } = useGameData();
 
   const { address } = useAccount();
@@ -162,11 +162,11 @@ function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   if (videoRef.current && !isRolling) {
-  //     videoRef.current.currentTime = 9999;
-  //   }
-  // }, [isRolling]);
+  useEffect(() => {
+    if (videoRef.current && !isRolling) {
+      videoRef.current.currentTime = 9999;
+    }
+  }, [isRolling]);
 
   useEffect(() => {
     const isHiiddenChars = compareResult();
@@ -179,7 +179,8 @@ function GamePage() {
   }, [rolledResult]);
 
   useEffect(() => {
-    const ably = new Ably.Realtime({ key: "6aT3Lw.6ED1lg:VVlpr7VcTHfCwrH82plg2IBPkVzYLj0FQl-4RFls3WY" });
+    if (!ablyApiKey) return;
+    const ably = new Ably.Realtime({ key: ablyApiKey });
     const channel = ably.channels.get(`gameUpdate`);
 
     channel.subscribe(message => {
@@ -194,7 +195,7 @@ function GamePage() {
       ably.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game]);
+  }, [game, ablyApiKey]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
