@@ -9,6 +9,7 @@ import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outl
 import Condolence from "~~/components/Condolence";
 import Congrats from "~~/components/Congrats";
 import { Address } from "~~/components/scaffold-eth";
+import { Price } from "~~/components/scaffold-eth/Price";
 import useGameData from "~~/hooks/useGameData";
 import serverConfig from "~~/server.config";
 import { Game } from "~~/types/game/game";
@@ -161,11 +162,11 @@ function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (videoRef.current && !isRolling) {
-      videoRef.current.currentTime = 9999;
-    }
-  }, [isRolling]);
+  // useEffect(() => {
+  //   if (videoRef.current && !isRolling) {
+  //     videoRef.current.currentTime = 9999;
+  //   }
+  // }, [isRolling]);
 
   useEffect(() => {
     const isHiiddenChars = compareResult();
@@ -340,7 +341,8 @@ function GamePage() {
                   </div>
                 </div>
                 <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 font-bold justify-center">
-                  Prize: {game.prize} ETH
+                  Prize:
+                  <Price value={game.prize} />
                 </div>
                 <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 justify-center">
                   Dice count: {game.diceCount}
