@@ -19,9 +19,6 @@ function GamePage() {
   const { id } = router.query;
   const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
 
-  const currentUrl = window.location.href;
-  const rootPath = new URL(currentUrl).origin;
-
   const { loadGameState, updateGameState } = useGameData();
 
   const { address } = useAccount();
@@ -156,7 +153,12 @@ function GamePage() {
 
     setGame(gameState);
     setToken(token);
-    setInviteUrl(rootPath + "?invite=" + gameState.inviteCode);
+
+    if (typeof window !== "undefined") {
+      const currentUrl = window.location.href;
+      const rootPath = new URL(currentUrl).origin;
+      setInviteUrl(rootPath + "?invite=" + gameState.inviteCode);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
