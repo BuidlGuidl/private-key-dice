@@ -61,7 +61,9 @@ function GamePage() {
 
   const rollTheDice = () => {
     if (game) {
-      // setRolled(false);
+      if (!rolled) {
+        setRolled(true);
+      }
       setIsRolling(true);
       setSpinning(true);
       const rolls: string[] = [];
@@ -70,9 +72,6 @@ function GamePage() {
       }
       setRolls(rolls);
       setIsRolling(false);
-      if (!rolled) {
-        setRolled(true);
-      }
       setTimeout(() => {
         setSpinning(false);
         setRolledResult(rolls);
@@ -311,14 +310,6 @@ function GamePage() {
                   <div className="flex flex-col gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 items-center">
                     <span> Mode: {game.mode}</span>
                     {isAdmin && (
-                      // <input
-                      //   id="mode-toggle"
-                      //   type="checkbox"
-                      //   className="toggle toggle-primary bg-primary tooltip tooltip-bottom tooltip-primary"
-                      //   data-tip={game?.mode == "manual" ? "auto" : "manual"}
-                      //   onChange={toggleMode}
-                      //   checked={game?.mode == "manual"}
-                      // />
                       <div className="flex justify-around w-full">
                         <label className="flex cursor-pointer gap-2">
                           <span>Auto</span>
@@ -411,7 +402,7 @@ function GamePage() {
                     <div key={key}>
                       {rolled ? (
                         isRolling ? (
-                          <video key="rolling" width={length} height={length} loop src="/rolls/Spin.webm" autoPlay />
+                          <video key="rolling" width={length} height={length} src="/rolls/Spin.webm" />
                         ) : (
                           <video
                             key="rolled"
