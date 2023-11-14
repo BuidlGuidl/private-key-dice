@@ -75,7 +75,7 @@ function GamePage() {
       setTimeout(() => {
         setSpinning(false);
         setRolledResult(rolls);
-      }, 3500);
+      }, 5000);
     }
   };
 
@@ -213,7 +213,7 @@ function GamePage() {
     const autoRoll = () => {
       if (autoRolling && game?.mode === "auto") {
         rollTheDice();
-        timeout = setTimeout(autoRoll, 5000);
+        timeout = setTimeout(autoRoll, 5500);
       }
     };
 
@@ -402,7 +402,7 @@ function GamePage() {
                     <div key={key}>
                       {rolled ? (
                         isRolling ? (
-                          <video key="rolling" width={length} height={length} src="/rolls/Spin.webm" />
+                          <video key="rolling" width={length} height={length} loop src="/rolls/Spin.webm" autoPlay />
                         ) : (
                           <video
                             key="rolled"
