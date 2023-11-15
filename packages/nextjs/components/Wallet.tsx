@@ -16,10 +16,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { loadBurnerSK } from "~~/hooks/scaffold-eth";
-import scaffoldConfig from "~~/scaffold.config";
+import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 export default function Wallet() {
   const account = privateKeyToAccount(loadBurnerSK());
+  const configuredNetwork = getTargetNetwork();
 
   const selectedAddress = account?.address;
 
@@ -32,7 +33,7 @@ export default function Wallet() {
   const [punkLinkCopied, setPunkLinkCopied] = useState(false);
 
   const walletClient = createWalletClient({
-    chain: scaffoldConfig.targetNetwork,
+    chain: configuredNetwork,
     transport: http(),
   });
 
@@ -300,7 +301,8 @@ export default function Wallet() {
                       account: account,
                       to: toAddress,
                       value,
-                      chain: scaffoldConfig.targetNetwork,
+                      chain: configuredNetwork,
+                      // gas: BigInt("21000"),
                     });
                     setOpen(!open);
                     setQr("");

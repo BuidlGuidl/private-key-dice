@@ -5,7 +5,7 @@ import { parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import useGameData from "~~/hooks/useGameData";
-import scaffoldConfig from "~~/scaffold.config";
+import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 const Congrats = ({
   isOpen,
@@ -20,8 +20,10 @@ const Congrats = ({
     setIsOpen(false);
   };
 
+  const configuredNetwork = getTargetNetwork();
+
   const walletClient = createWalletClient({
-    chain: scaffoldConfig.targetNetwork,
+    chain: configuredNetwork,
     transport: http(),
   });
 
@@ -53,7 +55,7 @@ const Congrats = ({
                   account: account,
                   to: game.winner,
                   value,
-                  chain: scaffoldConfig.targetNetwork,
+                  chain: configuredNetwork,
                 });
               }}
               className="btn btn-primary"
