@@ -37,6 +37,7 @@ const GameCreationForm = () => {
   const [selectedSlots, setSelectedSlots] = useState<number[]>([]);
   const [privateKey, setPrivateKey] = useState("");
   const [loading, setloading] = useState(false);
+  const disabled = parseFloat(formData.prize) == 0 || formData.prize == "" || selectedSlots.length == 0;
 
   useEffect(() => {
     const pk = loadBurnerSK().toString().substring(2);
@@ -201,12 +202,7 @@ const GameCreationForm = () => {
           <EtherInput value={formData.prize} onChange={handlePrizeChange} />
         </label>
         <br />
-        <button
-          disabled={parseFloat(formData.prize) == 0 || formData.prize == "" || selectedSlots.length == 0}
-          type="submit"
-          // onClick={handleSubmit}
-          className="btn btn-sm  btn-primary"
-        >
+        <button disabled={disabled} type="submit" className="btn btn-sm  btn-primary">
           {loading && <span className="loading loading-spinner"></span>}
           Start Game
         </button>
