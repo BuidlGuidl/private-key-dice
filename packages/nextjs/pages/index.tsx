@@ -27,18 +27,18 @@ const Home: NextPage = () => {
           <div className="mb-10 p-4">
             <div className="p-6  rounded-xl shadow-xl font-semibold">
               <p>
-                Welcome to &ldquo;Crypto Dice Hunt&rdquo; - a crypto treasure hunt where you will race against others,
-                rolling dices, to beat the security of private keys.
+                Welcome to &ldquo;Crypto Dice Hunt&rdquo; - where you will race against others, rolling dices, to beat
+                the security of private keys.
               </p>
               <p>
                 A user starts by creating a game, selecting the characters to be concealed in the private key. Upto 30
-                daring warriors can join the quest.
+                opponents can join the quest.
               </p>
               <p>
                 Your objective as a player? Decode these hidden characters and seize the prize concealed within the
                 wallet before your opponent does.
               </p>
-              Are you ready to roll and race to wealth? Roll the dice, solve the puzzles, and claim the jackpot!!!
+              Are you ready to race to wealth? Roll the dice, hack the private key, and claim the Prize!
             </div>
           </div>
 
