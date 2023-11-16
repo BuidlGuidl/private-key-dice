@@ -424,18 +424,13 @@ function GamePage() {
                   {Object.entries(game.hiddenChars).map(([key], index) => (
                     <div key={key}>
                       {rolled ? (
-                        isUnitRolling[index] ? (
-                          <video key="rolling" width={100} height={100} loop src="/rolls/Spin.webm" autoPlay />
-                        ) : (
-                          <video
-                            key="rolled"
-                            width={100}
-                            height={100}
-                            src={`/rolls/${rolls[index]}.webm`}
-                            autoPlay
-                            onError={e => console.error("Error loading video:", e)}
-                          />
-                        )
+                        <video
+                          key="rolling"
+                          width={100}
+                          height={100}
+                          src={isUnitRolling[index] ? "/rolls/Spin.webm" : `/rolls/${rolls[index]}.webm`}
+                          autoPlay
+                        />
                       ) : (
                         <video ref={videoRef} key="last" width={100} height={100} src={`/rolls/0.webm`} />
                       )}
