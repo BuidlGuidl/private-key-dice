@@ -439,7 +439,7 @@ function GamePage() {
                         <video
                           width={100}
                           height={100}
-                          src={`/rolls/${rolls[index]}.webm`}
+                          src={`/rolls/5.webm`}
                           autoPlay
                           onError={e => console.error("Rolled Error", index, e)}
                         />
