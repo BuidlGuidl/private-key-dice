@@ -44,7 +44,7 @@ function GamePage() {
 
   const [screenwidth, setScreenWidth] = useState(768);
 
-  console.log(rolls);
+  console.log(isUnitRolling);
 
   const calculateLength = () => {
     const maxLength = 200;
@@ -76,25 +76,6 @@ function GamePage() {
         rolls.push(generateRandomHex());
       }
       setRolls(rolls);
-
-      let iterations = 0;
-      for (let i = 0; i < isUnitRolling.length; i++) {
-        setTimeout(() => {
-          setIsUnitRolling(prevState => {
-            const newState = [...prevState];
-            newState[i] = false;
-            return newState;
-          });
-          iterations++;
-          if (iterations === isUnitRolling.length) {
-            setIsRolling(false);
-            setTimeout(() => {
-              setSpinning(false);
-              setRolledResult(rolls);
-            }, 5000);
-          }
-        }, i * 1000);
-      }
     }
   };
 
@@ -166,6 +147,28 @@ function GamePage() {
       return;
     }
   };
+
+  useEffect(() => {
+    let iterations = 0;
+    for (let i = 0; i < isUnitRolling.length; i++) {
+      setTimeout(() => {
+        setIsUnitRolling(prevState => {
+          const newState = [...prevState];
+          newState[i] = false;
+          return newState;
+        });
+        iterations++;
+        if (iterations === isUnitRolling.length) {
+          setIsRolling(false);
+          setTimeout(() => {
+            setSpinning(false);
+            setRolledResult(rolls);
+          }, 5000);
+        }
+      }, i * 1000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rolls]);
 
   useEffect(() => {
     const { token, game: gameState } = loadGameState();
@@ -439,7 +442,7 @@ function GamePage() {
                         <video
                           width={100}
                           height={100}
-                          src={`/rolls/5.webm`}
+                          src={`/rolls/${rolls[index]}.webm`}
                           autoPlay
                           onError={e => console.error("Rolled Error", index, e)}
                         />
