@@ -37,6 +37,7 @@ function GamePage() {
   const [inviteCopied, setInviteCopied] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
   const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
+  const [rolledVideoSources, setRolledVideoSources] = useState<string[]>([]);
 
   const congratulatoryMessage = "Congratulations! You won the game!";
   const condolenceMessage = "Sorry Fren! You Lost";
@@ -72,9 +73,13 @@ function GamePage() {
       }
       setSpinning(true);
       const rolls: string[] = [];
+      const videoSources: string[] = [];
       for (let index = 0; index < game?.diceCount; index++) {
-        rolls.push(generateRandomHex());
+        const hex = generateRandomHex();
+        rolls.push(hex);
+        videoSources.push(`/rolls/${hex}.webm`);
       }
+      setRolledVideoSources(videoSources);
       setRolls(rolls);
     }
   };
@@ -442,7 +447,7 @@ function GamePage() {
                         <video
                           width={100}
                           height={100}
-                          src={`/rolls/${rolls[index]}.webm`}
+                          src={rolledVideoSources[index]}
                           autoPlay
                           onError={e => console.error("Rolled Error", index, e)}
                         />
