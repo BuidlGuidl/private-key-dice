@@ -37,7 +37,6 @@ function GamePage() {
   const [inviteCopied, setInviteCopied] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
   const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
-  const [rolledVideoSources, setRolledVideoSources] = useState<string[]>([]);
 
   const congratulatoryMessage = "Congratulations! You won the game!";
   const condolenceMessage = "Sorry Fren! You Lost";
@@ -73,16 +72,34 @@ function GamePage() {
       }
       setSpinning(true);
       const rolls: string[] = [];
-      const videoSources: string[] = [];
       for (let index = 0; index < game?.diceCount; index++) {
-        const hex = generateRandomHex();
-        rolls.push(hex);
-        videoSources.push(`/rolls/${hex}.webm`);
+        rolls.push(generateRandomHex());
       }
-      setRolledVideoSources(videoSources);
       setRolls(rolls);
     }
   };
+
+  useEffect(() => {
+    let iterations = 0;
+    for (let i = 0; i < isUnitRolling.length; i++) {
+      setTimeout(() => {
+        setIsUnitRolling(prevState => {
+          const newState = [...prevState];
+          newState[i] = false;
+          return newState;
+        });
+        iterations++;
+        if (iterations === isUnitRolling.length) {
+          setIsRolling(false);
+          setTimeout(() => {
+            setSpinning(false);
+            setRolledResult(rolls);
+          }, 5000);
+        }
+      }, i * 1000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rolls]);
 
   const length = calculateLength();
   console.log(length);
@@ -152,28 +169,6 @@ function GamePage() {
       return;
     }
   };
-
-  useEffect(() => {
-    let iterations = 0;
-    for (let i = 0; i < isUnitRolling.length; i++) {
-      setTimeout(() => {
-        setIsUnitRolling(prevState => {
-          const newState = [...prevState];
-          newState[i] = false;
-          return newState;
-        });
-        iterations++;
-        if (iterations === isUnitRolling.length) {
-          setIsRolling(false);
-          setTimeout(() => {
-            setSpinning(false);
-            setRolledResult(rolls);
-          }, 5000);
-        }
-      }, i * 1000);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rolls]);
 
   useEffect(() => {
     const { token, game: gameState } = loadGameState();
@@ -447,7 +442,7 @@ function GamePage() {
                         <video
                           width={100}
                           height={100}
-                          src={rolledVideoSources[index]}
+                          src={`/rolls/${rolls[index]}.webm`}
                           autoPlay
                           onError={e => console.error("Rolled Error", index, e)}
                         />
