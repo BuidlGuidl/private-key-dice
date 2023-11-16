@@ -423,22 +423,40 @@ function GamePage() {
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) => (
                     <div key={key + index}>
-                      <video
-                        width={100}
-                        height={100}
-                        src={
-                          !rolled
-                            ? `/rolls/0.webm`
-                            : isUnitRolling[index]
-                            ? "/rolls/Spin.webm"
-                            : `/rolls/${rolls[index]}.webm`
-                        }
-                        autoPlay
-                        translate="yes"
-                        onError={e => {
-                          console.log(e.nativeEvent);
-                        }}
-                      />
+                      {!rolled && (
+                        <video
+                          width={100}
+                          height={100}
+                          src={`/rolls/0.webm`}
+                          onError={e => {
+                            console.log("static error", e);
+                          }}
+                        />
+                      )}
+                      {rolled && isUnitRolling[index] && (
+                        <video
+                          width={100}
+                          height={100}
+                          src={"/rolls/Spin.webm"}
+                          autoPlay
+                          loop
+                          onError={e => {
+                            console.log("Spin Error", e);
+                          }}
+                        />
+                      )}
+                      {rolled && !isUnitRolling[index] && (
+                        <video
+                          width={100}
+                          height={100}
+                          src={`/rolls/${rolls[index]}.webm`}
+                          autoPlay
+                          translate="yes"
+                          onError={e => {
+                            console.log("Rolled Error", e);
+                          }}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
