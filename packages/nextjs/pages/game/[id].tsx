@@ -435,6 +435,9 @@ function GamePage() {
                         }
                         autoPlay
                         translate="yes"
+                        onError={e => {
+                          console.log(e.nativeEvent);
+                        }}
                       />
                     </div>
                   ))}
