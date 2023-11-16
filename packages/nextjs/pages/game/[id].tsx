@@ -76,30 +76,27 @@ function GamePage() {
         rolls.push(generateRandomHex());
       }
       setRolls(rolls);
+
+      let iterations = 0;
+      for (let i = 0; i < isUnitRolling.length; i++) {
+        setTimeout(() => {
+          setIsUnitRolling(prevState => {
+            const newState = [...prevState];
+            newState[i] = false;
+            return newState;
+          });
+          iterations++;
+          if (iterations === isUnitRolling.length) {
+            setIsRolling(false);
+            setTimeout(() => {
+              setSpinning(false);
+              setRolledResult(rolls);
+            }, 5000);
+          }
+        }, i * 1000);
+      }
     }
   };
-
-  useEffect(() => {
-    let iterations = 0;
-    for (let i = 0; i < isUnitRolling.length; i++) {
-      setTimeout(() => {
-        setIsUnitRolling(prevState => {
-          const newState = [...prevState];
-          newState[i] = false;
-          return newState;
-        });
-        iterations++;
-        if (iterations === isUnitRolling.length) {
-          setIsRolling(false);
-          setTimeout(() => {
-            setSpinning(false);
-            setRolledResult(rolls);
-          }, 5000);
-        }
-      }, i * 1000);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rolls]);
 
   const length = calculateLength();
   console.log(length);
