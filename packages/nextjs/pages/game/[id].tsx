@@ -44,7 +44,7 @@ function GamePage() {
 
   const [screenwidth, setScreenWidth] = useState(768);
 
-  console.log(isUnitRolling);
+  console.log(rolls);
 
   const calculateLength = () => {
     const maxLength = 200;
