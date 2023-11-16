@@ -422,17 +422,20 @@ function GamePage() {
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) => (
-                    <div key={key}>
-                      {rolled ? (
-                        <video
-                          width={100}
-                          height={100}
-                          src={isUnitRolling[index] ? "/rolls/Spin.webm" : `/rolls/${rolls[index]}.webm`}
-                          autoPlay
-                        />
-                      ) : (
-                        <video ref={videoRef} width={100} height={100} src={`/rolls/0.webm`} />
-                      )}
+                    <div key={key + index}>
+                      <video
+                        width={100}
+                        height={100}
+                        src={
+                          !rolled
+                            ? `/rolls/0.webm`
+                            : isUnitRolling[index]
+                            ? "/rolls/Spin.webm"
+                            : `/rolls/${rolls[index]}.webm`
+                        }
+                        autoPlay
+                        translate="yes"
+                      />
                     </div>
                   ))}
                 </div>
