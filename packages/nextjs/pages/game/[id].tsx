@@ -423,39 +423,27 @@ function GamePage() {
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) => (
                     <div key={key + index}>
-                      {!rolled && (
-                        <video
-                          width={100}
-                          height={100}
-                          src={`/rolls/0.webm`}
-                          onError={e => {
-                            console.log("static error", e);
-                          }}
-                        />
-                      )}
-                      {rolled && isUnitRolling[index] && (
-                        <video
-                          width={100}
-                          height={100}
-                          src={"/rolls/Spin.webm"}
-                          autoPlay
-                          loop
-                          onError={e => {
-                            console.log("Spin Error", e);
-                          }}
-                        />
-                      )}
-                      {rolled && !isUnitRolling[index] && (
-                        <video
-                          width={100}
-                          height={100}
-                          src={`/rolls/${rolls[index]}.webm`}
-                          autoPlay
-                          translate="yes"
-                          onError={e => {
-                            console.log("Rolled Error", e);
-                          }}
-                        />
+                      {rolled ? (
+                        isUnitRolling[index] ? (
+                          <video
+                            width={100}
+                            height={100}
+                            loop
+                            src="/rolls/Spin.webm"
+                            autoPlay
+                            onError={e => console.error("Spin Error", index, e)}
+                          />
+                        ) : (
+                          <video
+                            width={100}
+                            height={100}
+                            src={`/rolls/${rolls[index]}.webm`}
+                            autoPlay
+                            onError={e => console.error("Rolled Error", index, e)}
+                          />
+                        )
+                      ) : (
+                        <video ref={videoRef} width={100} height={100} src={`/rolls/0.webm`} />
                       )}
                     </div>
                   ))}
