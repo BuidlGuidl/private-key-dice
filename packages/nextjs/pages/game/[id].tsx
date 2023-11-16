@@ -26,6 +26,7 @@ function GamePage() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isRolling, setIsRolling] = useState(false);
+  const [isUnitRolling, setIsUnitRolling] = useState<boolean[]>([false]);
   const [rolled, setRolled] = useState(false);
   const [rolledResult, setRolledResult] = useState<string[]>([]);
   const [rolls, setRolls] = useState<string[]>([]);
@@ -42,6 +43,8 @@ function GamePage() {
   const [autoRolling, setAutoRolling] = useState(false);
 
   const [screenwidth, setScreenWidth] = useState(768);
+
+  console.log(isUnitRolling);
 
   const calculateLength = () => {
     const maxLength = 200;
@@ -62,25 +65,41 @@ function GamePage() {
 
   const rollTheDice = () => {
     if (game) {
+      setIsRolling(true);
+      setIsUnitRolling(Array.from({ length: isUnitRolling.length }, () => true));
       if (!rolled) {
         setRolled(true);
       }
-      setIsRolling(true);
       setSpinning(true);
       const rolls: string[] = [];
       for (let index = 0; index < game?.diceCount; index++) {
         rolls.push(generateRandomHex());
       }
       setRolls(rolls);
-      setIsRolling(false);
-      setTimeout(() => {
-        setSpinning(false);
-        setRolledResult(rolls);
-      }, 5000);
+
+      let iterations = 0;
+      for (let i = 0; i < isUnitRolling.length; i++) {
+        setTimeout(() => {
+          setIsUnitRolling(prevState => {
+            const newState = [...prevState];
+            newState[i] = false;
+            return newState;
+          });
+          iterations++;
+          if (iterations === isUnitRolling.length) {
+            setIsRolling(false);
+            setTimeout(() => {
+              setSpinning(false);
+              setRolledResult(rolls);
+            }, 5000);
+          }
+        }, i * 1000);
+      }
     }
   };
 
   const length = calculateLength();
+  console.log(length);
 
   const compareResult = () => {
     if (rolled && rolledResult.length > 0 && game?.hiddenChars)
@@ -153,6 +172,7 @@ function GamePage() {
 
     setGame(gameState);
     setToken(token);
+    setIsUnitRolling(Array.from({ length: gameState.diceCount }, () => false));
 
     if (typeof window !== "undefined") {
       const currentUrl = window.location.href;
@@ -404,19 +424,20 @@ function GamePage() {
                   {Object.entries(game.hiddenChars).map(([key], index) => (
                     <div key={key}>
                       {rolled ? (
-                        isRolling ? (
-                          <video key="rolling" width={length} height={length} loop src="/rolls/Spin.webm" autoPlay />
+                        isUnitRolling[index] ? (
+                          <video key="rolling" width={100} height={100} loop src="/rolls/Spin.webm" autoPlay />
                         ) : (
                           <video
                             key="rolled"
-                            width={length}
-                            height={length}
+                            width={100}
+                            height={100}
                             src={`/rolls/${rolls[index]}.webm`}
                             autoPlay
+                            onError={e => console.error("Error loading video:", e)}
                           />
                         )
                       ) : (
-                        <video ref={videoRef} key="last" width={length} height={length} src={`/rolls/0.webm`} />
+                        <video ref={videoRef} key="last" width={100} height={100} src={`/rolls/0.webm`} />
                       )}
                     </div>
                   ))}
