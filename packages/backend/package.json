@@ -2,7 +2,7 @@
   "name": "@se-2/backend",
   "version": "0.0.1",
   "scripts": {
-    "backend": "nodemon index.ts"
+    "backend": "ts-node index.ts"
   },
   "dependencies": {
     "ably": "^1.2.45",

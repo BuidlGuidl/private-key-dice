@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
 import adminRoutes from "./routes/admin";
@@ -10,6 +10,7 @@ import playerRoutes from "./routes/player";
 import gameRoutes from "./routes/game";
 import http from "http";
 import Ably from "ably";
+import path = require("path");
 
 declare global {
   namespace Express {
@@ -19,9 +20,11 @@ declare global {
   }
 }
 
+export const envPath = path.resolve(__dirname, "./.env");
+dotenv.config({ path: envPath });
+
 /* CONFIGURATIONS */
 
-dotenv.config();
 export const app = express();
 app.use(express.json());
 app.use(helmet());
