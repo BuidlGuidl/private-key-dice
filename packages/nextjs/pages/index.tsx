@@ -1,68 +1,74 @@
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import type { NextPage } from "next";
-import { BugAntIcon, MagnifyingGlassIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import GameCreationForm from "~~/components/GameCreateForm";
+import GameJoinForm from "~~/components/GameJoinForm";
 import { MetaHeader } from "~~/components/MetaHeader";
 
 const Home: NextPage = () => {
+  const router = useRouter();
+
+  const { invite } = router.query;
+  const [gameState, setGameState] = useState<"createGame" | "joinGame">("joinGame");
+  const [inviteCode, setInviteCode] = useState("");
+
+  useEffect(() => {
+    if (invite) {
+      setGameState("joinGame");
+      setInviteCode(invite as string);
+    }
+  }, [invite]);
+
   return (
     <>
       <MetaHeader />
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center mb-8">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/pages/index.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
-        </div>
+      <div className="flex flex-col gap-4 xs:w-4/5 xl:w-[50%] w-full mx-auto sm:text-base text-sm">
+        <div className="md:grid md:grid-cols-2 md:gap-2 mt-5">
+          <div className="mb-10 p-4">
+            <div className="p-6  rounded-xl shadow-xl font-semibold">
+              <p>
+                Welcome to &ldquo;Crypto Dice Hunt&rdquo; - where you will race against others, rolling dices, to beat
+                the security of private keys.
+              </p>
+              <p>
+                A user starts by creating a game, selecting the characters to be concealed in the private key. Upto 30
+                opponents can join the quest.
+              </p>
+              <p>
+                Your objective as a player? Decode these hidden characters and seize the prize concealed within the
+                wallet before your opponent does.
+              </p>
+              Are you ready to race to wealth? Roll the dice, hack the private key, and claim the Prize!
+            </div>
+          </div>
 
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contract
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <SparklesIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Experiment with{" "}
-                <Link href="/example-ui" passHref className="link">
-                  Example UI
-                </Link>{" "}
-                to build your own UI.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
+          <div className="mx-auto w-4/5">
+            <ul className="menu menu-horizontal justify-center w-fit p-2 bg-base-300 rounded-full mb-8">
+              <li onClick={() => setGameState("joinGame")}>
+                <a
+                  className={
+                    gameState == "joinGame"
+                      ? "bg-accent px-3 rounded-full py-1 cursor-pointer "
+                      : "px-3 rounded-full py-1 cursor-pointer hover:bg-base-100"
+                  }
+                >
+                  Join Game
+                </a>
+              </li>
+              <li onClick={() => setGameState("createGame")}>
+                <a
+                  className={
+                    gameState == "createGame"
+                      ? "bg-accent px-3 rounded-full py-1 cursor-pointer  transition ease-in-out delay-150"
+                      : "px-3 rounded-full py-1 cursor-pointer hover:bg-base-100"
+                  }
+                >
+                  Start Game
+                </a>
+              </li>
+            </ul>
+            {gameState == "createGame" && <GameCreationForm />}
+            {gameState == "joinGame" && <GameJoinForm inviteCode={inviteCode} setInviteCode={setInviteCode} />}
           </div>
         </div>
       </div>
