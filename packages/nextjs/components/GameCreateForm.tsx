@@ -12,9 +12,7 @@ interface FormData {
   diceCount: number;
   mode: "auto" | "manual";
   privateKey: string;
-  hiddenChars: {
-    number?: string;
-  };
+  hiddenChars: { [key: number]: string };
   prize: string;
   adminAddress: string | undefined;
 }
@@ -25,6 +23,7 @@ const GameCreationForm = () => {
 
   const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
   const initialPrivateKey = loadBurnerSK().toString().substring(2);
+  const firstCharacterHidden = initialPrivateKey.charAt(0) ? "*" : "";
 
 
   const [formData, setFormData] = useState<FormData>({
@@ -32,7 +31,7 @@ const GameCreationForm = () => {
     diceCount: 1,
     mode: "manual",
     privateKey: loadBurnerSK().toString().substring(2),
-    hiddenChars: { number: initialPrivateKey.charAt(0) },
+    hiddenChars: { 0: firstCharacterHidden },
     prize: "",
     adminAddress,
   });
@@ -64,7 +63,7 @@ const GameCreationForm = () => {
   useEffect(() => {
 
     const hiddenCount = sliderValue;
-    const hiddenChars = {};
+    const hiddenChars: Record<number, string> = {}
     for (let i = 0; i < hiddenCount; i++) {
       hiddenChars[i] = privateKey[i] ? "*" : ""; 
     }
@@ -186,17 +185,15 @@ const GameCreationForm = () => {
     const newSelectedSlots = Array.from({ length: value }, (_, i) => i);
     setSelectedSlots(newSelectedSlots);
 
-
-    const newHiddenChars = {};
+    const newHiddenChars: { [key: number]: string } = {};
     for (let i = 0; i < value; i++) {
-        newHiddenChars[i] = privateKey[i] ? "*" : ""; 
+      newHiddenChars[i] = privateKey[i] ? "*" : "";
     }
 
-
     setFormData(prevFormData => ({
-        ...prevFormData,
-        diceCount: value,
-        hiddenChars: newHiddenChars,
+      ...prevFormData,
+      diceCount: value,
+      hiddenChars: newHiddenChars,
     }));
 };
 

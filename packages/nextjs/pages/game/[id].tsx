@@ -421,33 +421,36 @@ function GamePage() {
                   {rolledResult.length > 0 && !spinning && <span className=""> {rolledResult.join(" , ")}</span>}
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
-                  {Object.entries(game.hiddenChars).map(([key], index) =>
-                    rolled ? (
-                      isUnitRolling[index] ? (
-                        <video
-                          width={100}
-                          height={100}
-                          loop
-                          src="/rolls/Spin.webm"
-                          autoPlay
-                          onError={e => {
-                            console.log(key);
-                            console.error("Spin Error", index, e);
-                          }}
-                        />
-                      ) : (
-                        <video
-                          width={100}
-                          height={100}
-                          src={`/rolls/${rolls[index]}.webm`}
-                          autoPlay
-                          onError={e => console.error("Rolled Error", index, e)}
-                        />
-                      )
-                    ) : (
-                      <video ref={videoRef} width={100} height={100} src={`/rolls/0.webm`} />
-                    ),
-                  )}
+                {Object.entries(game.hiddenChars).map(([key], index) =>
+  rolled ? (
+    isUnitRolling[index] ? (
+      <video
+        key={key} // Add this line
+        width={100}
+        height={100}
+        loop
+        src="/rolls/Spin.webm"
+        autoPlay
+        onError={e => {
+          console.log(key);
+          console.error("Spin Error", index, e);
+        }}
+      />
+    ) : (
+      <video
+        key={key} // Add this line
+        width={100}
+        height={100}
+        src={`/rolls/${rolls[index]}.webm`}
+        autoPlay
+        onError={e => console.error("Rolled Error", index, e)}
+      />
+    )
+  ) : (
+    <video ref={videoRef} key={index} width={100} height={100} src={`/rolls/0.webm`} /> // Change here: key={index} because `key` is not defined in this context
+  ),
+)}
+
                 </div>
               </div>{" "}
               {game?.winner == address && (
