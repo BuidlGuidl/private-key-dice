@@ -3,10 +3,10 @@ import Invites from "../models/Invites";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../backend.config";
 import { ably } from "..";
 
 async function generateUniqueInvite(length: number) {
+  const JWT_SECRET = process.env.JWT_SECRET || "superhardstring";
   let invites = await Invites.findOne();
 
   if (!invites) {
