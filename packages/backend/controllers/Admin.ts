@@ -3,8 +3,9 @@ import Invites from "../models/Invites";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../backend.config";
 import { ably } from "..";
+
+const JWT_SECRET = process.env.JWT_SECRET || "superhardstring";
 
 async function generateUniqueInvite(length: number) {
   let invites = await Invites.findOne();

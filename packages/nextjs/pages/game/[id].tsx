@@ -507,8 +507,9 @@ function GamePage() {
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) =>
                     rolled ? (
-                      isUnitRolling[index] || (game.mode == "brute" && isRolling) ? (
+                      isUnitRolling[index] ? (
                         <video
+                          key={key}
                           width={100}
                           height={100}
                           loop
@@ -521,6 +522,7 @@ function GamePage() {
                         />
                       ) : (
                         <video
+                          key={key}
                           width={100}
                           height={100}
                           src={`/rolls/${rolls[index]}.webm`}
@@ -529,7 +531,7 @@ function GamePage() {
                         />
                       )
                     ) : (
-                      <video ref={videoRef} width={100} height={100} src={`/rolls/0.webm`} />
+                      <video ref={videoRef} key={index} width={100} height={100} src={`/rolls/0.webm`} />
                     ),
                   )}
                 </div>
