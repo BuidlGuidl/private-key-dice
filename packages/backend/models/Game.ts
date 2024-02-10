@@ -15,12 +15,6 @@ const gameSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    maxPlayers: {
-      type: Number,
-      required: true,
-      min: 5,
-      max: 30,
-    },
     diceCount: {
       type: Number,
       required: true,
@@ -29,19 +23,19 @@ const gameSchema = new mongoose.Schema(
     },
     mode: {
       type: String,
-      enum: ["auto", "manual"],
+      enum: ["auto", "manual", "brute"],
       required: true,
     },
     privateKey: {
       type: String,
       required: true,
     },
+    hiddenPrivateKey: {
+      type: String,
+      required: false,
+    },
     hiddenChars: {
       type: Object,
-      required: true,
-    },
-    prize: {
-      type: Number,
       required: true,
     },
     players: {
@@ -49,7 +43,6 @@ const gameSchema = new mongoose.Schema(
       default: [],
       validate: {
         validator: function (value: [string]) {
-          // Check if the array only contains unique strings
           const uniqueStrings: string[] = [];
           value.forEach(item => {
             if (!uniqueStrings.includes(item)) {
@@ -58,7 +51,7 @@ const gameSchema = new mongoose.Schema(
           });
           return uniqueStrings.length === value.length;
         },
-        message: "The players array must contain unique strings.",
+        message: "The players array must contain unique addresses.",
       },
     },
     winner: {

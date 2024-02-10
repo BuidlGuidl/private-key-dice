@@ -5,9 +5,11 @@ import Ably from "ably";
 import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useAccount } from "wagmi";
+import { useBalance } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import Condolence from "~~/components/Condolence";
 import Congrats from "~~/components/Congrats";
+import RestartWithNewPk from "~~/components/RestartWithNewPk";
 import { Address } from "~~/components/scaffold-eth";
 import { Price } from "~~/components/scaffold-eth/Price";
 import useGameData from "~~/hooks/useGameData";
@@ -34,17 +36,19 @@ function GamePage() {
   const [game, setGame] = useState<Game>();
   const [token, setToken] = useState("");
   const [isOpen, setIsOpen] = useState(true);
+  const [restartOpen, setRestartOpen] = useState(true);
   const [inviteCopied, setInviteCopied] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
   const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
+  const prize = useBalance({ address: game?.adminAddress });
 
   const congratulatoryMessage = "Congratulations! You won the game!";
   const condolenceMessage = "Sorry Fren! You Lost";
+
   const [autoRolling, setAutoRolling] = useState(false);
+  const [bruteRolling, setBruteRolling] = useState(false);
 
   const [screenwidth, setScreenWidth] = useState(768);
-
-  console.log(isUnitRolling);
 
   const calculateLength = () => {
     const maxLength = 200;
@@ -58,7 +62,7 @@ function GamePage() {
   const isPlayer = game?.players?.includes(address as string);
 
   const generateRandomHex = () => {
-    const hexDigits = "0123456789abcdef";
+    const hexDigits = "0123456789ABCDEF";
     const randomIndex = Math.floor(Math.random() * hexDigits.length);
     return hexDigits[randomIndex];
   };
@@ -98,12 +102,31 @@ function GamePage() {
     }
   };
 
+  const bruteRoll = () => {
+    if (game) {
+      setIsRolling(true);
+      if (!rolled) {
+        setRolled(true);
+      }
+      setSpinning(true);
+      const rolls: string[] = [];
+      for (let index = 0; index < game?.diceCount; index++) {
+        rolls.push(generateRandomHex());
+      }
+      setRolls(rolls);
+      setSpinning(false);
+      setRolledResult(rolls);
+    }
+  };
+
   const length = calculateLength();
   console.log(length);
 
   const compareResult = () => {
     if (rolled && rolledResult.length > 0 && game?.hiddenChars)
-      return rolledResult.every((value, index) => value === Object.values(game?.hiddenChars)[index]);
+      return rolledResult.every(
+        (value, index) => value.toLowerCase() === Object.values(game?.hiddenChars)[index].toLowerCase(),
+      );
   };
 
   const endGame = async () => {
@@ -117,14 +140,14 @@ function GamePage() {
     });
   };
 
-  const toggleMode = async () => {
+  const toggleMode = async (mode: string) => {
     const response = await fetch(`${serverUrl}/admin/changemode/${game?._id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ mode: game?.mode == "manual" ? "auto" : "manual" }),
+      body: JSON.stringify({ mode: mode }),
     });
 
     const responseData = await response.json();
@@ -193,6 +216,7 @@ function GamePage() {
     if (isHiiddenChars) {
       endGame();
       setAutoRolling(false);
+      setBruteRolling(false);
       setIsOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -250,6 +274,33 @@ function GamePage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRolling, game]);
+
+  useEffect(() => {
+    if (game?.winner) {
+      setIsRolling(false);
+      return;
+    }
+
+    if (bruteRolling && game?.mode === "brute") {
+      const intervalId = setInterval(() => {
+        bruteRoll();
+      }, 500);
+
+      return () => clearInterval(intervalId);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bruteRolling, game]);
+
+  useEffect(() => {
+    if (game?.status == "paused") {
+      setAutoRolling(false);
+      setBruteRolling(false);
+      setIsRolling(false);
+      setSpinning(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game]);
 
   if (game) {
     return (
@@ -332,7 +383,7 @@ function GamePage() {
                   <div className="flex flex-col gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 items-center">
                     <span> Mode: {game.mode}</span>
                     {isAdmin && (
-                      <div className="flex justify-around w-full">
+                      <div className="flex justify-around w-full flex-wrap gap-1">
                         <label className="flex cursor-pointer gap-2">
                           <span>Auto</span>
                           <input
@@ -341,7 +392,7 @@ function GamePage() {
                             className="radio checked:bg-blue-500"
                             checked={game?.mode == "auto"}
                             onClick={() => {
-                              if (game?.mode == "manual") toggleMode();
+                              if (game?.mode != "auto") toggleMode("auto");
                             }}
                           />
                         </label>
@@ -353,7 +404,19 @@ function GamePage() {
                             className="radio checked:bg-blue-500"
                             checked={game?.mode == "manual"}
                             onClick={() => {
-                              if (game?.mode == "auto") toggleMode();
+                              if (game?.mode != "manual") toggleMode("manual");
+                            }}
+                          />
+                        </label>
+                        <label className="flex cursor-pointer gap-2">
+                          <span>Brute</span>
+                          <input
+                            type="radio"
+                            name="radio-10"
+                            className="radio checked:bg-blue-500"
+                            checked={game?.mode == "brute"}
+                            onClick={() => {
+                              if (game?.mode != "brute") toggleMode("brute");
                             }}
                           />
                         </label>
@@ -362,8 +425,8 @@ function GamePage() {
                   </div>
                 </div>
                 <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 font-bold justify-center">
-                  Prize:
-                  <Price value={game.prize} />
+                  Pk Balance:
+                  <Price value={Number(prize.data?.formatted)} />
                 </div>
                 <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 justify-center">
                   Dice count: {game.diceCount}
@@ -372,6 +435,16 @@ function GamePage() {
                   <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 justify-center">
                     Winner <Address address={game.winner} />
                   </div>
+                )}
+                {isAdmin && game.winner && (
+                  <button
+                    className="btn btn-primary mt-2 w-full"
+                    onClick={() => {
+                      setRestartOpen(true);
+                    }}
+                  >
+                    Restart with New PK
+                  </button>
                 )}
               </div>
             </div>
@@ -408,12 +481,23 @@ function GamePage() {
               <button
                 className="btn btn-primary px-10"
                 onClick={() => {
-                  game.mode === "auto" ? setAutoRolling(true) : rollTheDice();
+                  game.mode === "auto"
+                    ? setAutoRolling(true)
+                    : game.mode === "brute"
+                    ? setBruteRolling(true)
+                    : rollTheDice();
                 }}
-                disabled={isRolling || spinning || game.status == "finished" || autoRolling}
+                disabled={
+                  isRolling ||
+                  spinning ||
+                  game.status == "finished" ||
+                  game.status == "paused" ||
+                  autoRolling ||
+                  bruteRolling
+                }
               >
                 {(spinning || autoRolling) && <span className="loading loading-spinner"></span>}
-                {game.mode === "auto" ? " Auto Roll" : "Roll"}
+                {game.mode === "auto" ? " Auto Roll" : game.mode === "brute" ? "Brute Roll" : "Roll"}
               </button>
               <div>
                 <div className="flex justify-center gap-2 mt-2">
@@ -423,7 +507,7 @@ function GamePage() {
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) =>
                     rolled ? (
-                      isUnitRolling[index] ? (
+                      isUnitRolling[index] || (game.mode == "brute" && isRolling) ? (
                         <video
                           width={100}
                           height={100}
@@ -458,6 +542,7 @@ function GamePage() {
               )}
             </div>
           )}
+          {game.winner && isAdmin && <RestartWithNewPk isOpen={restartOpen} setIsOpen={setRestartOpen} />}
           {!isAdmin && !isPlayer && <p className="text-center text-2xl">Sorry fren, You have been kicked</p>}
         </div>
       </div>
