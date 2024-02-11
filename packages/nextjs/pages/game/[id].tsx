@@ -227,8 +227,6 @@ function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game]);
 
-  console.log(game);
-
   if (game) {
     return (
       <div>
