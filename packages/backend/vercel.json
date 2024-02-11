@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "name": "dicedemo-backend",
+    "name": "dice-demonstration-backend",
     "builds": [
       { "src": "index.ts", "use": "@vercel/node" }
     ],
