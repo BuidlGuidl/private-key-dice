@@ -85,8 +85,10 @@ export const restartWithNewPk = async (req: Request, res: Response) => {
     game.mode = "manual";
     game.adminAddress = adminAddress;
     game.winner = undefined;
+    game.status = "ongoing";
 
     const updatedGame = await game.save();
+    console.log(updatedGame);
 
     const channel = ably.channels.get(`gameUpdate`);
     channel.publish(`gameUpdate`, updatedGame);

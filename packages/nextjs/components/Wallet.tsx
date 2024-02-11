@@ -88,15 +88,14 @@ export default function Wallet() {
       extraPkDisplayAdded[wallet.address] = true;
       extraPkDisplay.push(
         <div className="my-2">
-          <a href={"/pk#" + pk}>
+          <span>
             <Address address={wallet.address} />
-          </a>
+          </span>
         </div>,
       );
       for (const key in localStorage) {
         if (key.indexOf("scaffoldEth2.burnerWallet.sk_backup") >= 0) {
           const pastpk = localStorage.getItem(key);
-          console.log(key);
           const pastwallet = privateKeyToAccount(pastpk as Hex);
           if (!extraPkDisplayAdded[pastwallet.address] /* && selectedAddress!=pastwallet.address */) {
             extraPkDisplayAdded[pastwallet.address] = true;

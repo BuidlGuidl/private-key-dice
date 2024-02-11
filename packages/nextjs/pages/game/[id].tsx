@@ -1,32 +1,28 @@
-// pages/game/[id].js
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Ably from "ably";
 import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
-import { useAccount } from "wagmi";
-import { useBalance } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import Condolence from "~~/components/Condolence";
-import Congrats from "~~/components/Congrats";
-import RestartWithNewPk from "~~/components/RestartWithNewPk";
+import Condolence from "~~/components/dicedemo/Condolence";
+import Congrats from "~~/components/dicedemo/Congrats";
+import RestartWithNewPk from "~~/components/dicedemo/RestartWithNewPk";
 import { Address } from "~~/components/scaffold-eth";
 import { Price } from "~~/components/scaffold-eth/Price";
 import useGameData from "~~/hooks/useGameData";
-import serverConfig from "~~/server.config";
 import { Game } from "~~/types/game/game";
-import { notification } from "~~/utils/scaffold-eth";
+import { endGame, kickPlayer, pauseResumeGame, toggleMode } from "~~/utils/diceDemo/apiUtils";
 
 function GamePage() {
   const router = useRouter();
   const { id } = router.query;
-  const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
   const ablyApiKey = process.env.NEXT_PUBLIC_ABLY_API_KEY;
   const { loadGameState, updateGameState } = useGameData();
 
   const { address } = useAccount();
-
   const videoRef = useRef<HTMLVideoElement>(null);
+
   const [isRolling, setIsRolling] = useState(false);
   const [isUnitRolling, setIsUnitRolling] = useState<boolean[]>([false]);
   const [rolled, setRolled] = useState(false);
@@ -36,36 +32,33 @@ function GamePage() {
   const [game, setGame] = useState<Game>();
   const [token, setToken] = useState("");
   const [isOpen, setIsOpen] = useState(true);
-  const [restartOpen, setRestartOpen] = useState(true);
+  const [restartOpen, setRestartOpen] = useState(false);
   const [inviteCopied, setInviteCopied] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
   const [inviteUrlCopied, setInviteUrlCopied] = useState(false);
-  const prize = useBalance({ address: game?.adminAddress });
+  const [autoRolling, setAutoRolling] = useState(false);
+  const [bruteRolling, setBruteRolling] = useState(false);
+  const [screenwidth, setScreenWidth] = useState(768);
 
+  const prize = useBalance({ address: game?.adminAddress });
   const congratulatoryMessage = "Congratulations! You won the game!";
   const condolenceMessage = "Sorry Fren! You Lost";
 
-  const [autoRolling, setAutoRolling] = useState(false);
-  const [bruteRolling, setBruteRolling] = useState(false);
-
-  const [screenwidth, setScreenWidth] = useState(768);
-
-  const calculateLength = () => {
-    const maxLength = 200;
-    const diceCount = game?.diceCount ?? 0;
-    const calculatedLength = Math.max(maxLength - (diceCount - 1) * 3.8, 10);
-
-    return calculatedLength;
-  };
-
-  const isAdmin = address == game?.adminAddress;
-  const isPlayer = game?.players?.includes(address as string);
+  // const calculateLength = () => {
+  //   const maxLength = 200;
+  //   const diceCount = game?.diceCount ?? 0;
+  //   const calculatedLength = Math.max(maxLength - (diceCount - 1) * 3.8, 10);
+  //   return calculatedLength;
+  // };
 
   const generateRandomHex = () => {
     const hexDigits = "0123456789ABCDEF";
     const randomIndex = Math.floor(Math.random() * hexDigits.length);
     return hexDigits[randomIndex];
   };
+
+  const isAdmin = address == game?.adminAddress;
+  const isPlayer = game?.players?.includes(address as string);
 
   const rollTheDice = () => {
     if (game) {
@@ -80,7 +73,6 @@ function GamePage() {
         rolls.push(generateRandomHex());
       }
       setRolls(rolls);
-
       let iterations = 0;
       for (let i = 0; i < isUnitRolling.length; i++) {
         setTimeout(() => {
@@ -119,75 +111,11 @@ function GamePage() {
     }
   };
 
-  const length = calculateLength();
-  console.log(length);
-
   const compareResult = () => {
     if (rolled && rolledResult.length > 0 && game?.hiddenChars)
       return rolledResult.every(
         (value, index) => value.toLowerCase() === Object.values(game?.hiddenChars)[index].toLowerCase(),
       );
-  };
-
-  const endGame = async () => {
-    await fetch(`${serverUrl}/game/${game?._id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ winner: address }),
-    });
-  };
-
-  const toggleMode = async (mode: string) => {
-    const response = await fetch(`${serverUrl}/admin/changemode/${game?._id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ mode: mode }),
-    });
-
-    const responseData = await response.json();
-    if (responseData.error) {
-      notification.error(responseData.error);
-      return;
-    }
-  };
-
-  const pauseResumeGame = async () => {
-    const response = await fetch(`${serverUrl}/admin/${game?.status == "ongoing" ? "pause" : "resume"}/${game?._id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const responseData = await response.json();
-    if (responseData.error) {
-      notification.error(responseData.error);
-      return;
-    }
-  };
-
-  const kickPlayer = async (playerAddress: string) => {
-    const response = await fetch(`${serverUrl}/admin/kickplayer/${game?._id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ playerAddress: playerAddress }),
-    });
-
-    const responseData = await response.json();
-    if (responseData.error) {
-      notification.error(responseData.error);
-      return;
-    }
   };
 
   useEffect(() => {
@@ -214,7 +142,7 @@ function GamePage() {
   useEffect(() => {
     const isHiiddenChars = compareResult();
     if (isHiiddenChars) {
-      endGame();
+      endGame(game as Game, token, address as string);
       setAutoRolling(false);
       setBruteRolling(false);
       setIsOpen(true);
@@ -262,13 +190,10 @@ function GamePage() {
         timeout = setTimeout(autoRoll, 5500);
       }
     };
-
     if (game?.winner) {
       return;
     }
-
     autoRoll();
-
     return () => {
       clearTimeout(timeout);
     };
@@ -284,7 +209,7 @@ function GamePage() {
     if (bruteRolling && game?.mode === "brute") {
       const intervalId = setInterval(() => {
         bruteRoll();
-      }, 500);
+      }, 1);
 
       return () => clearInterval(intervalId);
     }
@@ -301,6 +226,8 @@ function GamePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game]);
+
+  console.log(game);
 
   if (game) {
     return (
@@ -375,7 +302,7 @@ function GamePage() {
                         type="checkbox"
                         className="toggle toggle-primary bg-primary tooltip tooltip-bottom tooltip-primary"
                         data-tip={game?.status == "ongoing" ? "pause" : game?.status == "paused" ? "resume" : ""}
-                        onChange={pauseResumeGame}
+                        onChange={() => pauseResumeGame(game, token)}
                         checked={game?.status == "ongoing"}
                       />
                     )}
@@ -392,7 +319,7 @@ function GamePage() {
                             className="radio checked:bg-blue-500"
                             checked={game?.mode == "auto"}
                             onClick={() => {
-                              if (game?.mode != "auto") toggleMode("auto");
+                              if (game?.mode != "auto") toggleMode(game, "auto", token);
                             }}
                           />
                         </label>
@@ -404,7 +331,7 @@ function GamePage() {
                             className="radio checked:bg-blue-500"
                             checked={game?.mode == "manual"}
                             onClick={() => {
-                              if (game?.mode != "manual") toggleMode("manual");
+                              if (game?.mode != "manual") toggleMode(game, "manual", token);
                             }}
                           />
                         </label>
@@ -416,7 +343,7 @@ function GamePage() {
                             className="radio checked:bg-blue-500"
                             checked={game?.mode == "brute"}
                             onClick={() => {
-                              if (game?.mode != "brute") toggleMode("brute");
+                              if (game?.mode != "brute") toggleMode(game, "brute", token);
                             }}
                           />
                         </label>
@@ -455,7 +382,7 @@ function GamePage() {
                     HIDDEN CHARACTERS
                   </h1>
                 </div>
-                <p className="text-2xl p-4"> {Object.values(game?.hiddenChars).join(" , ")}</p>
+                <p className="text-2xl p-4 whitespace-normal break-words"> {Object.values(game?.hiddenPrivateKey)}</p>
               </div>
               <div className="py-2 border-b border-t px-4">
                 <h1 className="font-bold md:text-2xl text-xl upercase  tracking-wide md:text-left text-center">
@@ -467,7 +394,7 @@ function GamePage() {
                   <div key={player} className="mb-4 flex justify-between ">
                     <Address format={screenwidth > 768 ? "long" : "short"} address={player} />
                     {isAdmin && (
-                      <button className="btn btn-xs btn-error" onClick={() => kickPlayer(player)}>
+                      <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
                         kick
                       </button>
                     )}
@@ -507,7 +434,7 @@ function GamePage() {
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) =>
                     rolled ? (
-                      isUnitRolling[index] ? (
+                      isUnitRolling[index] || (isRolling && game.mode == "brute") ? (
                         <video
                           key={key}
                           width={100}
@@ -544,7 +471,7 @@ function GamePage() {
               )}
             </div>
           )}
-          {game.winner && isAdmin && <RestartWithNewPk isOpen={restartOpen} setIsOpen={setRestartOpen} />}
+          {isAdmin && game.winner && <RestartWithNewPk isOpen={restartOpen} setIsOpen={setRestartOpen} />}
           {!isAdmin && !isPlayer && <p className="text-center text-2xl">Sorry fren, You have been kicked</p>}
         </div>
       </div>
