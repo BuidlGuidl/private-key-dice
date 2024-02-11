@@ -34,10 +34,6 @@ const playerSchema = new mongoose.Schema(
       key: String,
       value: String,
     },
-    prize: {
-      type: Number,
-      required: true,
-    },
   },
   { timestamps: true },
 );

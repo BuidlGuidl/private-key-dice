@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { InputBase } from "./scaffold-eth";
+import { InputBase } from "../scaffold-eth";
 import QrReader from "react-qr-reader-es6";
 import { useAccount } from "wagmi";
 import serverConfig from "~~/server.config";

@@ -3,6 +3,7 @@ import { Hex, createWalletClient } from "viem";
 import { http } from "viem";
 import { parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { useBalance, useFeeData } from "wagmi";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import useGameData from "~~/hooks/useGameData";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
@@ -21,6 +22,7 @@ const Congrats = ({
   };
 
   const configuredNetwork = getTargetNetwork();
+  const { data } = useFeeData();
 
   const walletClient = createWalletClient({
     chain: configuredNetwork,
@@ -33,6 +35,7 @@ const Congrats = ({
   const privateKey = "0x" + game?.privateKey;
 
   const account = privateKeyToAccount(privateKey as Hex);
+  const prize = useBalance({ address: game?.adminAddress });
 
   return (
     <div className=" overflow-hidden w-fit text-xs bg-base-200 h-full">
@@ -45,22 +48,22 @@ const Congrats = ({
             <p className="text-center mt-4">{message}</p>
             <button
               onClick={() => {
-                let value;
-                try {
-                  value = parseEther("" + game.prize.toString());
-                } catch (e) {
-                  value = parseEther("" + game.prize.toFixed(8));
-                }
+                const gasCost = (21000 * Number(data?.formatted.maxFeePerGas)) / 1000000000;
+                console.log(gasCost);
+                const prizeMinusFee = Number(prize.data?.formatted) - gasCost;
+                const value = parseEther(prizeMinusFee.toString());
+
                 transferTx({
                   account: account,
                   to: game.winner,
                   value,
                   chain: configuredNetwork,
+                  gas: BigInt("21000"),
                 });
               }}
               className="btn btn-primary"
             >
-              Redeem Prize
+              Sweep Wallet
             </button>
           </div>
         </div>

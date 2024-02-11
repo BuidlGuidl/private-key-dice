@@ -88,9 +88,9 @@ export default function Wallet() {
       extraPkDisplayAdded[wallet.address] = true;
       extraPkDisplay.push(
         <div className="my-2">
-          <a href={"/pk#" + pk}>
+          <span>
             <Address address={wallet.address} />
-          </a>
+          </span>
         </div>,
       );
       for (const key in localStorage) {
@@ -101,9 +101,22 @@ export default function Wallet() {
             extraPkDisplayAdded[pastwallet.address] = true;
             extraPkDisplay.push(
               <div className="mb-2">
-                <a href={"/pk#" + pastpk}>
-                  <Address address={pastwallet.address} />
-                </a>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => {
+                    const currentPrivateKey = window.localStorage.getItem("scaffoldEth2.burnerWallet.sk");
+                    if (currentPrivateKey) {
+                      window.localStorage.setItem(
+                        "scaffoldEth2.burnerWallet.sk_backup" + Date.now(),
+                        currentPrivateKey,
+                      );
+                    }
+                    window.localStorage.setItem("scaffoldEth2.burnerWallet.sk", pastpk as string);
+                    window.location.reload();
+                  }}
+                >
+                  <Address disableAddressLink={true} address={pastwallet.address} />
+                </span>
               </div>,
             );
           }
@@ -302,7 +315,7 @@ export default function Wallet() {
                       to: toAddress,
                       value,
                       chain: configuredNetwork,
-                      // gas: BigInt("21000"),
+                      gas: BigInt("31500"),
                     });
                     setOpen(!open);
                     setQr("");
