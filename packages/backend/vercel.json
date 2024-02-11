@@ -2,7 +2,7 @@
     "version": 2,
     "name": "dicedemo-backend",
     "builds": [
-      { "src": "index.ts", "use": "@vercel/ts-node" }
+      { "src": "index.ts", "use": "@vercel/node" }
     ],
     "routes": [
       { "src": "/(.*)", "dest": "/index.ts" }
