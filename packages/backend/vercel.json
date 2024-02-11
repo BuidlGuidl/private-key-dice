@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "name": "dicedemo-backend",
     "builds": [
       { "src": "index.ts", "use": "@vercel/ts-node" }
