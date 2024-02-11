@@ -1,0 +1,11 @@
+{
+    "version": 1,
+    "name": "dicedemo-backend",
+    "builds": [
+      { "src": "index.ts", "use": "@vercel/ts-node" }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "/index.ts" }
+    ]
+  }
+  
