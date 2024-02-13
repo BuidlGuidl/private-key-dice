@@ -101,8 +101,6 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(formData);
-
   return (
     <div className=" overflow-hidden w-fit text-xs bg-base-200 h-full">
       {isOpen && (

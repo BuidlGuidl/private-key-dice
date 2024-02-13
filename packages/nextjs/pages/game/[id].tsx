@@ -227,6 +227,14 @@ function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game]);
 
+  useEffect(() => {
+    setAutoRolling(false);
+    setBruteRolling(false);
+    setIsRolling(false);
+    setSpinning(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game?.mode]);
+
   if (game) {
     return (
       <div>
