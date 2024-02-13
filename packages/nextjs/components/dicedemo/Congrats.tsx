@@ -1,11 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
-import { Hex, createWalletClient } from "viem";
-import { http } from "viem";
-import { parseEther } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { useTransactor } from "~~/hooks/scaffold-eth";
 import useGameData from "~~/hooks/useGameData";
-import { getTargetNetwork } from "~~/utils/scaffold-eth";
+import useSweepWallet from "~~/hooks/useSweepWallet";
 
 const Congrats = ({
   isOpen,
@@ -20,19 +15,9 @@ const Congrats = ({
     setIsOpen(false);
   };
 
-  const configuredNetwork = getTargetNetwork();
-
-  const walletClient = createWalletClient({
-    chain: configuredNetwork,
-    transport: http(),
-  });
-
   const { loadGameState } = useGameData();
-  const transferTx = useTransactor(walletClient);
   const { game } = loadGameState();
-  const privateKey = "0x" + game?.privateKey;
-
-  const account = privateKeyToAccount(privateKey as Hex);
+  const { sweepWallet } = useSweepWallet();
 
   return (
     <div className=" overflow-hidden w-fit text-xs bg-base-200 h-full">
@@ -45,22 +30,11 @@ const Congrats = ({
             <p className="text-center mt-4">{message}</p>
             <button
               onClick={() => {
-                let value;
-                try {
-                  value = parseEther("" + game.prize.toString());
-                } catch (e) {
-                  value = parseEther("" + game.prize.toFixed(8));
-                }
-                transferTx({
-                  account: account,
-                  to: game.winner,
-                  value,
-                  chain: configuredNetwork,
-                });
+                sweepWallet(game.privateKey);
               }}
               className="btn btn-primary"
             >
-              Redeem Prize
+              Sweep Wallet
             </button>
           </div>
         </div>

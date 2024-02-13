@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import type { NextPage } from "next";
-import GameCreationForm from "~~/components/GameCreateForm";
-import GameJoinForm from "~~/components/GameJoinForm";
 import { MetaHeader } from "~~/components/MetaHeader";
+import GameCreationForm from "~~/components/dicedemo/GameCreateForm";
+import GameJoinForm from "~~/components/dicedemo/GameJoinForm";
 
 const Home: NextPage = () => {
   const router = useRouter();
