@@ -7,6 +7,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { useAccount, useBalance } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import Congrats from "~~/components/dicedemo/Congrats";
+import HostAnnouncement from "~~/components/dicedemo/HostAnnouncement";
 import RestartWithNewPk from "~~/components/dicedemo/RestartWithNewPk";
 import { Address } from "~~/components/scaffold-eth";
 import { Price } from "~~/components/scaffold-eth/Price";
@@ -31,7 +32,8 @@ function GamePage() {
   const [spinning, setSpinning] = useState(false);
   const [game, setGame] = useState<Game>();
   const [token, setToken] = useState("");
-  const [isOpen, setIsOpen] = useState(true);
+  const [congratsOpen, setCongratsOpen] = useState(true);
+  const [hostAnnOpen, setHostAnnOpen] = useState(true);
   const [restartOpen, setRestartOpen] = useState(false);
   const [inviteCopied, setInviteCopied] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
@@ -42,7 +44,7 @@ function GamePage() {
   const [isHacked, setIsHacked] = useState(false);
 
   const prize = useBalance({ address: game?.adminAddress });
-  const { sweepWallet } = useSweepWallet({ game, token });
+  const { sweepWallet, isSweeping, sweepMessage } = useSweepWallet({ game, token });
 
   const calculateLength = () => {
     const maxLength = 150;
@@ -52,8 +54,6 @@ function GamePage() {
   };
 
   const length = calculateLength();
-
-  console.log(length);
 
   const generateRandomHex = () => {
     const hexDigits = "0123456789ABCDEF";
@@ -147,7 +147,7 @@ function GamePage() {
       setBruteRolling(false);
       setIsRolling(false);
       setSpinning(false);
-      setIsOpen(true);
+      setCongratsOpen(true);
       setIsHacked(true);
       sweepWallet(game?.privateKey as string);
     }
@@ -191,7 +191,7 @@ function GamePage() {
     const autoRoll = () => {
       if (autoRolling && game?.mode === "auto") {
         rollTheDice();
-        timeout = setTimeout(autoRoll, 5000);
+        timeout = setTimeout(autoRoll, game.diceCount * 800 + 1500);
       }
     };
     if (game?.winner) {
@@ -227,6 +227,10 @@ function GamePage() {
       setBruteRolling(false);
       setIsRolling(false);
       setSpinning(false);
+    }
+    if (game?.winner) {
+      setIsRolling(false);
+      setHostAnnOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game]);
@@ -397,7 +401,7 @@ function GamePage() {
                     <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
                       <h1 className=" tracking-wide">PRIVATE KEY</h1>
                     </div>
-                    <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none">
+                    <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer">
                       {Object.values(game?.hiddenPrivateKey)}
                     </p>
                   </div>
@@ -521,13 +525,20 @@ function GamePage() {
               </div>{" "}
               {(isHacked || game.winner) && (
                 <Congrats
-                  isOpen={isOpen}
-                  setIsOpen={setIsOpen}
+                  isOpen={congratsOpen}
+                  setIsOpen={setCongratsOpen}
                   isHacked={isHacked}
                   isWinner={game.winner == address}
                   game={game}
+                  isSweeping={isSweeping}
+                  sweepMessage={sweepMessage}
                 />
               )}
+            </div>
+          )}
+          {isAdmin && game.winner && (
+            <div>
+              <HostAnnouncement game={game} setIsOpen={setHostAnnOpen} isOpen={hostAnnOpen} />
             </div>
           )}
           {screenwidth <= 768 && game.players.length > 0 && (
