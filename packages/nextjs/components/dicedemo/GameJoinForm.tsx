@@ -94,7 +94,7 @@ const GameJoinForm = ({
 
   return (
     <div className="">
-      <form onSubmit={() => handleJoinGame(inviteCode)}>
+      <div>
         <label ref={labelRef}>
           <h1> Enter Invite Code</h1>
           <InputBase
@@ -109,11 +109,11 @@ const GameJoinForm = ({
             // }
           />
         </label>
-        <button className="btn btn-sm btn-primary mt-6" type="submit">
+        <button className="btn btn-sm btn-primary mt-6" type="button" onClick={() => handleJoinGame(inviteCode)}>
           {loading && <span className="loading loading-spinner"></span>}
           Join Game
         </button>
-      </form>
+      </div>
 
       {scanning && (
         <div
