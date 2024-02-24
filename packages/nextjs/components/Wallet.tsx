@@ -213,7 +213,7 @@ export default function Wallet() {
               <h2>Known Private Keys:</h2>
               {extraPkDisplay}
               <button
-                className="btn btn-primary btn-sm my-2"
+                className="btn btn-primary md:btn-sm btn-xs my-2"
                 onClick={() => {
                   const currentPrivateKey = window.localStorage.getItem("scaffoldEth2.burnerWallet.sk");
                   if (currentPrivateKey) {
@@ -280,7 +280,7 @@ export default function Wallet() {
 
               <div className="flex justify-end gap-2 ">
                 <button
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary md:btn-sm btn-xs "
                   onClick={() => {
                     pk == "" && selectedAddress ? setPK(selectedAddress) : setPK("");
                     setQr("");
@@ -290,7 +290,7 @@ export default function Wallet() {
                   {pk == "" ? "Private Key" : "Hide"}
                 </button>
                 <button
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary md:btn-sm btn-xs"
                   onClick={() => {
                     qr == "" && selectedAddress ? setQr(selectedAddress) : setQr("");
                     setPK("");
@@ -300,7 +300,7 @@ export default function Wallet() {
                   {qr == "" ? "Receive" : "Hide"}
                 </button>
                 <button
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary md:btn-sm btn-xs"
                   key="submit"
                   disabled={!amount || !toAddress || pk != "" || qr != ""}
                   onClick={() => {

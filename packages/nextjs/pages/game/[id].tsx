@@ -5,14 +5,14 @@ import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useAccount, useBalance } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import Condolence from "~~/components/dicedemo/Condolence";
 import Congrats from "~~/components/dicedemo/Congrats";
 import RestartWithNewPk from "~~/components/dicedemo/RestartWithNewPk";
 import { Address } from "~~/components/scaffold-eth";
 import { Price } from "~~/components/scaffold-eth/Price";
 import useGameData from "~~/hooks/useGameData";
+import useSweepWallet from "~~/hooks/useSweepWallet";
 import { Game } from "~~/types/game/game";
-import { endGame, kickPlayer, pauseResumeGame, toggleMode } from "~~/utils/diceDemo/apiUtils";
+import { kickPlayer, pauseResumeGame, toggleMode } from "~~/utils/diceDemo/apiUtils";
 
 function GamePage() {
   const router = useRouter();
@@ -39,10 +39,10 @@ function GamePage() {
   const [autoRolling, setAutoRolling] = useState(false);
   const [bruteRolling, setBruteRolling] = useState(false);
   const [screenwidth, setScreenWidth] = useState(768);
+  const [isHacked, setIsHacked] = useState(false);
 
   const prize = useBalance({ address: game?.adminAddress });
-  const congratulatoryMessage = "Congratulations! You won the game!";
-  const condolenceMessage = "Sorry Fren! You Lost";
+  const { sweepWallet } = useSweepWallet({ game, token });
 
   // const calculateLength = () => {
   //   const maxLength = 200;
@@ -141,11 +141,13 @@ function GamePage() {
 
   useEffect(() => {
     const isHiiddenChars = compareResult();
+
     if (isHiiddenChars) {
-      endGame(game as Game, token, address as string);
+      setIsHacked(true);
       setAutoRolling(false);
       setBruteRolling(false);
       setIsOpen(true);
+      sweepWallet(game?.privateKey as string);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rolledResult]);
@@ -238,18 +240,50 @@ function GamePage() {
   if (game) {
     return (
       <div>
-        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[50%] w-11/12 mx-auto">
-          <div className="flex lg:flex-wrap md:flex-row flex-col border rounded-xl">
+        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto">
+          <div className="flex  md:flex-row flex-col border rounded-xl md:max-h-[40rem]">
             <div className="md:w-1/3 border-r">
               <div className="font-bold py-2 border-b px-4 flex items-center justify-between">
-                <h1 className=" md:text-2xl text-xl upercase tracking-wide ">INFO</h1>
+                <h1 className=" md:text-xl text-lg tracking-wide ">INFO</h1>
                 <h1>Role: {isAdmin ? "Host" : isPlayer ? "Player" : "Kicked"}</h1>
               </div>
-              <div className="p-4 ">
+              <div className="">
                 {isAdmin && (
-                  <div className="p-2 bg-base-300 rounded-md">
-                    <div className="flex items-center justify-center">
-                      <span>Invite Code: {id}</span>
+                  <div className="p-2 bg-base-300 mt-2 rounded-md px-4 w-[95%] mx-auto">
+                    <div className="flex items-center justify-center ">
+                      <span>Copy Invite Url</span>
+                      {inviteUrlCopied ? (
+                        <CheckCircleIcon
+                          className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <CopyToClipboard
+                          text={inviteUrl?.toString() || ""}
+                          onCopy={() => {
+                            setInviteUrlCopied(true);
+                            setTimeout(() => {
+                              setInviteUrlCopied(false);
+                            }, 800);
+                          }}
+                        >
+                          <DocumentDuplicateIcon
+                            className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
+                            aria-hidden="true"
+                          />
+                        </CopyToClipboard>
+                      )}
+                    </div>
+                    <div>
+                      <QRCode
+                        value={inviteUrl?.toString() || ""}
+                        className=" h-full mx-auto mt-2 w-3/4"
+                        level="H"
+                        renderAs="svg"
+                      />
+                    </div>
+                    <div className="flex items-center justify-center mt-2">
+                      <span>Invite: {id?.toString()}</span>
                       {inviteCopied ? (
                         <CheckCircleIcon
                           className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
@@ -272,15 +306,7 @@ function GamePage() {
                         </CopyToClipboard>
                       )}
                     </div>
-                    <div>
-                      <QRCode
-                        value={id?.toString() || ""}
-                        className=" h-full mx-auto mt-2 w-3/4"
-                        level="H"
-                        renderAs="svg"
-                      />
-                    </div>
-                    <div className="flex justify-center mt-2 cursor-pointer">
+                    {/* <div className="flex justify-center mt-2 cursor-pointer">
                       {inviteUrlCopied ? (
                         <span className="underline">Copied invite Url</span>
                       ) : (
@@ -296,10 +322,10 @@ function GamePage() {
                           <span>Copy invite Url</span>
                         </CopyToClipboard>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 )}
-                <div className="flex flex-col items-center gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2">
+                <div className="flex flex-col items-center gap-2 bg-base-300 mt-2 rounded-md w-[95%] mx-auto px-4 py-2 ">
                   <div className="flex gap-2 justify-center">
                     <span> Status: {game.status}</span>
                     {isAdmin && (
@@ -357,58 +383,67 @@ function GamePage() {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 font-bold justify-center">
+                <div className="flex gap-2 bg-base-300 mt-2 rounded-md px-4 py-2 w-[95%] mx-auto  font-bold justify-center">
                   Pk Balance:
                   <Price value={Number(prize.data?.formatted)} />
                 </div>
-                <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 justify-center">
+                <div className="flex gap-2 bg-base-300 mt-2 rounded-md px-4 py-2 w-[95%] mx-auto  justify-center">
                   Dice count: {game.diceCount}
                 </div>
-                {game.winner && (
-                  <div className="flex gap-2 bg-base-300 mt-2 rounded-md w-full px-4 py-2 justify-center">
-                    Winner <Address address={game.winner} />
+                {screenwidth <= 768 && (
+                  <div>
+                    <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
+                      <h1 className=" tracking-wide">HIDDEN CHARACTERS</h1>
+                    </div>
+                    <p className=" whitespace-normal break-words px-2"> {Object.values(game?.hiddenPrivateKey)}</p>
                   </div>
                 )}
-                {isAdmin && game.winner && (
-                  <button
-                    className="btn btn-primary mt-2 w-full"
-                    onClick={() => {
-                      setRestartOpen(true);
-                    }}
-                  >
-                    Restart with New PK
-                  </button>
-                )}
               </div>
-            </div>
-            <div className="md:w-2/3">
-              <div>
-                <div className="py-2 border-b md:border-t-0 border-t px-4">
-                  <h1 className="font-bold md:text-2xl text-xl upercase  tracking-wide md:text-left text-center ">
-                    HIDDEN CHARACTERS
-                  </h1>
+              {game.winner && (
+                <div className="flex gap-2 bg-base-300 rounded-md px-4 mt-2 mb-2 py-2 justify-center w-[95%] mx-auto">
+                  Winner <Address address={game.winner} />
                 </div>
-                <p className="text-2xl p-4 whitespace-normal break-words"> {Object.values(game?.hiddenPrivateKey)}</p>
-              </div>
-              <div className="py-2 border-b border-t px-4">
-                <h1 className="font-bold md:text-2xl text-xl upercase  tracking-wide md:text-left text-center">
-                  PLAYERS
-                </h1>
-              </div>
-              <div className="p-4">
-                {game?.players?.map((player: string) => (
-                  <div key={player} className="mb-4 flex justify-between ">
-                    <Address format={screenwidth > 768 ? "long" : "short"} address={player} />
-                    {isAdmin && (
-                      <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
-                        kick
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
+              )}
+              {/* {isAdmin && game.winner && (
+                <button
+                  className="btn btn-primary w-full"
+                  onClick={() => {
+                    setRestartOpen(true);
+                  }}
+                >
+                  Restart with New PK
+                </button>
+              )} */}
             </div>
+            {screenwidth > 768 && (
+              <div className="md:w-2/3">
+                <div className="font-bold py-2 border-b flex items-center px-4  ">
+                  <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">HIDDEN CHARACTERS</h1>
+                </div>
+                <p className=" whitespace-normal break-words px-2"> {Object.values(game?.hiddenPrivateKey)}</p>
+                <div>
+                  <div className="py-2 border-y px-4">
+                    <h1 className="font-bold md:text-xl text-lg  tracking-wide md:text-left text-center">
+                      PLAYERS: {game?.players.length}
+                    </h1>
+                  </div>
+                  <div className={isAdmin ? "p-4 overflow-scroll max-h-[28rem]" : "p-4 overflow-scroll max-h-[13rem]"}>
+                    {game?.players?.map((player: string) => (
+                      <div key={player} className="mb-4 flex justify-between">
+                        <Address format={"long"} address={player} />
+                        {isAdmin && (
+                          <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
+                            kick
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+
           {isPlayer && (
             <div className="flex flex-col items-center mt-6">
               <button
@@ -443,8 +478,8 @@ function GamePage() {
                       isUnitRolling[index] || (isRolling && game.mode == "brute") ? (
                         <video
                           key={key}
-                          width={100}
-                          height={100}
+                          width={80}
+                          height={80}
                           loop
                           src="/rolls/Spin.webm"
                           autoPlay
@@ -456,25 +491,50 @@ function GamePage() {
                       ) : (
                         <video
                           key={key}
-                          width={100}
-                          height={100}
+                          width={80}
+                          height={80}
                           src={`/rolls/${rolls[index]}.webm`}
                           autoPlay
                           onError={e => console.error("Rolled Error", index, e)}
                         />
                       )
                     ) : (
-                      <video ref={videoRef} key={index} width={100} height={100} src={`/rolls/0.webm`} />
+                      <video ref={videoRef} key={index} width={80} height={80} src={`/rolls/0.webm`} />
                     ),
                   )}
                 </div>
               </div>{" "}
-              {game?.winner == address && (
-                <Congrats isOpen={isOpen} setIsOpen={setIsOpen} message={congratulatoryMessage} />
+              {(isHacked || game.winner) && (
+                <Congrats
+                  isOpen={isOpen}
+                  setIsOpen={setIsOpen}
+                  isHacked={isHacked}
+                  isWinner={game.winner == address}
+                  game={game}
+                  token={token}
+                />
               )}
-              {game.winner && game?.winner != address && (
-                <Condolence isOpen={isOpen} setIsOpen={setIsOpen} message={condolenceMessage} />
-              )}
+            </div>
+          )}
+          {screenwidth <= 768 && game.players.length > 0 && (
+            <div className="md:w-2/3 rounded-xl border mt-5">
+              <div>
+                <div className="py-2 border-b px-4">
+                  <h1 className="font-bold md:text-xl text-lg  tracking-wide md:text-left text-center">PLAYERS</h1>
+                </div>
+                <div className="p-4 max-h-[30rem] overflow-scroll">
+                  {game?.players?.map((player: string) => (
+                    <div key={player} className="mb-4 flex justify-between ">
+                      <Address format={"short"} address={player} />
+                      {isAdmin && (
+                        <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
+                          kick
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
           {isAdmin && game.winner && <RestartWithNewPk isOpen={restartOpen} setIsOpen={setRestartOpen} />}

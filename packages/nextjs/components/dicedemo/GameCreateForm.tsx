@@ -120,9 +120,11 @@ const GameCreationForm = () => {
               max="64"
               value={sliderValue}
               onChange={handleSliderChange}
-              className="slider appearance-none w-full h-2 bg-primary rounded outline-none slider-thumb "
+              className="slider appearance-none w-[87%] h-2 bg-primary rounded outline-none slider-thumb "
             />
-            <span className="slider-value p-2 bg-primary  font-bold rounded-md">{sliderValue}</span>
+            <span className="slider-value p-2 bg-primary w-[13%] font-bold rounded-md flex justify-center">
+              {sliderValue}
+            </span>
           </div>
         </label>
         <br />

@@ -1,23 +1,28 @@
 import { Dispatch, SetStateAction } from "react";
-import useGameData from "~~/hooks/useGameData";
 import useSweepWallet from "~~/hooks/useSweepWallet";
+import { Game } from "~~/types/game/game";
 
 const Congrats = ({
   isOpen,
   setIsOpen,
-  message,
+  isHacked,
+  isWinner,
+  game,
+  token,
 }: {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  message: string;
+  isHacked: boolean;
+  isWinner: boolean;
+  game: Game;
+  token: string;
 }) => {
   const closePopup = () => {
     setIsOpen(false);
   };
 
-  const { loadGameState } = useGameData();
-  const { game } = loadGameState();
-  const { sweepWallet } = useSweepWallet();
+  const { isSweeping, sweepMessage } = useSweepWallet({ game: game, token: token });
+  console.log(game?.privateKey);
 
   return (
     <div className=" overflow-hidden w-fit text-xs bg-base-200 h-full">
@@ -27,15 +32,17 @@ const Congrats = ({
             <label onClick={closePopup} className="btn btn-sm btn-circle absolute right-2 top-2">
               ✕
             </label>
-            <p className="text-center mt-4">{message}</p>
-            <button
-              onClick={() => {
-                sweepWallet(game.privateKey);
-              }}
-              className="btn btn-primary"
-            >
-              Sweep Wallet
-            </button>
+
+            {isWinner && <div>Congrats, You have successfully swept the private Key</div>}
+            {!isWinner && isHacked && !game.winner && (
+              <div> {isSweeping ? "Trying to Sweep the wallet ..." : sweepMessage}</div>
+            )}
+            {!isWinner && isHacked && game.winner != undefined && (
+              <div>You were beaten to sweeping the private key by another wallet</div>
+            )}
+            {!isWinner && !isHacked && <div>Sorry fren, you lost</div>}
+
+            <div>The hidden characters are {Object.values(game.hiddenChars).join(", ")}</div>
           </div>
         </div>
       )}
