@@ -1,5 +1,5 @@
 const serverConfig = {
-  isLocal: true,
+  isLocal: false,
   localUrl: "http://localhost:6001",
   liveUrl: "https://dice-demonstration-backend.vercel.app",
 };
