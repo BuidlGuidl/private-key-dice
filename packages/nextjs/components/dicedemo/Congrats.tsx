@@ -32,16 +32,22 @@ const Congrats = ({
               ✕
             </label>
 
-            {isWinner && <div>Congrats, You have successfully swept the private Key</div>}
+            {isWinner && (
+              <div>Congrats, you found the hidden characters and have successfully swept the private Key</div>
+            )}
             {!isWinner && isHacked && !game.winner && (
-              <div> {isSweeping ? "Trying to Sweep the wallet ..." : "Failed to sweep PrivateKey"} </div>
+              <div>
+                {isSweeping
+                  ? "Hidden characters found, Trying to Sweep the wallet ..."
+                  : "Hidden characters found, Failed to sweep PrivateKey"}
+              </div>
             )}
             {!isWinner && isHacked && game.winner != undefined && (
-              <div>You were beaten to sweeping the private key by another wallet</div>
+              <div>Hidden characters found but you were beaten to sweeping the private key by another wallet</div>
             )}
             {!isWinner && !isHacked && <div>Sorry fren, you lost</div>}
 
-            <div>The hidden characters are {Object.values(game.hiddenChars).join(", ")}</div>
+            <div className="mt-5">The hidden characters are {Object.values(game.hiddenChars).join(", ")}</div>
           </div>
         </div>
       )}

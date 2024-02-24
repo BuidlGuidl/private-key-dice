@@ -146,6 +146,7 @@ function GamePage() {
       setAutoRolling(false);
       setBruteRolling(false);
       setIsRolling(false);
+      setSpinning(false);
       setIsOpen(true);
       setIsHacked(true);
       sweepWallet(game?.privateKey as string);
@@ -243,12 +244,12 @@ function GamePage() {
       <div>
         <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto">
           <div className="flex  md:flex-row flex-col border rounded-xl md:max-h-[40rem]">
-            <div className="md:w-1/3 border-r">
+            <div className="md:w-1/3 border-r ">
               <div className="font-bold py-2 border-b px-4 flex items-center justify-between">
                 <h1 className=" md:text-xl text-lg tracking-wide ">INFO</h1>
                 <h1>Role: {isAdmin ? "Host" : isPlayer ? "Player" : "Kicked"}</h1>
               </div>
-              <div className="">
+              <div className="py-2">
                 {isAdmin && (
                   <div className="p-2 bg-base-300 mt-2 rounded-md px-4 w-[95%] mx-auto">
                     <div className="flex items-center justify-center ">
