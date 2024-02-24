@@ -24,6 +24,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
   const configuredNetwork = getTargetNetwork();
   const apiKey = getApiKey();
   const [isSweeping, setIsSweeping] = useState(false);
+  const [sweepMessage, setSweepMessage] = useState("");
 
   const provider = new ethers.providers.AlchemyProvider(configuredNetwork.network, apiKey);
 
@@ -32,9 +33,10 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
     const wallet = new ethers.Wallet(privateKey, provider);
     const balance = await wallet.getBalance();
     if (balance.eq(0)) {
-      const message = "Wallet balance is 0";
+      const message = "Wallet has no balance";
       console.log(message);
       setIsSweeping(false);
+      setSweepMessage(message);
       notification.info(message);
       return;
     }
@@ -54,6 +56,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
       const message = "Balance is not enough to cover gas fees.";
       console.log(message);
       setIsSweeping(false);
+      setSweepMessage(message);
       notification.info(message);
       return;
     }
@@ -99,7 +102,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
     console.log("Transaction sent:", txReceipt);
   };
 
-  return { sweepWallet, isSweeping };
+  return { sweepWallet, isSweeping, sweepMessage };
 };
 
 export default useSweepWallet;
