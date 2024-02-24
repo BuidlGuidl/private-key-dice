@@ -33,9 +33,7 @@ app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb" }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(
-  cors({
-    origin: ["https://localhost:3000", "https://dicedemo-av-bg.vercel.app"],
-  }),
+  cors(),
 );
 
 /**Ably Setup */
