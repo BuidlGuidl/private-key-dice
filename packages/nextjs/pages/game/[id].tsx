@@ -395,9 +395,11 @@ function GamePage() {
                 {screenwidth <= 768 && isAdmin && (
                   <div>
                     <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
-                      <h1 className=" tracking-wide">HIDDEN CHARACTERS</h1>
+                      <h1 className=" tracking-wide">PRIVATE KEY</h1>
                     </div>
-                    <p className=" whitespace-normal break-words px-2"> {Object.values(game?.hiddenPrivateKey)}</p>
+                    <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none">
+                      {Object.values(game?.hiddenPrivateKey)}
+                    </p>
                   </div>
                 )}
               </div>
@@ -422,7 +424,7 @@ function GamePage() {
                 {isAdmin && (
                   <div>
                     <div className="font-bold py-2 border-b flex items-center px-4  ">
-                      <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">Private Key</h1>
+                      <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">PRIVATE KEY</h1>
                     </div>
                     <p className="whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none text-lg cursor-pointer">
                       {Object.values(game?.hiddenPrivateKey)}
