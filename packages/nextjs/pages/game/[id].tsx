@@ -143,10 +143,10 @@ function GamePage() {
     const isHiiddenChars = compareResult();
 
     if (isHiiddenChars) {
-      setIsHacked(true);
       setAutoRolling(false);
       setBruteRolling(false);
       setIsOpen(true);
+      setIsHacked(true);
       sweepWallet(game?.privateKey as string);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
