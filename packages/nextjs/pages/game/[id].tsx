@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import Ably from "ably";
 import QRCode from "qrcode.react";
@@ -21,7 +22,6 @@ function GamePage() {
   const { loadGameState, updateGameState } = useGameData();
 
   const { address } = useAccount();
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const [isRolling, setIsRolling] = useState(false);
   const [isUnitRolling, setIsUnitRolling] = useState<boolean[]>([false]);
@@ -44,12 +44,16 @@ function GamePage() {
   const prize = useBalance({ address: game?.adminAddress });
   const { sweepWallet } = useSweepWallet({ game, token });
 
-  // const calculateLength = () => {
-  //   const maxLength = 200;
-  //   const diceCount = game?.diceCount ?? 0;
-  //   const calculatedLength = Math.max(maxLength - (diceCount - 1) * 3.8, 10);
-  //   return calculatedLength;
-  // };
+  const calculateLength = () => {
+    const maxLength = 150;
+    const diceCount = game?.diceCount ?? 0;
+    const calculatedLength = Math.max(maxLength - (diceCount - 1) * 3, 10);
+    return calculatedLength;
+  };
+
+  const length = calculateLength();
+
+  console.log(length);
 
   const generateRandomHex = () => {
     const hexDigits = "0123456789ABCDEF";
@@ -74,23 +78,25 @@ function GamePage() {
       }
       setRolls(rolls);
       let iterations = 0;
-      for (let i = 0; i < isUnitRolling.length; i++) {
-        setTimeout(() => {
-          setIsUnitRolling(prevState => {
-            const newState = [...prevState];
-            newState[i] = false;
-            return newState;
-          });
-          iterations++;
-          if (iterations === isUnitRolling.length) {
-            setIsRolling(false);
-            setTimeout(() => {
-              setSpinning(false);
-              setRolledResult(rolls);
-            }, 5000);
-          }
-        }, i * 1000);
-      }
+      setTimeout(() => {
+        for (let i = 0; i < isUnitRolling.length; i++) {
+          setTimeout(() => {
+            setIsUnitRolling(prevState => {
+              const newState = [...prevState];
+              newState[i] = false;
+              return newState;
+            });
+            iterations++;
+            if (iterations === isUnitRolling.length) {
+              setIsRolling(false);
+              setTimeout(() => {
+                setSpinning(false);
+                setRolledResult(rolls);
+              }, 500);
+            }
+          }, i * 800);
+        }
+      }, 800);
     }
   };
 
@@ -132,12 +138,6 @@ function GamePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (videoRef.current && !isRolling) {
-      videoRef.current.currentTime = 9999;
-    }
-  }, [isRolling]);
 
   useEffect(() => {
     const isHiiddenChars = compareResult();
@@ -191,7 +191,7 @@ function GamePage() {
     const autoRoll = () => {
       if (autoRolling && game?.mode === "auto") {
         rollTheDice();
-        timeout = setTimeout(autoRoll, 5500);
+        timeout = setTimeout(autoRoll, 5000);
       }
     };
     if (game?.winner) {
@@ -390,9 +390,9 @@ function GamePage() {
                   <Price value={Number(prize.data?.formatted)} />
                 </div>
                 <div className="flex gap-2 bg-base-300 mt-2 rounded-md px-4 py-2 w-[95%] mx-auto  justify-center">
-                  Dice count: {game.diceCount}
+                  Hidden Characters: {game.diceCount}
                 </div>
-                {screenwidth <= 768 && (
+                {screenwidth <= 768 && isAdmin && (
                   <div>
                     <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
                       <h1 className=" tracking-wide">HIDDEN CHARACTERS</h1>
@@ -419,17 +419,24 @@ function GamePage() {
             </div>
             {screenwidth > 768 && (
               <div className="md:w-2/3">
-                <div className="font-bold py-2 border-b flex items-center px-4  ">
-                  <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">HIDDEN CHARACTERS</h1>
-                </div>
-                <p className=" whitespace-normal break-words px-2"> {Object.values(game?.hiddenPrivateKey)}</p>
+                {isAdmin && (
+                  <div>
+                    <div className="font-bold py-2 border-b flex items-center px-4  ">
+                      <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">Private Key</h1>
+                    </div>
+                    <p className="whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none text-lg cursor-pointer">
+                      {Object.values(game?.hiddenPrivateKey)}
+                    </p>
+                  </div>
+                )}
+
                 <div>
                   <div className="py-2 border-y px-4">
                     <h1 className="font-bold md:text-xl text-lg  tracking-wide md:text-left text-center">
                       PLAYERS: {game?.players.length}
                     </h1>
                   </div>
-                  <div className={isAdmin ? "p-4 overflow-scroll max-h-[28rem]" : "p-4 overflow-scroll max-h-[13rem]"}>
+                  <div className={isAdmin ? "p-4 overflow-scroll max-h-[28rem]" : "p-4 overflow-scroll max-h-[15rem]"}>
                     {game?.players?.map((player: string) => (
                       <div key={player} className="mb-4 flex justify-between">
                         <Address format={"long"} address={player} />
@@ -470,6 +477,7 @@ function GamePage() {
                 {game.mode === "auto" ? " Auto Roll" : game.mode === "brute" ? "Brute Roll" : "Roll"}
               </button>
               <div>
+                <p className=" text-center">Guess the hidden characters</p>
                 <div className="flex justify-center gap-2 mt-2">
                   <span>Result:</span>
                   {rolledResult.length > 0 && !spinning && <span className=""> {rolledResult.join(" , ")}</span>}
@@ -478,30 +486,33 @@ function GamePage() {
                   {Object.entries(game.hiddenChars).map(([key], index) =>
                     rolled ? (
                       isUnitRolling[index] || (isRolling && game.mode == "brute") ? (
-                        <video
+                        <Image
+                          className="transition duration-500 opacity-100 rounded-lg"
                           key={key}
-                          width={80}
-                          height={80}
-                          loop
-                          src="/rolls/Spin.webm"
-                          autoPlay
-                          onError={e => {
-                            console.log(key);
-                            console.error("Spin Error", index, e);
-                          }}
+                          src="/rolls-gif/Spin.gif"
+                          alt="spinning dice"
+                          width={length}
+                          height={length}
                         />
                       ) : (
-                        <video
+                        <Image
+                          className="transition  duration-500 ease-in rounded-lg"
                           key={key}
-                          width={80}
-                          height={80}
-                          src={`/rolls/${rolls[index]}.webm`}
-                          autoPlay
-                          onError={e => console.error("Rolled Error", index, e)}
+                          src={`/rolls-jpg/${rolls[index]}.jpg`}
+                          alt="rolled dice"
+                          width={length}
+                          height={length}
                         />
                       )
                     ) : (
-                      <video ref={videoRef} key={index} width={80} height={80} src={`/rolls/0.webm`} />
+                      <Image
+                        className="rounded-lg"
+                        key={key}
+                        src={`/rolls-jpg/0.jpg`}
+                        alt="rolled dice"
+                        width={length}
+                        height={length}
+                      />
                     ),
                   )}
                 </div>
@@ -513,7 +524,6 @@ function GamePage() {
                   isHacked={isHacked}
                   isWinner={game.winner == address}
                   game={game}
-                  token={token}
                 />
               )}
             </div>

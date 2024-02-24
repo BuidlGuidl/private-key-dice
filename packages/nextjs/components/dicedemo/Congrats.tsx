@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-import useSweepWallet from "~~/hooks/useSweepWallet";
 import { Game } from "~~/types/game/game";
 
 const Congrats = ({
@@ -8,20 +7,18 @@ const Congrats = ({
   isHacked,
   isWinner,
   game,
-  token,
 }: {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   isHacked: boolean;
   isWinner: boolean;
   game: Game;
-  token: string;
 }) => {
   const closePopup = () => {
     setIsOpen(false);
   };
 
-  const { isSweeping } = useSweepWallet({ game: game, token: token });
+  // const { isSweeping } = useSweepWallet({ game: game, token: token });
 
   return (
     <div className=" overflow-hidden w-fit text-xs bg-base-200 h-full">
@@ -36,11 +33,7 @@ const Congrats = ({
               <div>Congrats, you found the hidden characters and have successfully swept the private Key</div>
             )}
             {!isWinner && isHacked && !game.winner && (
-              <div>
-                {isSweeping
-                  ? "Hidden characters found, Trying to Sweep the wallet ..."
-                  : "Hidden characters found, Failed to sweep PrivateKey"}
-              </div>
+              <div>Hidden characters found, Trying to sweep private key ...</div>
             )}
             {!isWinner && isHacked && game.winner != undefined && (
               <div>Hidden characters found but you were beaten to sweeping the private key by another wallet</div>
