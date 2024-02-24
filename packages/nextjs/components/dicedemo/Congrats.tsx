@@ -21,8 +21,7 @@ const Congrats = ({
     setIsOpen(false);
   };
 
-  const { isSweeping, sweepMessage } = useSweepWallet({ game: game, token: token });
-  console.log(game?.privateKey);
+  const { isSweeping } = useSweepWallet({ game: game, token: token });
 
   return (
     <div className=" overflow-hidden w-fit text-xs bg-base-200 h-full">
@@ -35,7 +34,7 @@ const Congrats = ({
 
             {isWinner && <div>Congrats, You have successfully swept the private Key</div>}
             {!isWinner && isHacked && !game.winner && (
-              <div> {isSweeping ? "Trying to Sweep the wallet ..." : sweepMessage}</div>
+              <div> {isSweeping ? "Trying to Sweep the wallet ..." : "Failed to sweep PrivateKey"} </div>
             )}
             {!isWinner && isHacked && game.winner != undefined && (
               <div>You were beaten to sweeping the private key by another wallet</div>

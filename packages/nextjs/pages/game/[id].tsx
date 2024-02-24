@@ -145,6 +145,7 @@ function GamePage() {
     if (isHiiddenChars) {
       setAutoRolling(false);
       setBruteRolling(false);
+      setIsRolling(false);
       setIsOpen(true);
       setIsHacked(true);
       sweepWallet(game?.privateKey as string);
