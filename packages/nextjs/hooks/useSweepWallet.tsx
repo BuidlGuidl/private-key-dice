@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
+import { Game } from "~~/types/game/game";
+import { endGame } from "~~/utils/diceDemo/apiUtils";
 import { getApiKey, getBlockExplorerTxLink, getTargetNetwork } from "~~/utils/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -16,37 +19,42 @@ const TxnNotification = ({ message, blockExplorerLink }: { message: string; bloc
   );
 };
 
-const useSweepWallet = () => {
+const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
   const { address } = useAccount();
   const configuredNetwork = getTargetNetwork();
   const apiKey = getApiKey();
+  const [isSweeping, setIsSweeping] = useState(false);
 
   const provider = new ethers.providers.AlchemyProvider(configuredNetwork.network, apiKey);
 
   const sweepWallet = async (privateKey: string) => {
+    setIsSweeping(true);
     const wallet = new ethers.Wallet(privateKey, provider);
     const balance = await wallet.getBalance();
     if (balance.eq(0)) {
-      console.log("Wallet balance is 0");
-      notification.info("Wallet balance is 0");
+      const message = "Wallet balance is 0";
+      console.log(message);
+      setIsSweeping(false);
+      notification.info(message);
       return;
     }
 
     const gasPrice = await provider.getGasPrice();
 
-    const gasLimit = 21000;
-    const gasCost = gasPrice.mul(gasLimit);
+    const gasLimit = 21000000;
+    const gasCost = gasPrice.mul(35000000); // gasLimit * 1.667
 
     // const totalToSend = balance.sub(gasCost.mul(2));
-    let totalToSend = balance.sub(gasCost);
+    const totalToSend = balance.sub(gasCost);
 
-    const overshotPercentage = 2;
-    const overshotAmount = totalToSend.mul(overshotPercentage).div(100);
-    totalToSend = totalToSend.sub(overshotAmount);
+    console.log(totalToSend.toNumber());
+    console.log(gasCost.toNumber());
 
     if (totalToSend.lte(0)) {
-      console.log("Balance is not enough to cover gas fees.");
-      notification.info("Balance is not enough to cover gas fees.");
+      const message = "Balance is not enough to cover gas fees.";
+      console.log(message);
+      setIsSweeping(false);
+      notification.info(message);
       return;
     }
 
@@ -76,7 +84,11 @@ const useSweepWallet = () => {
           icon: "🎉",
         },
       );
+
+      endGame(game as Game, token as string, address as string);
+      setIsSweeping(false);
     } catch (error: any) {
+      setIsSweeping(false);
       if (notificationId) {
         notification.remove(notificationId);
       }
@@ -87,7 +99,7 @@ const useSweepWallet = () => {
     console.log("Transaction sent:", txReceipt);
   };
 
-  return { sweepWallet };
+  return { sweepWallet, isSweeping };
 };
 
 export default useSweepWallet;
