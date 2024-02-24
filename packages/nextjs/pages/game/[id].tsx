@@ -78,23 +78,25 @@ function GamePage() {
       }
       setRolls(rolls);
       let iterations = 0;
-      for (let i = 0; i < isUnitRolling.length; i++) {
-        setTimeout(() => {
-          setIsUnitRolling(prevState => {
-            const newState = [...prevState];
-            newState[i] = false;
-            return newState;
-          });
-          iterations++;
-          if (iterations === isUnitRolling.length) {
-            setIsRolling(false);
-            setTimeout(() => {
-              setSpinning(false);
-              setRolledResult(rolls);
-            }, 500);
-          }
-        }, i * 1200);
-      }
+      setTimeout(() => {
+        for (let i = 0; i < isUnitRolling.length; i++) {
+          setTimeout(() => {
+            setIsUnitRolling(prevState => {
+              const newState = [...prevState];
+              newState[i] = false;
+              return newState;
+            });
+            iterations++;
+            if (iterations === isUnitRolling.length) {
+              setIsRolling(false);
+              setTimeout(() => {
+                setSpinning(false);
+                setRolledResult(rolls);
+              }, 500);
+            }
+          }, i * 800);
+        }
+      }, 800);
     }
   };
 
@@ -189,7 +191,7 @@ function GamePage() {
     const autoRoll = () => {
       if (autoRolling && game?.mode === "auto") {
         rollTheDice();
-        timeout = setTimeout(autoRoll, 6500);
+        timeout = setTimeout(autoRoll, 5000);
       }
     };
     if (game?.winner) {
