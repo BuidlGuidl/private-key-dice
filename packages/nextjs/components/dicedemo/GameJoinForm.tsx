@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { InputBase } from "./scaffold-eth";
+import { InputBase } from "../scaffold-eth";
 import QrReader from "react-qr-reader-es6";
 import { useAccount } from "wagmi";
 import serverConfig from "~~/server.config";
@@ -19,6 +19,8 @@ const GameJoinForm = ({
   const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { invite } = router.query;
+
   const handleChange = (value: string) => {
     setInviteCode(value);
   };
@@ -26,8 +28,7 @@ const GameJoinForm = ({
   const { address: playerAddress } = useAccount();
   const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
 
-  const handleJoinGame = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleJoinGame = async (invite: string) => {
     setLoading(true);
     const response = await fetch(`${serverUrl}/player/join`, {
       method: "PATCH",
@@ -35,21 +36,19 @@ const GameJoinForm = ({
         Authorization: `Bearer`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ inviteCode, playerAddress }),
+      body: JSON.stringify({ inviteCode: invite, playerAddress }),
     });
 
     const updatedGame = await response.json();
+    saveGameState(JSON.stringify(updatedGame));
     setLoading(false);
     if (updatedGame.error) {
       notification.error(updatedGame.error);
       return;
     }
-
-    saveGameState(JSON.stringify(updatedGame));
-
     await router.push({
       pathname: `/game/[id]`,
-      query: { id: inviteCode },
+      query: { id: invite },
     });
     notification.success("Joined game successfully");
 
@@ -70,9 +69,9 @@ const GameJoinForm = ({
     setScanning(false);
   };
 
-  const openCamera = () => {
-    setScanning(true);
-  };
+  // const openCamera = () => {
+  //   setScanning(true);
+  // };
 
   useEffect(() => {
     if (labelRef.current) {
@@ -80,9 +79,22 @@ const GameJoinForm = ({
     }
   }, []);
 
+  useEffect(() => {
+    if (invite) {
+      handleJoinGame(invite as string);
+    }
+    if (Object.keys(router.query).length > 0) {
+      router.replace({
+        pathname: router.pathname,
+        query: {},
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invite]);
+
   return (
     <div className="">
-      <form onSubmit={handleJoinGame}>
+      <form onSubmit={() => handleJoinGame(inviteCode)}>
         <label ref={labelRef}>
           <h1> Enter Invite Code</h1>
           <InputBase
@@ -90,11 +102,11 @@ const GameJoinForm = ({
             value={inviteCode}
             placeholder="Invite Code"
             onChange={handleChange}
-            suffix={
-              <button type="button" className={`btn btn-primary h-[2.2rem] min-h-[2.2rem] `} onClick={openCamera}>
-                Scan
-              </button>
-            }
+            // suffix={
+            //   <button type="button" className={`btn btn-primary h-[2.2rem] min-h-[2.2rem] `} onClick={openCamera}>
+            //     Scan
+            //   </button>
+            // }
           />
         </label>
         <button className="btn btn-sm btn-primary mt-6" type="submit">

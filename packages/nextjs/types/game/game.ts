@@ -3,12 +3,11 @@ export interface Game {
   adminAddress: string;
   status: "lobby" | "ongoing" | "paused" | "finished";
   inviteCode: string;
-  maxPlayers: number;
   diceCount: number;
-  mode: "auto" | "manual";
+  mode: "auto" | "manual" | "brute";
   privateKey: string;
+  hiddenPrivateKey: string;
   hiddenChars: Record<string, any>;
-  prize: number;
   players: string[];
   winner?: string | null;
 }

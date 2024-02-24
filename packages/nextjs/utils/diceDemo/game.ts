@@ -9,7 +9,6 @@ export const saveGameState = (gameState: string) => {
 export const loadGameState = () => {
   if (typeof window != "undefined" && window != null) {
     const gameState = window.localStorage.getItem(STORAGE_KEY);
-    // console.log(gameState);
     if (gameState) return JSON.parse(gameState);
   } else return { token: null, game: null };
 };

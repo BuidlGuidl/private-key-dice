@@ -113,3 +113,8 @@ export function getTargetNetwork(): chains.Chain & Partial<TChainAttributes> {
     ...NETWORKS_EXTRA_DATA[configuredNetwork.id],
   };
 }
+
+export function getApiKey() {
+  const apiKey = scaffoldConfig.alchemyApiKey;
+  return apiKey;
+}
