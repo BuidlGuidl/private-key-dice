@@ -30,10 +30,7 @@ const Home: NextPage = () => {
                 Welcome to &ldquo;Crypto Dice Hunt&rdquo; - where you will race against others, rolling dices, to beat
                 the security of private keys.
               </p>
-              <p>
-                A user starts by creating a game, selecting the characters to be concealed in the private key. Upto 30
-                opponents can join the quest.
-              </p>
+              <p>A user starts by creating a game, selecting the characters to be concealed in the private key.</p>
               <p>
                 Your objective as a player? Decode these hidden characters and seize the prize concealed within the
                 wallet before your opponent does.
