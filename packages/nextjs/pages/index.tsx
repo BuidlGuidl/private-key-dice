@@ -19,24 +19,21 @@ const Home: NextPage = () => {
     }
   }, [invite]);
 
+  const quote =
+    "Every key is a boundless whisper from the unknown and each guess a brushstroke on the infinite canvas of possibility, our journey weaves through the lattice of chance and destiny, illuminating paths in the cosmic dance of uncharted realms, where the thrill of discovery echoes in the heartbeats of the bold, crafting a universe with every daring leap into the silence of the never-before-seen.";
+
   return (
     <>
       <MetaHeader />
       <div className="flex flex-col gap-4 xs:w-4/5 xl:w-[50%] w-full mx-auto sm:text-base text-sm">
-        <div className="md:grid md:grid-cols-2 md:gap-2 mt-5">
+        <div className="flex flex-col items-center p-10">
+          <p className="text-center italic text-2xl" style={{ color: "#9ffefe" }}>
+            {quote}
+          </p>
+        </div>
+        <div className="p-4">
           <div className="mb-10 p-4">
-            <div className="p-6  rounded-xl shadow-xl font-semibold">
-              <p>
-                Welcome to &ldquo;Crypto Dice Hunt&rdquo; - where you will race against others, rolling dices, to beat
-                the security of private keys.
-              </p>
-              <p>A user starts by creating a game, selecting the characters to be concealed in the private key.</p>
-              <p>
-                Your objective as a player? Decode these hidden characters and seize the prize concealed within the
-                wallet before your opponent does.
-              </p>
-              Are you ready to race to wealth? Roll the dice, hack the private key, and claim the Prize!
-            </div>
+            <div className="p-6 font-semibold"></div>
           </div>
 
           <div className="mx-auto w-4/5">

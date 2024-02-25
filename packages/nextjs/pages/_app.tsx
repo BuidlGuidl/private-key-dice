@@ -32,6 +32,8 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
     setIsDarkTheme(isDarkMode);
   }, [isDarkMode]);
 
+  const nowish = new Date();
+
   return (
     <WagmiConfig config={wagmiConfig}>
       <NextNProgress />
@@ -40,7 +42,15 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
         avatar={BlockieAvatar}
         theme={isDarkTheme ? darkTheme() : lightTheme()}
       >
-        <div className="flex flex-col min-h-screen">
+        <div
+          className="flex flex-col min-h-screen"
+          style={{
+            backgroundImage: "url('/bg" + ((nowish.getMinutes() % 4) + 1) + ".jpeg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
           <Header />
           <main className="relative flex flex-col flex-1 overflow-hidden">
             <Component {...pageProps} />
