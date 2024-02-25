@@ -212,20 +212,6 @@ export default function Wallet() {
             <div className="mt-6">
               <h2>Known Private Keys:</h2>
               {extraPkDisplay}
-              <button
-                className="btn btn-primary md:btn-sm btn-xs my-2"
-                onClick={() => {
-                  const currentPrivateKey = window.localStorage.getItem("scaffoldEth2.burnerWallet.sk");
-                  if (currentPrivateKey) {
-                    window.localStorage.setItem("scaffoldEth2.burnerWallet.sk_backup" + Date.now(), currentPrivateKey);
-                  }
-                  const privateKey = generatePrivateKey();
-                  window.localStorage.setItem("scaffoldEth2.burnerWallet.sk", privateKey);
-                  window.location.reload();
-                }}
-              >
-                Generate
-              </button>
             </div>
           ) : (
             ""
@@ -278,16 +264,33 @@ export default function Wallet() {
               </div>
               {display}
 
-              <div className="flex justify-end gap-2 ">
+              <div className="grid md:grid-cols-4 grid-cols-2 gap-2 mt-4">
                 <button
                   className="btn btn-primary md:btn-sm btn-xs "
+                  onClick={() => {
+                    const currentPrivateKey = window.localStorage.getItem("scaffoldEth2.burnerWallet.sk");
+                    if (currentPrivateKey) {
+                      window.localStorage.setItem(
+                        "scaffoldEth2.burnerWallet.sk_backup" + Date.now(),
+                        currentPrivateKey,
+                      );
+                    }
+                    const privateKey = generatePrivateKey();
+                    window.localStorage.setItem("scaffoldEth2.burnerWallet.sk", privateKey);
+                    window.location.reload();
+                  }}
+                >
+                  Generate
+                </button>
+                <button
+                  className="btn btn-primary md:btn-sm  btn-xs "
                   onClick={() => {
                     pk == "" && selectedAddress ? setPK(selectedAddress) : setPK("");
                     setQr("");
                   }}
                 >
                   <KeyIcon className="w-4 h-4" />
-                  {pk == "" ? "Private Key" : "Hide"}
+                  {pk == "" ? "Key" : "Hide"}
                 </button>
                 <button
                   className="btn btn-primary md:btn-sm btn-xs"

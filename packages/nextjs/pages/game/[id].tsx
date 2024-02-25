@@ -129,12 +129,12 @@ function GamePage() {
 
     setGame(gameState);
     setToken(token);
-    setIsUnitRolling(Array.from({ length: gameState.diceCount }, () => false));
+    setIsUnitRolling(Array.from({ length: gameState?.diceCount }, () => false));
 
     if (typeof window !== "undefined") {
       const currentUrl = window.location.href;
       const rootPath = new URL(currentUrl).origin;
-      setInviteUrl(rootPath + "?invite=" + gameState.inviteCode);
+      setInviteUrl(rootPath + "?invite=" + gameState?.inviteCode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -191,7 +191,7 @@ function GamePage() {
     const autoRoll = () => {
       if (autoRolling && game?.mode === "auto") {
         rollTheDice();
-        timeout = setTimeout(autoRoll, game.diceCount * 800 + 1500);
+        timeout = setTimeout(autoRoll, game?.diceCount * 800 + 1500);
       }
     };
     if (game?.winner) {
@@ -569,9 +569,11 @@ function GamePage() {
     );
   } else {
     return (
-      <div className="flex justify-center items-center text-2xl">
-        Oops, it appears that you are attempting to access a game that either does not exist or to which access has been
-        lost. Please return to the homepage to join a new game.
+      <div className=" mt-20 lg:text-3xl lg:px-56 px-5 text-lg h-screen">
+        <p className="text-center">
+          Oops, it appears that you are attempting to access a game that either doesn&apos;t exist or to which access
+          has been lost. Please return to the homepage to join a new game.
+        </p>
       </div>
     );
   }

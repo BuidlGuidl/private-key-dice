@@ -54,10 +54,12 @@ const Congrats = ({
             )}
             {!isWinner && isHacked && game.winner != undefined && (
               <p className="text-center">
-                Hidden characters found but you were beaten to sweeping the private key by another wallet
+                Hidden characters found but you were beaten to sweeping the private key by another player
               </p>
             )}
-            {!isWinner && !isHacked && <div>Sorry fren, you lost</div>}
+            {!isWinner && !isHacked && (
+              <div>Sorry fren, you lost! You were beaten to sweeping the private key by another player</div>
+            )}
 
             <p className="text-center mt-5 text-2xl">
               The hidden characters are: {Object.values(game.hiddenChars).join(", ").toUpperCase()}
