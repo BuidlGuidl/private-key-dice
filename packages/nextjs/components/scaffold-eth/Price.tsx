@@ -6,7 +6,7 @@ type TPriceProps = {
 };
 
 export const Price: React.FC<TPriceProps> = ({ value }: TPriceProps) => {
-  const [dollarMode, setDollarMode] = useState(false);
+  const [dollarMode, setDollarMode] = useState(true);
   const nativePrice = useGlobalState(state => state.nativeCurrencyPrice);
 
   const isValueNaN = isNaN(value);

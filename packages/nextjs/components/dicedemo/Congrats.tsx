@@ -49,21 +49,15 @@ const Congrats = ({
             )}
             {!isWinner && isHacked && !game.winner && (
               <p className="text-center">
-                Hidden characters found, {isSweeping ? "Trying to sweep private key ..." : sweepMessage}
+                Hidden characters found, {isSweeping ? "Trying to sweep private key..." : sweepMessage}
               </p>
             )}
             {!isWinner && isHacked && game.winner != undefined && (
               <p className="text-center">
-                Hidden characters found but you were beaten to sweeping the private key by another player
+                Hidden characters were discovered, but another wallet beat you to claiming the private key.{" "}
               </p>
             )}
-            {!isWinner && !isHacked && (
-              <div>Sorry fren, you lost! You were beaten to sweeping the private key by another player</div>
-            )}
-
-            <p className="text-center mt-5 text-2xl">
-              The hidden characters are: {Object.values(game.hiddenChars).join(", ").toUpperCase()}
-            </p>
+            {!isWinner && !isHacked && <div>Someone else found the private key!</div>}
           </div>
         </div>
       )}

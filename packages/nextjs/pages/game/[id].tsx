@@ -246,13 +246,12 @@ function GamePage() {
   if (game) {
     return (
       <div>
-        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto">
+        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary p-10 flex items-center justify-center text-8xl">
+          <Price value={Number(prize.data?.formatted)} />
+        </div>
+        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary">
           <div className="flex  md:flex-row flex-col border rounded-xl md:max-h-[40rem]">
             <div className="md:w-1/3 border-r ">
-              <div className="font-bold py-2 border-b px-4 flex items-center justify-between">
-                <h1 className=" md:text-xl text-lg tracking-wide ">INFO</h1>
-                <h1>Role: {isAdmin ? "Host" : isPlayer ? "Player" : "Kicked"}</h1>
-              </div>
               <div className="py-2">
                 {isAdmin && (
                   <div className="p-2 bg-base-300 mt-2 rounded-md px-4 w-[95%] mx-auto">
@@ -332,9 +331,10 @@ function GamePage() {
                   </div>
                 )}
                 <div className="flex flex-col items-center gap-2 bg-base-300 mt-2 rounded-md w-[95%] mx-auto px-4 py-2 ">
-                  <div className="flex gap-2 justify-center">
-                    <span> Status: {game.status}</span>
-                    {isAdmin && (
+                  {isAdmin && (
+                    <div className="flex gap-2 justify-center">
+                      <span> Status: {game.status}</span>
+
                       <input
                         id="mode-toggle"
                         type="checkbox"
@@ -343,11 +343,12 @@ function GamePage() {
                         onChange={() => pauseResumeGame(game, token)}
                         checked={game?.status == "ongoing"}
                       />
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 items-center">
-                    <span> Mode: {game.mode}</span>
-                    {isAdmin && (
+                    </div>
+                  )}
+                  {isAdmin && (
+                    <div className="flex flex-col gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 items-center">
+                      <span> Mode: {game.mode}</span>
+
                       <div className="flex justify-around w-full flex-wrap gap-1">
                         <label className="flex cursor-pointer gap-2">
                           <span>Auto</span>
@@ -386,16 +387,10 @@ function GamePage() {
                           />
                         </label>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2 bg-base-300 mt-2 rounded-md px-4 py-2 w-[95%] mx-auto  font-bold justify-center">
-                  Pk Balance:
-                  <Price value={Number(prize.data?.formatted)} />
-                </div>
-                <div className="flex gap-2 bg-base-300 mt-2 rounded-md px-4 py-2 w-[95%] mx-auto  justify-center">
-                  Hidden Characters: {game.diceCount}
-                </div>
+
                 {screenwidth <= 768 && isAdmin && (
                   <div>
                     <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
@@ -442,18 +437,22 @@ function GamePage() {
                       PLAYERS: {game?.players.length}
                     </h1>
                   </div>
-                  <div className={isAdmin ? "p-4 overflow-scroll max-h-[28rem]" : "p-4 overflow-scroll max-h-[15rem]"}>
-                    {game?.players?.map((player: string) => (
-                      <div key={player} className="mb-4 flex justify-between">
-                        <Address format={"long"} address={player} />
-                        {isAdmin && (
-                          <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
-                            kick
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  {isAdmin && (
+                    <div
+                      className={isAdmin ? "p-4 overflow-scroll max-h-[28rem]" : "p-4 overflow-scroll max-h-[15rem]"}
+                    >
+                      {game?.players?.map((player: string) => (
+                        <div key={player} className="mb-4 flex justify-between">
+                          <Address format={"long"} address={player} />
+                          {isAdmin && (
+                            <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
+                              kick
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -483,11 +482,6 @@ function GamePage() {
                 {game.mode === "auto" ? " Auto Roll" : game.mode === "brute" ? "Brute Roll" : "Roll"}
               </button>
               <div>
-                <p className=" text-center">Guess the hidden characters</p>
-                <div className="flex justify-center gap-2 mt-2">
-                  <span>Result:</span>
-                  {rolledResult.length > 0 && !spinning && <span className=""> {rolledResult.join(" , ")}</span>}
-                </div>
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) =>
                     rolled ? (
@@ -563,7 +557,7 @@ function GamePage() {
             </div>
           )}
           {isAdmin && game.winner && <RestartWithNewPk isOpen={restartOpen} setIsOpen={setRestartOpen} />}
-          {!isAdmin && !isPlayer && <p className="text-center text-2xl">Sorry fren, You have been kicked</p>}
+          {!isAdmin && !isPlayer && <p className="text-center text-2xl">You have been kicked</p>}
         </div>
       </div>
     );
@@ -571,7 +565,7 @@ function GamePage() {
     return (
       <div className=" mt-20 lg:text-3xl lg:px-56 px-5 text-lg h-screen">
         <p className="text-center">
-          Oops, it appears that you are attempting to access a game that either doesn&apos;t exist or to which access
+          Oops, it appears that you are attempting to access a game that doesn&apos;t exist or to which access
           has been lost. Please return to the homepage to join a new game.
         </p>
       </div>
