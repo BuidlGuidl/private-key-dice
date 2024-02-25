@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
+import { loadBurnerSK } from "~~/hooks/scaffold-eth";
 import { Game } from "~~/types/game/game";
 
 const Congrats = ({
@@ -22,7 +23,8 @@ const Congrats = ({
     setIsOpen(false);
   };
 
-  // const { isSweeping } = useSweepWallet({ game: game, token: token });
+  const privateKey = loadBurnerSK();
+  const pwlink = "https://punkwallet.io/pk#" + privateKey;
 
   return (
     <div className=" overflow-hidden w-fit text-lg bg-base-200 h-full">
@@ -34,9 +36,16 @@ const Congrats = ({
             </label>
 
             {isWinner && (
-              <p className="text-center">
-                Congrats, you found the hidden characters and have successfully swept the private Key
-              </p>
+              <div>
+                <p className="text-center">
+                  Congrats, you found the hidden characters and have successfully swept the private Key
+                </p>
+                <p className="text-center">
+                  <a className="font-bold italic text-xl" href={pwlink} target="_blank" rel="noreferrer">
+                    Click to open your punk wallet
+                  </a>
+                </p>
+              </div>
             )}
             {!isWinner && isHacked && !game.winner && (
               <p className="text-center">
@@ -51,7 +60,7 @@ const Congrats = ({
             {!isWinner && !isHacked && <div>Sorry fren, you lost</div>}
 
             <p className="text-center mt-5 text-2xl">
-              The hidden characters are {Object.values(game.hiddenChars).join(", ")}
+              The hidden characters are: {Object.values(game.hiddenChars).join(", ").toUpperCase()}
             </p>
           </div>
         </div>

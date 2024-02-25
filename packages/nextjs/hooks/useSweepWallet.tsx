@@ -88,9 +88,11 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
         },
       );
 
-      endGame(game as Game, token as string, address as string);
+      await endGame(game as Game, token as string, address as string);
+
       setIsSweeping(false);
     } catch (error: any) {
+      setSweepMessage("Error sweeping wallet");
       setIsSweeping(false);
       if (notificationId) {
         notification.remove(notificationId);
