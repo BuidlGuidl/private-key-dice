@@ -557,7 +557,7 @@ function GamePage() {
             </div>
           )}
           {isAdmin && game.winner && <RestartWithNewPk isOpen={restartOpen} setIsOpen={setRestartOpen} />}
-          {!isAdmin && !isPlayer && <p className="text-center text-2xl">Sorry fren, You have been kicked</p>}
+          {!isAdmin && !isPlayer && <p className="text-center text-2xl">You have been kicked</p>}
         </div>
       </div>
     );
