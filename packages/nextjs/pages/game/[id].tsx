@@ -568,7 +568,12 @@ function GamePage() {
       </div>
     );
   } else {
-    return <div>No Game</div>;
+    return (
+      <div className="flex justify-center items-center text-2xl">
+        Oops, it appears that you are attempting to access a game that either does not exist or to which access has been
+        lost. Please return to the homepage to join a new game.
+      </div>
+    );
   }
 }
 
