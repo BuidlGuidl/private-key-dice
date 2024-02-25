@@ -42,7 +42,7 @@ const Congrats = ({
                 </p>
                 <p className="text-center">
                   <a className="font-bold italic text-xl" href={pwlink} target="_blank" rel="noreferrer">
-                    Click to open your punk wallet
+                    <button className="btn btn-primary"> Open in punk wallet</button>
                   </a>
                 </p>
               </div>

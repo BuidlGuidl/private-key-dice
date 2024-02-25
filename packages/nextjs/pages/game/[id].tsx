@@ -246,14 +246,14 @@ function GamePage() {
   if (game) {
     return (
       <div>
-        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary p-10 flex items-center justify-center text-8xl">
+        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary p-10  items-center justify-center md:text-8xl text-6xl">
           <Price value={Number(prize.data?.formatted)} />
         </div>
         <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary">
           <div className="flex  md:flex-row flex-col border rounded-xl md:max-h-[40rem]">
-            <div className="md:w-1/3 border-r ">
-              <div className="py-2">
-                {isAdmin && (
+            <div className="md:w-1/3 md:border-r ">
+              {isAdmin && (
+                <div className="py-2">
                   <div className="p-2 bg-base-300 mt-2 rounded-md px-4 w-[95%] mx-auto">
                     <div className="flex items-center justify-center ">
                       <span>Copy Invite Url</span>
@@ -329,9 +329,8 @@ function GamePage() {
                       )}
                     </div> */}
                   </div>
-                )}
-                <div className="flex flex-col items-center gap-2 bg-base-300 mt-2 rounded-md w-[95%] mx-auto px-4 py-2 ">
-                  {isAdmin && (
+                  )
+                  <div className="flex flex-col items-center gap-2 bg-base-300 mt-2 rounded-md w-[95%] mx-auto px-4 py-2 ">
                     <div className="flex gap-2 justify-center">
                       <span> Status: {game.status}</span>
 
@@ -344,8 +343,6 @@ function GamePage() {
                         checked={game?.status == "ongoing"}
                       />
                     </div>
-                  )}
-                  {isAdmin && (
                     <div className="flex flex-col gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 items-center">
                       <span> Mode: {game.mode}</span>
 
@@ -388,20 +385,19 @@ function GamePage() {
                         </label>
                       </div>
                     </div>
+                  </div>
+                  {screenwidth <= 768 && (
+                    <div>
+                      <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
+                        <h1 className=" tracking-wide">PRIVATE KEY</h1>
+                      </div>
+                      <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer">
+                        {Object.values(game?.hiddenPrivateKey)}
+                      </p>
+                    </div>
                   )}
                 </div>
-
-                {screenwidth <= 768 && isAdmin && (
-                  <div>
-                    <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
-                      <h1 className=" tracking-wide">PRIVATE KEY</h1>
-                    </div>
-                    <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer">
-                      {Object.values(game?.hiddenPrivateKey)}
-                    </p>
-                  </div>
-                )}
-              </div>
+              )}
               {game.winner && (
                 <div className="flex gap-2 bg-base-300 rounded-md px-4 mt-2 mb-2 py-2 justify-center w-[95%] mx-auto">
                   Winner <Address address={game.winner} />
@@ -482,6 +478,14 @@ function GamePage() {
                 {game.mode === "auto" ? " Auto Roll" : game.mode === "brute" ? "Brute Roll" : "Roll"}
               </button>
               <div>
+                {game.mode == "brute" && (
+                  <div>
+                    <div className="flex justify-center gap-2 mt-2">
+                      <span>Result:</span>
+                      {rolledResult.length > 0 && !spinning && <span className=""> {rolledResult.join(" , ")}</span>}
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-wrap justify-center gap-2 mt-8">
                   {Object.entries(game.hiddenChars).map(([key], index) =>
                     rolled ? (
@@ -565,8 +569,8 @@ function GamePage() {
     return (
       <div className=" mt-20 lg:text-3xl lg:px-56 px-5 text-lg h-screen">
         <p className="text-center">
-          Oops, it appears that you are attempting to access a game that doesn&apos;t exist or to which access
-          has been lost. Please return to the homepage to join a new game.
+          Oops, it appears that you are attempting to access a game that doesn&apos;t exist or to which access has been
+          lost. Please return to the homepage to join a new game.
         </p>
       </div>
     );
