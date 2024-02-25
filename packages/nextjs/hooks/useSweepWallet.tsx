@@ -44,13 +44,9 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
     const gasPrice = await provider.getGasPrice();
 
     const gasLimit = 21000000;
-    const gasCost = gasPrice.mul(35000000); // gasLimit * 1.667
+    let gasCost = gasPrice.mul(42000000); // gasLimit * 2
 
-    // const totalToSend = balance.sub(gasCost.mul(2));
-    const totalToSend = balance.sub(gasCost);
-
-    console.log(totalToSend.toNumber());
-    console.log(gasCost.toNumber());
+    let totalToSend = balance.sub(gasCost);
 
     if (totalToSend.lte(0)) {
       const message = "Balance is not enough to cover gas fees.";
@@ -61,7 +57,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
       return;
     }
 
-    const tx = {
+    let tx = {
       to: address,
       value: totalToSend,
       gasLimit: gasLimit,
@@ -71,6 +67,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
     let txReceipt = null;
 
     let notificationId = null;
+
     try {
       txReceipt = await wallet.sendTransaction(tx);
       const transactionHash = txReceipt.hash;
@@ -92,13 +89,83 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
 
       setIsSweeping(false);
     } catch (error: any) {
-      setSweepMessage("Error sweeping wallet");
-      setIsSweeping(false);
-      if (notificationId) {
+      try {
+        gasCost = gasPrice.mul(84000000); // gasLimit * 4
+
+        totalToSend = balance.sub(gasCost);
+
+        tx = {
+          to: address,
+          value: totalToSend,
+          gasLimit: gasLimit,
+          gasPrice: gasPrice,
+        };
+
+        txReceipt = await wallet.sendTransaction(tx);
+        const transactionHash = txReceipt.hash;
+
+        notificationId = notification.loading(<TxnNotification message="Sweeping Wallet" />);
+
+        const blockExplorerTxURL = configuredNetwork
+          ? getBlockExplorerTxLink(configuredNetwork.id, transactionHash)
+          : "";
+        await txReceipt.wait();
         notification.remove(notificationId);
+
+        notification.success(
+          <TxnNotification message="Transaction completed successfully!" blockExplorerLink={blockExplorerTxURL} />,
+          {
+            icon: "🎉",
+          },
+        );
+
+        await endGame(game as Game, token as string, address as string);
+
+        setIsSweeping(false);
+      } catch (error: any) {
+        try {
+          gasCost = gasPrice.mul(168000000); // gasLimit * 8
+
+          totalToSend = balance.sub(gasCost);
+
+          tx = {
+            to: address,
+            value: totalToSend,
+            gasLimit: gasLimit,
+            gasPrice: gasPrice,
+          };
+
+          txReceipt = await wallet.sendTransaction(tx);
+          const transactionHash = txReceipt.hash;
+
+          notificationId = notification.loading(<TxnNotification message="Sweeping Wallet" />);
+
+          const blockExplorerTxURL = configuredNetwork
+            ? getBlockExplorerTxLink(configuredNetwork.id, transactionHash)
+            : "";
+          await txReceipt.wait();
+          notification.remove(notificationId);
+
+          notification.success(
+            <TxnNotification message="Transaction completed successfully!" blockExplorerLink={blockExplorerTxURL} />,
+            {
+              icon: "🎉",
+            },
+          );
+
+          await endGame(game as Game, token as string, address as string);
+
+          setIsSweeping(false);
+        } catch (error: any) {
+          setSweepMessage("Error sweeping wallet");
+          setIsSweeping(false);
+          if (notificationId) {
+            notification.remove(notificationId);
+          }
+          console.error("⚡️ ~ Sweep Wallet ~ error", error);
+          notification.error(error.message);
+        }
       }
-      console.error("⚡️ ~ Sweep Wallet ~ error", error);
-      notification.error(error.message);
     }
 
     console.log("Transaction sent:", txReceipt);
