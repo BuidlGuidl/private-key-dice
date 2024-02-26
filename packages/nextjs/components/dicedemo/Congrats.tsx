@@ -24,7 +24,7 @@ const Congrats = ({
   };
 
   const privateKey = loadBurnerSK();
-  const pwlink = "https://punkwallet.io/pk#" + privateKey;
+  const pwlink = "https://punkwallet.io/opt:pk#" + privateKey;
 
   return (
     <div className=" overflow-hidden w-fit text-lg bg-base-200 h-full">
