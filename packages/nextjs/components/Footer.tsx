@@ -11,6 +11,7 @@ import { getTargetNetwork } from "~~/utils/scaffold-eth";
  */
 export const Footer = () => {
   const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrencyPrice);
+  const codeLink = "https://github.com/BuidlGuidl/private-key-dice";
 
   return (
     <div className="min-h-0 py-5 px-1 mb-11 lg:mb-0">
@@ -31,15 +32,13 @@ export const Footer = () => {
       <div className="w-full">
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-2 text-sm w-full">
-            <div className="text-center">
-              <a
-                href="https://github.com/scaffold-eth/se-2"
-                target="_blank"
-                rel="noreferrer"
-                className="underline underline-offset-2"
-              >
-                Fork me
-              </a>
+            <div>
+              <div className="flex justify-center items-center gap-2 text-sm w-full">
+                📝{" "}
+                <a href={codeLink} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                  Code/Repo
+                </a>{" "}
+              </div>
             </div>
             <span>·</span>
             <div>
@@ -56,16 +55,6 @@ export const Footer = () => {
               </p>
             </div>
             <span>·</span>
-            <div className="text-center">
-              <a
-                href="https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA"
-                target="_blank"
-                rel="noreferrer"
-                className="underline underline-offset-2"
-              >
-                Support
-              </a>
-            </div>
           </div>
         </ul>
       </div>
