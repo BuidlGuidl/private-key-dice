@@ -48,10 +48,6 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
 
     let totalToSend = balance.sub(gasCost);
 
-    console.log(balance.toNumber());
-    console.log(gasCost.toNumber());
-    console.log(totalToSend.toNumber());
-
     if (totalToSend.lte(0)) {
       const message = "Balance is not enough to cover gas fees.";
       console.log(message);
