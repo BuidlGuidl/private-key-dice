@@ -43,8 +43,8 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
 
     const gasPrice = await provider.getGasPrice();
 
-    const gasLimit = 21000000;
-    let gasCost = gasPrice.mul(42000000); // gasLimit * 2
+    const gasLimit = 21000;
+    let gasCost = gasPrice.mul(42000); // gasLimit * 2
 
     let totalToSend = balance.sub(gasCost);
 
@@ -90,7 +90,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
       setIsSweeping(false);
     } catch (error: any) {
       try {
-        gasCost = gasPrice.mul(84000000); // gasLimit * 4
+        gasCost = gasPrice.mul(84000); // gasLimit * 4
 
         totalToSend = balance.sub(gasCost);
 
@@ -124,7 +124,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
         setIsSweeping(false);
       } catch (error: any) {
         try {
-          gasCost = gasPrice.mul(168000000); // gasLimit * 8
+          gasCost = gasPrice.mul(168000); // gasLimit * 8
 
           totalToSend = balance.sub(gasCost);
 
