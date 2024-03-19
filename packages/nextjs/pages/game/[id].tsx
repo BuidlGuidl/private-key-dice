@@ -6,8 +6,8 @@ import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useAccount, useBalance } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import Congrats from "~~/components/dicedemo/Congrats";
 import HostAnnouncement from "~~/components/dicedemo/HostAnnouncement";
+import PlayerAnnouncement from "~~/components/dicedemo/PlayerAnnoucement";
 import RestartWithNewPk from "~~/components/dicedemo/RestartWithNewPk";
 import { Address } from "~~/components/scaffold-eth";
 import { Price } from "~~/components/scaffold-eth/Price";
@@ -15,6 +15,7 @@ import useGameData from "~~/hooks/useGameData";
 import useSweepWallet from "~~/hooks/useSweepWallet";
 import { Game } from "~~/types/game/game";
 import { kickPlayer, pauseResumeGame, toggleMode } from "~~/utils/diceDemo/apiUtils";
+import { calculateLength, compareResult, generateRandomHex } from "~~/utils/diceDemo/gameUtils";
 
 function GamePage() {
   const router = useRouter();
@@ -46,20 +47,7 @@ function GamePage() {
   const prize = useBalance({ address: game?.adminAddress });
   const { sweepWallet, isSweeping, sweepMessage } = useSweepWallet({ game, token });
 
-  const calculateLength = () => {
-    const maxLength = 150;
-    const diceCount = game?.diceCount ?? 0;
-    const calculatedLength = Math.max(maxLength - (diceCount - 1) * 3, 10);
-    return calculatedLength;
-  };
-
-  const length = calculateLength();
-
-  const generateRandomHex = () => {
-    const hexDigits = "0123456789ABCDEF";
-    const randomIndex = Math.floor(Math.random() * hexDigits.length);
-    return hexDigits[randomIndex];
-  };
+  const length = calculateLength(game?.diceCount as number);
 
   const isAdmin = address == game?.adminAddress;
   const isPlayer = game?.players?.includes(address as string);
@@ -117,16 +105,8 @@ function GamePage() {
     }
   };
 
-  const compareResult = () => {
-    if (rolled && rolledResult.length > 0 && game?.hiddenChars)
-      return rolledResult.every(
-        (value, index) => value.toLowerCase() === Object.values(game?.hiddenChars)[index].toLowerCase(),
-      );
-  };
-
   useEffect(() => {
     const { token, game: gameState } = loadGameState();
-
     setGame(gameState);
     setToken(token);
     setIsUnitRolling(Array.from({ length: gameState?.diceCount }, () => false));
@@ -140,7 +120,11 @@ function GamePage() {
   }, []);
 
   useEffect(() => {
-    const isHiiddenChars = compareResult();
+    let isHiiddenChars;
+
+    if (rolled && rolledResult.length > 0 && game?.hiddenChars) {
+      isHiiddenChars = compareResult(rolledResult, game?.hiddenChars);
+    }
 
     if (isHiiddenChars) {
       setAutoRolling(false);
@@ -246,15 +230,15 @@ function GamePage() {
   if (game) {
     return (
       <div>
-        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary p-10  items-center justify-center md:text-8xl text-6xl">
+        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary p-10  items-center justify-center md:text-8xl text-6xl rounded-md shadow-md">
           <Price value={Number(prize.data?.formatted)} />
         </div>
-        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary">
-          <div className="flex  md:flex-row flex-col border rounded-xl md:max-h-[40rem]">
-            <div className="md:w-1/3 md:border-r ">
+        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto rounded-xl bg-secondary shadow-md overflow-hidden">
+          <div className="flex  md:flex-row flex-col rounded-xl overflow-hidden md:max-h-[40rem]">
+            <div className="md:w-1/3 md:border-r-white border-2 ">
               {isAdmin && (
                 <div className="py-2">
-                  <div className="p-2 bg-base-300 mt-2 rounded-md px-4 w-[95%] mx-auto">
+                  <div className="p-2 bg-base-200 mt-2 rounded-md px-4 w-[95%] mx-auto">
                     <div className="flex items-center justify-center ">
                       <span>Copy Invite Url</span>
                       {inviteUrlCopied ? (
@@ -311,26 +295,8 @@ function GamePage() {
                         </CopyToClipboard>
                       )}
                     </div>
-                    {/* <div className="flex justify-center mt-2 cursor-pointer">
-                      {inviteUrlCopied ? (
-                        <span className="underline">Copied invite Url</span>
-                      ) : (
-                        <CopyToClipboard
-                          text={inviteUrl}
-                          onCopy={() => {
-                            setInviteUrlCopied(true);
-                            setTimeout(() => {
-                              setInviteUrlCopied(false);
-                            }, 800);
-                          }}
-                        >
-                          <span>Copy invite Url</span>
-                        </CopyToClipboard>
-                      )}
-                    </div> */}
                   </div>
-                  )
-                  <div className="flex flex-col items-center gap-2 bg-base-300 mt-2 rounded-md w-[95%] mx-auto px-4 py-2 ">
+                  <div className="flex flex-col items-center gap-2 bg-base-200 mt-2 rounded-md w-[95%] mx-auto px-4 py-2 ">
                     <div className="flex gap-2 justify-center">
                       <span> Status: {game.status}</span>
 
@@ -343,7 +309,7 @@ function GamePage() {
                         checked={game?.status == "ongoing"}
                       />
                     </div>
-                    <div className="flex flex-col gap-2 bg-base-200 mt-2 rounded-md w-full px-4 py-2 items-center">
+                    <div className="flex flex-col gap-2 bg-secondary mt-2 rounded-md w-full px-4 py-2 items-center">
                       <span> Mode: {game.mode}</span>
 
                       <div className="flex justify-around w-full flex-wrap gap-1">
@@ -388,7 +354,7 @@ function GamePage() {
                   </div>
                   {screenwidth <= 768 && (
                     <div>
-                      <div className="font-bold py-2 border-y flex items-center px-4 justify-center my-2 ">
+                      <div className="font-bold py-2 border-y-white border-2 flex items-center px-4 justify-center my-2 ">
                         <h1 className=" tracking-wide">PRIVATE KEY</h1>
                       </div>
                       <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer">
@@ -400,7 +366,7 @@ function GamePage() {
               )}
               {game.winner && (
                 <div className="flex gap-2 bg-base-300 rounded-md px-4 mt-2 mb-2 py-2 justify-center w-[95%] mx-auto">
-                  Winner <Address address={game.winner} />
+                  Winner <Address address={game?.winner} />
                 </div>
               )}
               {/* {isAdmin && game.winner && (
@@ -418,7 +384,7 @@ function GamePage() {
               <div className="md:w-2/3">
                 {isAdmin && (
                   <div>
-                    <div className="font-bold py-2 border-b flex items-center px-4  ">
+                    <div className="font-bold py-2 border-b-white border-2 flex items-center px-4  ">
                       <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">PRIVATE KEY</h1>
                     </div>
                     <p className="whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none text-lg cursor-pointer">
@@ -428,7 +394,7 @@ function GamePage() {
                 )}
 
                 <div>
-                  <div className="py-2 border-y px-4">
+                  <div className="py-2 border-y-white border-2 px-4">
                     <h1 className="font-bold md:text-xl text-lg  tracking-wide md:text-left text-center">
                       PLAYERS: {game?.players.length}
                     </h1>
@@ -486,7 +452,7 @@ function GamePage() {
                     </div>
                   </div>
                 )}
-                <div className="flex flex-wrap justify-center gap-2 mt-8">
+                <div className="flex flex-wrap justify-center gap-2 mt-8 py-2">
                   {Object.entries(game.hiddenChars).map(([key], index) =>
                     rolled ? (
                       isUnitRolling[index] || (isRolling && game.mode == "brute") ? (
@@ -494,7 +460,7 @@ function GamePage() {
                           className="transition duration-500 opacity-100 rounded-lg"
                           key={key}
                           src="/rolls-gif/Spin.gif"
-                          alt="spinning dice"
+                          alt="spinning"
                           width={length}
                           height={length}
                         />
@@ -503,7 +469,7 @@ function GamePage() {
                           className="transition  duration-500 ease-in rounded-lg"
                           key={key}
                           src={`/rolls-jpg/${rolls[index]}.jpg`}
-                          alt="rolled dice"
+                          alt="rolled"
                           width={length}
                           height={length}
                         />
@@ -513,7 +479,7 @@ function GamePage() {
                         className="rounded-lg"
                         key={key}
                         src={`/rolls-jpg/0.jpg`}
-                        alt="rolled dice"
+                        alt="zero roll"
                         width={length}
                         height={length}
                       />
@@ -522,7 +488,7 @@ function GamePage() {
                 </div>
               </div>{" "}
               {(isHacked || game.winner) && (
-                <Congrats
+                <PlayerAnnouncement
                   isOpen={congratsOpen}
                   setIsOpen={setCongratsOpen}
                   isHacked={isHacked}
@@ -540,9 +506,9 @@ function GamePage() {
             </div>
           )}
           {screenwidth <= 768 && game.players.length > 0 && (
-            <div className="md:w-2/3 rounded-xl border mt-5">
+            <div className="md:w-2/3 rounded-xl border-white border-2 overflow-hidden mt-5">
               <div>
-                <div className="py-2 border-b px-4">
+                <div className="py-2 border-b-white border-2 px-4">
                   <h1 className="font-bold md:text-xl text-lg  tracking-wide md:text-left text-center">PLAYERS</h1>
                 </div>
                 <div className="p-4 max-h-[30rem] overflow-scroll">

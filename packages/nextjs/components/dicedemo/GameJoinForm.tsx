@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { InputBase } from "../scaffold-eth";
 import QrReader from "react-qr-reader-es6";
@@ -15,7 +15,6 @@ const GameJoinForm = ({
   setInviteCode: Dispatch<SetStateAction<string>>;
 }) => {
   const router = useRouter();
-  const labelRef = useRef<HTMLLabelElement | null>(null);
   const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -74,12 +73,6 @@ const GameJoinForm = ({
   // };
 
   useEffect(() => {
-    if (labelRef.current) {
-      labelRef.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
     if (invite) {
       handleJoinGame(invite as string);
     }
@@ -93,10 +86,10 @@ const GameJoinForm = ({
   }, [invite]);
 
   return (
-    <div className="">
+    <div className="w-full">
       <div>
-        <label ref={labelRef}>
-          <h1> Enter Invite Code</h1>
+        <label>
+          <h1 className=" mb-4"> Enter Invite Code</h1>
           <InputBase
             name="inviteCode"
             value={inviteCode}
@@ -109,7 +102,7 @@ const GameJoinForm = ({
             // }
           />
         </label>
-        <button className="btn btn-sm btn-primary mt-6" type="button" onClick={() => handleJoinGame(inviteCode)}>
+        <button className="btn btn-sm btn-primary mt-4 " type="button" onClick={() => handleJoinGame(inviteCode)}>
           {loading && <span className="loading loading-spinner"></span>}
           Join Game
         </button>

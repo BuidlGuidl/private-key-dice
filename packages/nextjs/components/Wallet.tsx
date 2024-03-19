@@ -186,8 +186,8 @@ export default function Wallet() {
 
             <br />
             <i>
-              Point your camera phone at qr code to open in &nbsp;
-              <a target="_blank" href={fullLink} rel="noopener noreferrer">
+              Point your phone camera at qr code to open in &nbsp;
+              <a target="_blank" href={fullLink} rel="noopener noreferrer" className="underline text-blue-500">
                 Punk Wallet
               </a>
               :

@@ -8,17 +8,17 @@ module.exports = {
     themes: [
       {
         scaffoldEth: {
-          primary: "#d6fcf8",
+          primary: "#93BBFB",
           "primary-content": "#212638",
-          secondary: "#dceeee",
+          secondary: "#DAE8FF",
           "secondary-content": "#212638",
-          accent: "#90fbfb",
+          accent: "#93BBFB",
           "accent-content": "#212638",
           neutral: "#212638",
           "neutral-content": "#ffffff",
           "base-100": "#ffffff",
-          "base-200": "#f3fafa",
-          "base-300": "#dcfefe",
+          "base-200": "#f4f8ff",
+          "base-300": "#DAE8FF",
           "base-content": "#212638",
           info: "#93BBFB",
           success: "#34EEB6",
@@ -45,7 +45,7 @@ module.exports = {
           "base-100": "#385183",
           "base-200": "#2A3655",
           "base-300": "#212638",
-          "base-content": "#048e8e",
+          "base-content": "#F9FBFF",
           info: "#385183",
           success: "#34EEB6",
           warning: "#FFCF72",
@@ -90,6 +90,14 @@ module.exports = {
   theme: {
     // Extend Tailwind classes (e.g. font-bai-jamjuree, animate-grow)
     extend: {
+      colors: {
+        new_primary: "#293853",
+        new_secondary: "#3f5174",
+        new_tertiary: "#93bbfb",
+      },
+      backgroundColor: {
+        gradient: "linear-gradient(225deg, #293853 0%, #521f93 100%)",
+      },
       fontFamily: {
         "bai-jamjuree": ["Bai Jamjuree", "sans-serif"],
       },
