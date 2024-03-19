@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import { loadBurnerSK } from "~~/hooks/scaffold-eth";
 import { Game } from "~~/types/game/game";
 
-const Congrats = ({
+const PlayerAnnouncement = ({
   isOpen,
   setIsOpen,
   isHacked,
@@ -65,4 +65,4 @@ const Congrats = ({
   );
 };
 
-export default Congrats;
+export default PlayerAnnouncement;
