@@ -109,10 +109,10 @@ const GameCreationForm = () => {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <form onSubmit={handleSubmit}>
         <label className="block">
-          <h1 className=" mb-4">Choose the Number of Dice (1-64)</h1>
+          <h1 className=" mb-3 ">Choose the Number of Dice (1-64)</h1>
           <div className="flex items-center space-x-4">
             <input
               type="range"
@@ -128,7 +128,7 @@ const GameCreationForm = () => {
           </div>
         </label>
         <br />
-        <button type="submit" className="btn btn-sm  btn-primary">
+        <button type="submit" className="btn btn-sm  btn-primary -mt-2 ">
           {loading && <span className="loading loading-spinner"></span>}
           Start Game
         </button>
