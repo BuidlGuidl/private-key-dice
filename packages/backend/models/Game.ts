@@ -32,7 +32,7 @@ const gameSchema = new mongoose.Schema(
     },
     hiddenPrivateKey: {
       type: String,
-      required: false,
+      required: true,
     },
     hiddenChars: {
       type: Object,
