@@ -243,3 +243,30 @@ export const kickPlayer = async (req: Request, res: Response) => {
     res.status(500).json({ error: (err as Error).message });
   }
 };
+
+export const varyHiddenPrivatekey = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { hiddenChars, hiddenPrivateKey, diceCount } = req.body;
+    const game = await Game.findById(id);
+
+    if (!game) {
+      return res.status(404).json({ error: "Game not found." });
+    }
+
+    if (diceCount < 1 || diceCount > 64) {
+      return res.status(400).json({ error: "Invalid dice count." });
+    }
+
+    game.hiddenChars = hiddenChars;
+    game.hiddenPrivateKey = hiddenPrivateKey;
+    game.diceCount = diceCount;
+    const updatedGame = await game.save();
+    const channel = ably.channels.get(`gameUpdate`);
+    channel.publish(`gameUpdate`, updatedGame);
+
+    res.status(200).json(updatedGame);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+};

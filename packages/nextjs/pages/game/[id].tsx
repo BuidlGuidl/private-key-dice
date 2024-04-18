@@ -5,7 +5,12 @@ import Ably from "ably";
 import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useAccount, useBalance } from "wagmi";
-import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import {
+  CheckCircleIcon,
+  ChevronDoubleDownIcon,
+  ChevronDoubleUpIcon,
+  DocumentDuplicateIcon,
+} from "@heroicons/react/24/outline";
 import HostAnnouncement from "~~/components/dicedemo/HostAnnouncement";
 import PlayerAnnouncement from "~~/components/dicedemo/PlayerAnnoucement";
 import RestartWithNewPk from "~~/components/dicedemo/RestartWithNewPk";
@@ -14,7 +19,7 @@ import { Price } from "~~/components/scaffold-eth/Price";
 import useGameData from "~~/hooks/useGameData";
 import useSweepWallet from "~~/hooks/useSweepWallet";
 import { Game } from "~~/types/game/game";
-import { kickPlayer, pauseResumeGame, toggleMode } from "~~/utils/diceDemo/apiUtils";
+import { kickPlayer, pauseResumeGame, toggleMode, varyHiddenPrivatekey } from "~~/utils/diceDemo/apiUtils";
 import { calculateLength, compareResult, generateRandomHex } from "~~/utils/diceDemo/gameUtils";
 
 function GamePage() {
@@ -357,9 +362,31 @@ function GamePage() {
                       <div className="font-bold py-2 border-y-white border-2 flex items-center px-4 justify-center my-2 ">
                         <h1 className=" tracking-wide">PRIVATE KEY</h1>
                       </div>
-                      <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer">
-                        {Object.values(game?.hiddenPrivateKey)}
-                      </p>
+                      <div className="flex items-center">
+                        <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer w-[90%]">
+                          {Object.values(game?.hiddenPrivateKey)}
+                        </p>
+                        <div>
+                          <button
+                            className="btn btn-sm btn-ghost tooltip tooltip-left"
+                            data-tip="increase"
+                            onClick={() => {
+                              varyHiddenPrivatekey(game, token, "increase");
+                            }}
+                          >
+                            <ChevronDoubleUpIcon className="text-xl font-bold  h-5 w-5 " aria-hidden="true" />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-ghost tooltip tooltip-left"
+                            data-tip="decrease"
+                            onClick={() => {
+                              varyHiddenPrivatekey(game, token, "decrease");
+                            }}
+                          >
+                            <ChevronDoubleDownIcon className="text-xl font-bold h-5 w-5 " aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -387,9 +414,31 @@ function GamePage() {
                     <div className="font-bold py-2 border-b-white border-2 flex items-center px-4  ">
                       <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">PRIVATE KEY</h1>
                     </div>
-                    <p className="whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none text-lg cursor-pointer">
-                      {Object.values(game?.hiddenPrivateKey)}
-                    </p>
+                    <div className="flex items-center">
+                      <p className="whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none text-lg cursor-pointer w-[90%]">
+                        {Object.values(game?.hiddenPrivateKey)}
+                      </p>
+                      <div>
+                        <button
+                          className="btn btn-sm btn-ghost tooltip tooltip-left"
+                          data-tip="increase"
+                          onClick={() => {
+                            varyHiddenPrivatekey(game, token, "increase");
+                          }}
+                        >
+                          <ChevronDoubleUpIcon className="text-xl font-bold  h-5 w-5 " aria-hidden="true" />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-ghost tooltip tooltip-left"
+                          data-tip="decrease"
+                          onClick={() => {
+                            varyHiddenPrivatekey(game, token, "decrease");
+                          }}
+                        >
+                          <ChevronDoubleDownIcon className="text-xl font-bold h-5 w-5 " aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
