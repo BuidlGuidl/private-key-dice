@@ -1,7 +1,7 @@
 const serverConfig = {
   isLocal: false,
   localUrl: "http://localhost:6001",
-  liveUrl: "https://rich-ruby-cygnet-tie.cyclic.app/",
+  liveUrl: "https://dicedemo-db57fbe0aac5.herokuapp.com",
 };
 
 export default serverConfig;
