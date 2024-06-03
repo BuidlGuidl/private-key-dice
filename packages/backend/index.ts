@@ -44,6 +44,10 @@ app.use("/admin", adminRoutes);
 app.use("/player", playerRoutes);
 app.use("/game", gameRoutes);
 
+app.get('/about', (req, res) => {
+  res.send('Dice Demo Backend 🎉 ')
+})
+
 const connectWithRetry = async () => {
   await ably.connection.once("connected");
   ably.channels.get(`gameUpdate`);
