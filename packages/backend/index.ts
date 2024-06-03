@@ -24,12 +24,7 @@ dotenv.config({ path: envPath });
 
 export const app = express();
 app.use(express.json());
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-  }),
-);
-app.options("*", cors());
+app.use(cors());
 
 /**Ably Setup */
 
@@ -44,9 +39,9 @@ app.use("/admin", adminRoutes);
 app.use("/player", playerRoutes);
 app.use("/game", gameRoutes);
 
-app.get('/about', (req, res) => {
-  res.send('Dice Demo Backend 🎉 ')
-})
+app.get("/about", (req, res) => {
+  res.send("Dice Demo Backend 🎉 ");
+});
 
 const connectWithRetry = async () => {
   await ably.connection.once("connected");
