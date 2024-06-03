@@ -1,10 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
-import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import * as dotenv from "dotenv";
-import helmet from "helmet";
-import morgan from "morgan";
 import adminRoutes from "./routes/admin";
 import playerRoutes from "./routes/player";
 import gameRoutes from "./routes/game";
@@ -27,14 +24,7 @@ dotenv.config({ path: envPath });
 
 export const app = express();
 app.use(express.json());
-app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-app.use(morgan("common"));
-app.use(bodyParser.json({ limit: "30mb" }));
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(
-  cors(),
-);
+app.use(cors());
 
 /**Ably Setup */
 

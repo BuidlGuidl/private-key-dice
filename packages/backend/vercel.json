@@ -1,6 +1,16 @@
 {
   "version": 2,
-  "name": "dice-demonstration-backend",
-  "builds": [{ "src": "index.ts", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "/index.ts" }]
+  "name": "dice-demo-backend",
+  "builds": [
+    {
+      "src": "index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "index.ts"
+    }
+  ]
 }
