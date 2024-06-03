@@ -39,10 +39,6 @@ app.use("/admin", adminRoutes);
 app.use("/player", playerRoutes);
 app.use("/game", gameRoutes);
 
-app.get("/about", (req, res) => {
-  res.send("Dice Demo Backend 🎉 ");
-});
-
 const connectWithRetry = async () => {
   await ably.connection.once("connected");
   ably.channels.get(`gameUpdate`);
@@ -50,8 +46,8 @@ const connectWithRetry = async () => {
   mongoose
     .connect(MONGO_URL)
     .then(() => {
-      app.listen(PORT, () => console.log(`Server Connected, Port: ${PORT}`));
-      // server.listen(PORT, () => console.log(`Server Connected, Port: ${PORT}`));
+      // app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
+      server.listen(PORT, () => console.log(`Server Connected, Port: ${PORT}`));
     })
     .catch(error => {
       console.log(`${error} did not connect`);

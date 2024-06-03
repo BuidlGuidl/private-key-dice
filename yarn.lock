@@ -1839,7 +1839,6 @@ __metadata:
     "@types/cors": ^2.8.14
     "@types/express": ^4.17.18
     "@types/jsonwebtoken": ^9.0.3
-    "@types/morgan": ^1.9.6
     "@types/node": ^20.4.2
     ably: ^1.2.45
     bcrypt: ^5.1.0
@@ -2664,15 +2663,6 @@ __metadata:
   version: 9.1.1
   resolution: "@types/mocha@npm:9.1.1"
   checksum: 516077c0acd9806dc78317f88aaac0df5aaf0bdc2f63dfdadeabdf0b0137953b6ca65472e6ff7c30bc93ce4e0ae76eae70e8d46764b9a8eae4877a928b6ef49a
-  languageName: node
-  linkType: hard
-
-"@types/morgan@npm:^1.9.6":
-  version: 1.9.6
-  resolution: "@types/morgan@npm:1.9.6"
-  dependencies:
-    "@types/node": "*"
-  checksum: 6525248325a74342f929c958be69c0840c8f3a288e003a8904319cae92e531f17a8aa2700701e66775adcca7f9506dd630fec2f95dc04a3e73add04fde42aab8
   languageName: node
   linkType: hard
 
