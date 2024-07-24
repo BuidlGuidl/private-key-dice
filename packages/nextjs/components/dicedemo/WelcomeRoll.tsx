@@ -75,7 +75,7 @@ const WelcomeRoll = () => {
   }, [rolledResult]);
 
   return (
-    <div className="flex justify-center flex-col gap-2">
+    <div className="flex justify-center flex-col gap-2 bg-white">
       <button
         className="btn btn-sm btn-primary mx-auto "
         onClick={rollTheDice}
@@ -105,7 +105,7 @@ const WelcomeRoll = () => {
                 className="w-[95%] h-[95%] overflow-hidden rounded-lg mx-auto flex justify-center items-center"
               >
                 <div className="scale-125">
-                  <Image className="scale-150" src="/rolls-gif/Spin.gif" alt="spinning" width={400} height={400} />
+                  <Image className="scale-150" src="/rolls-gif/Spin.gif" alt="spinning" width={350} height={350} />
                 </div>
               </div>
             ) : (
@@ -118,8 +118,8 @@ const WelcomeRoll = () => {
                     className="scale-150"
                     src={`/rolls-jpg/${rolls[index]}.jpg`}
                     alt="rolled"
-                    width={400}
-                    height={400}
+                    width={350}
+                    height={350}
                   />
                 </div>
               </div>
