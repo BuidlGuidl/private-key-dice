@@ -12,13 +12,11 @@ const Home: NextPage = () => {
   const { invite } = router.query;
   const [gameState, setGameState] = useState<"createGame" | "joinGame">("joinGame");
   const [inviteCode, setInviteCode] = useState("");
-  const [showWelcomeRoll, setShowWelcomRoll] = useState(true);
 
   useEffect(() => {
     if (invite) {
       setGameState("joinGame");
       setInviteCode(invite as string);
-      setShowWelcomRoll(false);
     }
   }, [invite]);
 
@@ -36,7 +34,7 @@ const Home: NextPage = () => {
 
         <div>
           <div className="mx-auto mt-5 border p-6 rounded-md bg-base-100 shadow-2xl">
-            {showWelcomeRoll && <WelcomeRoll />}
+            <WelcomeRoll />
             <div className="flex justify-center mt-10">
               <ul className="menu menu-horizontal justify-center p-2 bg-base-300 rounded-full mb-8 w-fit mx-auto">
                 <li onClick={() => setGameState("joinGame")}>
