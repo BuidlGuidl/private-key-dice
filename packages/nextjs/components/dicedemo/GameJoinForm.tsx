@@ -73,7 +73,7 @@ const GameJoinForm = ({
   // };
 
   useEffect(() => {
-    if (invite) {
+    if (invite && playerAddress) {
       handleJoinGame(invite as string);
     }
     if (Object.keys(router.query).length > 0) {
@@ -83,7 +83,7 @@ const GameJoinForm = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invite]);
+  }, [invite, playerAddress]);
 
   return (
     <div className="w-full">
