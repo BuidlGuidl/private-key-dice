@@ -68,19 +68,14 @@ export const kickPlayer = async (game: Game, token: string, playerAddress: strin
 
 export const varyHiddenPrivatekey = async (game: Game, token: string, vary: "increase" | "decrease") => {
   let hiddenPrivateKey = game?.hiddenPrivateKey;
-  const hiddenChars = game?.hiddenChars;
   const privateKey = game?.privateKey;
   let diceCount = game?.diceCount;
 
-  const hiddCharsCopy = { ...hiddenChars };
-
   if (vary === "increase") {
     hiddenPrivateKey = "*".repeat(diceCount + 1) + privateKey.slice(diceCount + 1);
-    hiddCharsCopy[diceCount] = privateKey[diceCount];
     diceCount++;
   } else {
     hiddenPrivateKey = "*".repeat(diceCount - 1) + privateKey.slice(diceCount - 1);
-    delete hiddCharsCopy[diceCount - 1];
     diceCount--;
   }
 
@@ -96,7 +91,7 @@ export const varyHiddenPrivatekey = async (game: Game, token: string, vary: "inc
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ hiddenChars: hiddCharsCopy, hiddenPrivateKey: hiddenPrivateKey, diceCount: diceCount }),
+      body: JSON.stringify({ hiddenPrivateKey: hiddenPrivateKey, diceCount: diceCount }),
     });
 
     notification.success("Updated hidden characters");

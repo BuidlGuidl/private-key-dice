@@ -41,7 +41,7 @@ async function generateUniqueInvite(length: number) {
 
 export const createGame = async (req: Request, res: Response) => {
   try {
-    const { diceCount, hiddenChars, privateKey, hiddenPrivateKey, mode, adminAddress } = req.body;
+    const { diceCount, privateKey, hiddenPrivateKey, mode, adminAddress } = req.body;
 
     const salt = await bcrypt.genSalt();
     // const privateKeyHash = await bcrypt.hash(privateKey, salt);
@@ -54,7 +54,6 @@ export const createGame = async (req: Request, res: Response) => {
       mode,
       privateKey,
       hiddenPrivateKey,
-      hiddenChars,
     });
 
     let token;
@@ -70,7 +69,7 @@ export const createGame = async (req: Request, res: Response) => {
 
 export const restartWithNewPk = async (req: Request, res: Response) => {
   try {
-    const { diceCount, hiddenChars, privateKey, hiddenPrivateKey, adminAddress } = req.body;
+    const { diceCount, privateKey, hiddenPrivateKey, adminAddress } = req.body;
     const { id } = req.params;
     const game = await Game.findById(id);
 
@@ -79,7 +78,6 @@ export const restartWithNewPk = async (req: Request, res: Response) => {
     }
 
     game.diceCount = diceCount;
-    game.hiddenChars = hiddenChars;
     game.privateKey = privateKey;
     game.hiddenPrivateKey = hiddenPrivateKey;
     game.mode = "manual";
@@ -247,7 +245,7 @@ export const kickPlayer = async (req: Request, res: Response) => {
 export const varyHiddenPrivatekey = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { hiddenChars, hiddenPrivateKey, diceCount } = req.body;
+    const { hiddenPrivateKey, diceCount } = req.body;
     const game = await Game.findById(id);
 
     if (!game) {
@@ -258,7 +256,6 @@ export const varyHiddenPrivatekey = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Invalid dice count." });
     }
 
-    game.hiddenChars = hiddenChars;
     game.hiddenPrivateKey = hiddenPrivateKey;
     game.diceCount = diceCount;
     const updatedGame = await game.save();

@@ -21,6 +21,7 @@ import useSweepWallet from "~~/hooks/useSweepWallet";
 import { Game } from "~~/types/game/game";
 import { kickPlayer, pauseResumeGame, toggleMode, varyHiddenPrivatekey } from "~~/utils/diceDemo/apiUtils";
 import { calculateLength, compareResult, generateRandomHex } from "~~/utils/diceDemo/gameUtils";
+import { privateKeyToAccount } from "viem/accounts";
 
 function GamePage() {
   const router = useRouter();
@@ -127,8 +128,10 @@ function GamePage() {
   useEffect(() => {
     let isHiiddenChars;
 
-    if (rolled && rolledResult.length > 0 && game?.hiddenChars) {
-      isHiiddenChars = compareResult(rolledResult, game?.hiddenChars);
+    if (rolled && rolledResult.length > 0 && game?.hiddenPrivateKey) {
+      const pk: `0x{string}` = `0x${rolledResult.join("")}${game?.hiddenPrivateKey.replaceAll("*", "")}` as `0x{string}`;
+      const account = privateKeyToAccount(pk);
+      isHiiddenChars = account.address == game?.adminAddress;
     }
 
     if (isHiiddenChars) {
@@ -477,8 +480,8 @@ function GamePage() {
                   game.mode === "auto"
                     ? setAutoRolling(true)
                     : game.mode === "brute"
-                    ? setBruteRolling(true)
-                    : rollTheDice();
+                      ? setBruteRolling(true)
+                      : rollTheDice();
                 }}
                 disabled={
                   isRolling ||
@@ -502,12 +505,12 @@ function GamePage() {
                   </div>
                 )}
                 <div className="flex flex-wrap justify-center gap-2 mt-8 py-2">
-                  {Object.entries(game.hiddenChars).map(([key], index) =>
+                  {rolls.map((value, index) =>
                     rolled ? (
                       isUnitRolling[index] || (isRolling && game.mode == "brute") ? (
                         <Image
                           className="transition duration-500 opacity-100 rounded-lg"
-                          key={key}
+                          key={index}
                           src="/rolls-gif/Spin.gif"
                           alt="spinning"
                           width={length}
@@ -516,8 +519,8 @@ function GamePage() {
                       ) : (
                         <Image
                           className="transition  duration-500 ease-in rounded-lg"
-                          key={key}
-                          src={`/rolls-jpg/${rolls[index]}.jpg`}
+                          key={index}
+                          src={`/rolls-jpg/${value}.jpg`}
                           alt="rolled"
                           width={length}
                           height={length}
@@ -526,7 +529,7 @@ function GamePage() {
                     ) : (
                       <Image
                         className="rounded-lg"
-                        key={key}
+                        key={index}
                         src={`/rolls-jpg/0.jpg`}
                         alt="zero roll"
                         width={length}

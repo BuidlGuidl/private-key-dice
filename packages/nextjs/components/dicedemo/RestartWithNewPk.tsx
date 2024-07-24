@@ -11,7 +11,6 @@ interface FormData {
   diceCount: number;
   privateKey: string;
   hiddenPrivateKey: string;
-  hiddenChars: { [key: number]: string };
   adminAddress: string | undefined;
 }
 
@@ -29,7 +28,6 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
     diceCount: 0,
     hiddenPrivateKey: "",
     privateKey: "",
-    hiddenChars: {},
     adminAddress: undefined,
   });
 
@@ -79,7 +77,6 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
     setFormData(formData => ({
       ...formData,
       diceCount: selectedSlots.length,
-      hiddenChars: characterObject,
       hiddenPrivateKey: "*".repeat(selectedSlots.length) + newPk.slice(selectedSlots.length),
     }));
   };
@@ -96,7 +93,6 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
       adminAddress: account.address,
       hiddenPrivateKey: "*" + pk.slice(1),
       privateKey: pk,
-      hiddenChars: { 0: pk.charAt(0) },
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
