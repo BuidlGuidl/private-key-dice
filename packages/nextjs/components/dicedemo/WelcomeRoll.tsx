@@ -75,18 +75,16 @@ const WelcomeRoll = () => {
   }, [rolledResult]);
 
   return (
-    <div className="flex justify-center flex-col gap-2 bg-white">
-      <button
-        className="btn btn-sm btn-primary mx-auto "
-        onClick={rollTheDice}
-        disabled={isRolling || spinning || isHacked}
-      >
-        {spinning && <span className="loading loading-spinner"></span>}
-        Roll
-      </button>
+    <div className="bg-white overflow-hidden h-fit">
+      <div className="flex justify-center mt-2">
+        <button className="btn btn-sm btn-primary " onClick={rollTheDice} disabled={isRolling || spinning || isHacked}>
+          {spinning && <span className="loading loading-spinner"></span>}
+          Roll
+        </button>
+      </div>
       <div className="h-10">
         {rolledAddress != "" && (
-          <div className="flex justify-center items-center gap-2   mt-2 ">
+          <div className="flex justify-center items-center gap-2 mt-2 ">
             <span>
               <Address address={rolledAddress}></Address>
             </span>
@@ -96,45 +94,34 @@ const WelcomeRoll = () => {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-8 w-full mt-2 mx-auto opacity-100">
-        {Array.from({ length: 64 }).map((_, index) =>
-          rolled ? (
-            isUnitRolling[index] ? (
-              <div
-                key={index}
-                className="w-[95%] h-[95%] overflow-hidden rounded-lg mx-auto flex justify-center items-center"
-              >
-                <div className="scale-125">
-                  <Image className="scale-150" src="/rolls-gif/Spin.gif" alt="spinning" width={350} height={350} />
-                </div>
-              </div>
-            ) : (
-              <div
-                key={index}
-                className="w-[95%] h-[95%] overflow-hidden rounded-lg mx-auto flex justify-center items-center"
-              >
-                <div className="scale-125">
-                  <Image
-                    className="scale-150"
-                    src={`/rolls-jpg/${rolls[index]}.jpg`}
-                    alt="rolled"
-                    width={350}
-                    height={350}
-                  />
-                </div>
-              </div>
-            )
-          ) : (
+      <div className="grid grid-cols-8 mt-2 opacity-100">
+        {Array.from({ length: 64 }).map((_, index) => {
+          let src, alt;
+
+          if (rolled) {
+            if (isUnitRolling[index]) {
+              src = "/rolls-gif/Spin.gif";
+              alt = "spinning";
+            } else {
+              src = `/rolls-jpg/${rolls[index]}.jpg`;
+              alt = "rolled";
+            }
+          } else {
+            src = "/rolls-jpg/0.jpg";
+            alt = "zero roll";
+          }
+
+          return (
             <div
               key={index}
               className="w-[95%] h-[95%] overflow-hidden rounded-lg mx-auto flex justify-center items-center"
             >
               <div className="scale-125">
-                <Image className=" scale-150" src={`/rolls-jpg/0.jpg`} alt="zero roll" width={400} height={400} />
+                <Image className="scale-150" src={src} alt={alt} width={350} height={350} />
               </div>
             </div>
-          ),
-        )}
+          );
+        })}
       </div>
     </div>
   );
