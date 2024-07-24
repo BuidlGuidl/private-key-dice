@@ -33,7 +33,7 @@ const Home: NextPage = () => {
         </div> */}
 
         <div>
-          <div className="mx-auto mt-5 border p-6 rounded-md bg-base-100 shadow-2xl">
+          <div className="mx-auto mt-5 border p-6 rounded-md bg-base-100 shadow-2xl flex flex-col">
             <WelcomeRoll />
             <div className="flex justify-center mt-10">
               <ul className="menu menu-horizontal justify-center p-2 bg-base-300 rounded-full mb-8 w-fit mx-auto">
