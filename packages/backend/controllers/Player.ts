@@ -1,12 +1,11 @@
 import Game from "../models/Game";
-import { Response, Request } from "express";
 import jwt from "jsonwebtoken";
 import { ably } from "..";
 import backendConfig from "../backend.config";
 
 const JWT_SECRET = process.env.JWT_SECRET || backendConfig.jwt_secret;
 
-export const join = async (req: Request, res: Response) => {
+export const join = async (req: any, res: any) => {
   try {
     const { inviteCode, playerAddress } = req.body;
     const game = await Game.findOne({ inviteCode });
