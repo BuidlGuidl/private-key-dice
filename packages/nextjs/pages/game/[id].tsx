@@ -20,7 +20,7 @@ import useGameData from "~~/hooks/useGameData";
 import useSweepWallet from "~~/hooks/useSweepWallet";
 import { Game } from "~~/types/game/game";
 import { kickPlayer, pauseResumeGame, toggleMode, varyHiddenPrivatekey } from "~~/utils/diceDemo/apiUtils";
-import { calculateLength, compareResult, generateRandomHex } from "~~/utils/diceDemo/gameUtils";
+import { calculateLength, generateRandomHex } from "~~/utils/diceDemo/gameUtils";
 import { privateKeyToAccount } from "viem/accounts";
 
 function GamePage() {
