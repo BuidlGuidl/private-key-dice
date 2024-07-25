@@ -34,10 +34,6 @@ const gameSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    hiddenChars: {
-      type: Object,
-      required: true,
-    },
     players: {
       type: [String],
       default: [],

@@ -7,7 +7,6 @@ export interface Game {
   mode: "auto" | "manual" | "brute";
   privateKey: string;
   hiddenPrivateKey: string;
-  hiddenChars: Record<string, any>;
   players: string[];
   winner?: string | null;
 }
