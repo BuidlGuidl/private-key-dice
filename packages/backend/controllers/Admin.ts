@@ -1,7 +1,6 @@
 import Game from "../models/Game";
 import Invites from "../models/Invites";
 import bcrypt from "bcrypt";
-import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { ably } from "..";
 import backendConfig from "../backend.config";
@@ -40,7 +39,7 @@ async function generateUniqueInvite(length: number) {
   }
 }
 
-export const createGame = async (req: Request, res: Response) => {
+export const createGame = async (req: any, res: any) => {
   try {
     const { diceCount, hiddenPrivateKey, mode, adminAddress } = req.body;
 
@@ -67,7 +66,7 @@ export const createGame = async (req: Request, res: Response) => {
   }
 };
 
-export const restartWithNewPk = async (req: Request, res: Response) => {
+export const restartWithNewPk = async (req: any, res: any) => {
   try {
     const { diceCount, hiddenPrivateKey, adminAddress } = req.body;
     const { id } = req.params;
@@ -95,7 +94,7 @@ export const restartWithNewPk = async (req: Request, res: Response) => {
   }
 };
 
-export const pauseGame = async (req: Request, res: Response) => {
+export const pauseGame = async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const game = await Game.findById(id);
@@ -120,7 +119,7 @@ export const pauseGame = async (req: Request, res: Response) => {
   }
 };
 
-export const resumeGame = async (req: Request, res: Response) => {
+export const resumeGame = async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const game = await Game.findById(id);
@@ -149,7 +148,7 @@ export const resumeGame = async (req: Request, res: Response) => {
   }
 };
 
-export const endGame = async (req: Request, res: Response) => {
+export const endGame = async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const game = await Game.findById(id);
@@ -179,7 +178,7 @@ export const endGame = async (req: Request, res: Response) => {
   }
 };
 
-export const changeGameMode = async (req: Request, res: Response) => {
+export const changeGameMode = async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const { mode } = req.body;
@@ -211,7 +210,7 @@ export const changeGameMode = async (req: Request, res: Response) => {
   }
 };
 
-export const kickPlayer = async (req: Request, res: Response) => {
+export const kickPlayer = async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const { playerAddress } = req.body;
@@ -241,7 +240,7 @@ export const kickPlayer = async (req: Request, res: Response) => {
   }
 };
 
-export const varyHiddenPrivatekey = async (req: Request, res: Response) => {
+export const varyHiddenPrivatekey = async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const { hiddenPrivateKey, diceCount } = req.body;

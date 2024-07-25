@@ -1,10 +1,9 @@
 import jwt from "jsonwebtoken";
-import { Request, Response } from "express";
 import backendConfig from "../backend.config";
 
 const JWT_SECRET = process.env.JWT_SECRET || backendConfig.jwt_secret;
 
-export const verifyToken = async (req: Request, res: Response, next: () => void) => {
+export const verifyToken = async (req: any, res: any, next: () => void) => {
   try {
     let token = req.header("Authorization");
 
