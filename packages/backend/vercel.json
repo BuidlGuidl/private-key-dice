@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "dice-demo-backend",
+  "name": "pkdice-backend",
   "builds": [
     {
       "src": "index.ts",
