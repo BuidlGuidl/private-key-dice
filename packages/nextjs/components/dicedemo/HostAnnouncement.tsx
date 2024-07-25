@@ -26,9 +26,6 @@ const HostAnnouncement = ({
             </label>
             <p className="text-center">The Winner is</p>
             <Address address={game.winner as string} format="long" />
-            <p className="mt-5 text-2xl text-center">
-              The hidden characters are: {Object.values(game.hiddenChars).join(", ").toUpperCase()}
-            </p>
           </div>
         </div>
       )}

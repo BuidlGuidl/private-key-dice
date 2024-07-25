@@ -11,7 +11,6 @@ interface FormData {
   mode: "auto" | "manual" | "brute";
   privateKey: string;
   hiddenPrivateKey: string;
-  hiddenChars: { [key: number]: string };
   adminAddress: string | undefined;
 }
 
@@ -27,7 +26,6 @@ const GameCreationForm = () => {
     mode: "manual",
     hiddenPrivateKey: "*" + initialPrivateKey.slice(1),
     privateKey: initialPrivateKey,
-    hiddenChars: { 0: initialPrivateKey.charAt(0) },
     adminAddress,
   });
 
@@ -53,7 +51,6 @@ const GameCreationForm = () => {
 
     setFormData(formData => ({
       ...formData,
-      hiddenChars: characterObject,
       diceCount: selectedSlots.length,
       hiddenPrivateKey: "*".repeat(selectedSlots.length) + privateKey.slice(selectedSlots.length),
     }));
@@ -86,7 +83,6 @@ const GameCreationForm = () => {
       diceCount: 0,
       mode: "auto",
       privateKey: loadBurnerSK(),
-      hiddenChars: {},
       hiddenPrivateKey: "",
       adminAddress,
     });
