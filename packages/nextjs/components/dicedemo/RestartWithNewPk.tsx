@@ -9,7 +9,6 @@ import { notification } from "~~/utils/scaffold-eth";
 
 interface FormData {
   diceCount: number;
-  privateKey: string;
   hiddenPrivateKey: string;
   adminAddress: string | undefined;
 }
@@ -27,7 +26,6 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
   const [formData, setFormData] = useState<FormData>({
     diceCount: 0,
     hiddenPrivateKey: "",
-    privateKey: "",
     adminAddress: undefined,
   });
 
@@ -92,7 +90,6 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
       diceCount: 1,
       adminAddress: account.address,
       hiddenPrivateKey: "*" + pk.slice(1),
-      privateKey: pk,
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -1,8 +1,28 @@
 import { notification } from "../scaffold-eth";
+import { saveGameState } from "./game";
 import serverConfig from "~~/server.config";
 import { Game } from "~~/types/game/game";
 
 const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
+
+export const joinGame = async (invite: string, playerAddress: string) => {
+  const response = await fetch(`${serverUrl}/player/join`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ inviteCode: invite, playerAddress }),
+  });
+
+  const updatedGame = await response.json();
+  saveGameState(JSON.stringify(updatedGame));
+
+  if (updatedGame.error) {
+    notification.error(updatedGame.error);
+    return;
+  }
+};
 
 export const endGame = async (game: Game, token: string, address: string) => {
   await fetch(`${serverUrl}/game/${game?._id}`, {
@@ -66,9 +86,13 @@ export const kickPlayer = async (game: Game, token: string, playerAddress: strin
   }
 };
 
-export const varyHiddenPrivatekey = async (game: Game, token: string, vary: "increase" | "decrease") => {
+export const varyHiddenPrivatekey = async (
+  game: Game,
+  token: string,
+  vary: "increase" | "decrease",
+  privateKey: string,
+) => {
   let hiddenPrivateKey = game?.hiddenPrivateKey;
-  const privateKey = game?.privateKey;
   let diceCount = game?.diceCount;
 
   if (vary === "increase") {

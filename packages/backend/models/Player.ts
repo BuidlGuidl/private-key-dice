@@ -26,10 +26,6 @@ const playerSchema = new mongoose.Schema(
       enum: ["auto", "manual"],
       required: true,
     },
-    privateKey: {
-      type: String,
-      required: true,
-    },
     type: {
       key: String,
       value: String,

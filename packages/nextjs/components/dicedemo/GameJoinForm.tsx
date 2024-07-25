@@ -3,8 +3,7 @@ import { useRouter } from "next/router";
 import { InputBase } from "../scaffold-eth";
 import QrReader from "react-qr-reader-es6";
 import { useAccount } from "wagmi";
-import serverConfig from "~~/server.config";
-import { saveGameState } from "~~/utils/diceDemo/game";
+import { joinGame } from "~~/utils/diceDemo/apiUtils";
 import { notification } from "~~/utils/scaffold-eth";
 
 const GameJoinForm = ({
@@ -25,24 +24,14 @@ const GameJoinForm = ({
   };
 
   const { address: playerAddress } = useAccount();
-  const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
 
   const handleJoinGame = async (invite: string) => {
     setLoading(true);
-    const response = await fetch(`${serverUrl}/player/join`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ inviteCode: invite, playerAddress }),
-    });
-
-    const updatedGame = await response.json();
-    saveGameState(JSON.stringify(updatedGame));
-    setLoading(false);
-    if (updatedGame.error) {
-      notification.error(updatedGame.error);
+    try {
+      await joinGame(invite, playerAddress as string);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
       return;
     }
     await router.push({

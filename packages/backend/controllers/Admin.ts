@@ -4,8 +4,9 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { ably } from "..";
+import backendConfig from "../backend.config";
 
-const JWT_SECRET = process.env.JWT_SECRET || "superhardstring";
+const JWT_SECRET = process.env.JWT_SECRET || backendConfig.jwt_secret;
 
 async function generateUniqueInvite(length: number) {
   let invites = await Invites.findOne();
@@ -41,7 +42,7 @@ async function generateUniqueInvite(length: number) {
 
 export const createGame = async (req: Request, res: Response) => {
   try {
-    const { diceCount, privateKey, hiddenPrivateKey, mode, adminAddress } = req.body;
+    const { diceCount, hiddenPrivateKey, mode, adminAddress } = req.body;
 
     const salt = await bcrypt.genSalt();
     // const privateKeyHash = await bcrypt.hash(privateKey, salt);
@@ -52,7 +53,6 @@ export const createGame = async (req: Request, res: Response) => {
       inviteCode: await generateUniqueInvite(8),
       diceCount,
       mode,
-      privateKey,
       hiddenPrivateKey,
     });
 
@@ -69,7 +69,7 @@ export const createGame = async (req: Request, res: Response) => {
 
 export const restartWithNewPk = async (req: Request, res: Response) => {
   try {
-    const { diceCount, privateKey, hiddenPrivateKey, adminAddress } = req.body;
+    const { diceCount, hiddenPrivateKey, adminAddress } = req.body;
     const { id } = req.params;
     const game = await Game.findById(id);
 
@@ -78,7 +78,6 @@ export const restartWithNewPk = async (req: Request, res: Response) => {
     }
 
     game.diceCount = diceCount;
-    game.privateKey = privateKey;
     game.hiddenPrivateKey = hiddenPrivateKey;
     game.mode = "manual";
     game.adminAddress = adminAddress;

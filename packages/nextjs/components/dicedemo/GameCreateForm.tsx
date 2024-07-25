@@ -9,7 +9,6 @@ import { notification } from "~~/utils/scaffold-eth";
 interface FormData {
   diceCount: number;
   mode: "auto" | "manual" | "brute";
-  privateKey: string;
   hiddenPrivateKey: string;
   adminAddress: string | undefined;
 }
@@ -25,7 +24,6 @@ const GameCreationForm = () => {
     diceCount: 1,
     mode: "manual",
     hiddenPrivateKey: "*" + initialPrivateKey.slice(1),
-    privateKey: initialPrivateKey,
     adminAddress,
   });
 
@@ -82,7 +80,6 @@ const GameCreationForm = () => {
     setFormData({
       diceCount: 0,
       mode: "auto",
-      privateKey: loadBurnerSK(),
       hiddenPrivateKey: "",
       adminAddress,
     });
