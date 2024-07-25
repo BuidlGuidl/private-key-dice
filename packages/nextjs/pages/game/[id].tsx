@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Ably from "ably";
 import QRCode from "qrcode.react";
 import CopyToClipboard from "react-copy-to-clipboard";
+import { privateKeyToAccount } from "viem/accounts";
 import { useAccount, useBalance } from "wagmi";
 import {
   CheckCircleIcon,
@@ -16,17 +17,19 @@ import PlayerAnnouncement from "~~/components/dicedemo/PlayerAnnoucement";
 import RestartWithNewPk from "~~/components/dicedemo/RestartWithNewPk";
 import { Address } from "~~/components/scaffold-eth";
 import { Price } from "~~/components/scaffold-eth/Price";
+import { loadBurnerSK } from "~~/hooks/scaffold-eth";
 import useGameData from "~~/hooks/useGameData";
 import useSweepWallet from "~~/hooks/useSweepWallet";
+import serverConfig from "~~/server.config";
 import { Game } from "~~/types/game/game";
 import { kickPlayer, pauseResumeGame, toggleMode, varyHiddenPrivatekey } from "~~/utils/diceDemo/apiUtils";
+import { joinGame } from "~~/utils/diceDemo/apiUtils";
 import { calculateLength, generateRandomHex } from "~~/utils/diceDemo/gameUtils";
-import { privateKeyToAccount } from "viem/accounts";
 
 function GamePage() {
   const router = useRouter();
   const { id } = router.query;
-  const ablyApiKey = process.env.NEXT_PUBLIC_ABLY_API_KEY;
+  const ablyApiKey = process.env.NEXT_PUBLIC_ABLY_API_KEY || serverConfig.ably_api_key;
   const { loadGameState, updateGameState } = useGameData();
 
   const { address } = useAccount();
@@ -49,14 +52,13 @@ function GamePage() {
   const [bruteRolling, setBruteRolling] = useState(false);
   const [screenwidth, setScreenWidth] = useState(768);
   const [isHacked, setIsHacked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isPlayer, setIsPlayer] = useState(false);
 
   const prize = useBalance({ address: game?.adminAddress });
   const { sweepWallet, isSweeping, sweepMessage } = useSweepWallet({ game, token });
 
   const length = calculateLength(game?.diceCount as number);
-
-  const isAdmin = address == game?.adminAddress;
-  const isPlayer = game?.players?.includes(address as string);
 
   const rollTheDice = () => {
     if (game) {
@@ -112,24 +114,62 @@ function GamePage() {
   };
 
   useEffect(() => {
-    const { token, game: gameState } = loadGameState();
-    setGame(gameState);
-    setToken(token);
-    setIsUnitRolling(Array.from({ length: gameState?.diceCount }, () => false));
+    const loadGame = async () => {
+      const game = loadGameState();
 
-    if (typeof window !== "undefined") {
-      const currentUrl = window.location.href;
-      const rootPath = new URL(currentUrl).origin;
-      setInviteUrl(rootPath + "?invite=" + gameState?.inviteCode);
+      /* Uncomment to allow a kicked player join back on web refresh */
+      // if (game && game.game && !game.game.players.includes(address)) {
+      //   if (address && id) {
+      //     await joinGame(id as string, address);
+      //     setIsPlayer(true);
+      //   }
+      // }
+
+      if (game && game.game) {
+        const { token, game: gameState } = game;
+        if (address === gameState.adminAddress) setIsAdmin(true);
+        if (gameState.players.includes(address)) setIsPlayer(true);
+        setToken(token);
+        setGame(gameState);
+        setIsUnitRolling(Array.from({ length: gameState?.diceCount }, () => false));
+
+        if (typeof window !== "undefined") {
+          const currentUrl = window.location.href;
+          const rootPath = new URL(currentUrl).origin;
+          setInviteUrl(rootPath + "?invite=" + gameState?.inviteCode);
+        }
+      } else {
+        if (address && id) {
+          await joinGame(id as string, address);
+          setIsPlayer(true);
+          return;
+        }
+      }
+    };
+
+    loadGame();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, id]);
+
+  useEffect(() => {
+    if (!game && isPlayer) {
+      const game = loadGameState();
+      if (game && game.game) {
+        const { token, game: gameState } = game;
+        setGame(gameState);
+        setToken(token);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isPlayer]);
 
   useEffect(() => {
     let isHiiddenChars;
+    let pk;
 
     if (rolled && rolledResult.length > 0 && game?.hiddenPrivateKey) {
-      const pk: `0x{string}` = `0x${rolledResult.join("")}${game?.hiddenPrivateKey.replaceAll("*", "")}` as `0x{string}`;
+      pk = `0x${rolledResult.join("")}${game?.hiddenPrivateKey.replaceAll("*", "")}` as `0x{string}`;
       const account = privateKeyToAccount(pk);
       isHiiddenChars = account.address == game?.adminAddress;
     }
@@ -141,7 +181,7 @@ function GamePage() {
       setSpinning(false);
       setCongratsOpen(true);
       setIsHacked(true);
-      sweepWallet(game?.privateKey as string);
+      sweepWallet(pk as string);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rolledResult]);
@@ -224,6 +264,11 @@ function GamePage() {
       setIsRolling(false);
       setHostAnnOpen(true);
     }
+    if (game?.players.includes(address as string)) {
+      setIsPlayer(true);
+    } else {
+      setIsPlayer(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game]);
 
@@ -247,7 +292,7 @@ function GamePage() {
               {isAdmin && (
                 <div className="py-2">
                   <div className="p-2 bg-base-200 mt-2 rounded-md px-4 w-[95%] mx-auto">
-                    <div className="flex items-center justify-center ">
+                    <div className="flex items-center justify-center">
                       <span>Copy Invite Url</span>
                       {inviteUrlCopied ? (
                         <CheckCircleIcon
@@ -274,7 +319,7 @@ function GamePage() {
                     <div>
                       <QRCode
                         value={inviteUrl?.toString() || ""}
-                        className=" h-full mx-auto mt-2 w-3/4"
+                        className="h-full mx-auto mt-2 w-3/4"
                         level="H"
                         renderAs="svg"
                       />
@@ -304,22 +349,20 @@ function GamePage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col items-center gap-2 bg-base-200 mt-2 rounded-md w-[95%] mx-auto px-4 py-2 ">
+                  <div className="flex flex-col items-center gap-2 bg-base-200 mt-2 rounded-md w-[95%] mx-auto px-4 py-2">
                     <div className="flex gap-2 justify-center">
-                      <span> Status: {game.status}</span>
-
+                      <span>Status: {game.status}</span>
                       <input
                         id="mode-toggle"
                         type="checkbox"
                         className="toggle toggle-primary bg-primary tooltip tooltip-bottom tooltip-primary"
-                        data-tip={game?.status == "ongoing" ? "pause" : game?.status == "paused" ? "resume" : ""}
+                        data-tip={game?.status === "ongoing" ? "pause" : game?.status === "paused" ? "resume" : ""}
                         onChange={() => pauseResumeGame(game, token)}
-                        checked={game?.status == "ongoing"}
+                        checked={game?.status === "ongoing"}
                       />
                     </div>
                     <div className="flex flex-col gap-2 bg-secondary mt-2 rounded-md w-full px-4 py-2 items-center">
-                      <span> Mode: {game.mode}</span>
-
+                      <span>Mode: {game.mode}</span>
                       <div className="flex justify-around w-full flex-wrap gap-1">
                         <label className="flex cursor-pointer gap-2">
                           <span>Auto</span>
@@ -327,9 +370,9 @@ function GamePage() {
                             type="radio"
                             name="radio-10"
                             className="radio checked:bg-blue-500"
-                            checked={game?.mode == "auto"}
+                            checked={game?.mode === "auto"}
                             onClick={() => {
-                              if (game?.mode != "auto") toggleMode(game, "auto", token);
+                              if (game?.mode !== "auto") toggleMode(game, "auto", token);
                             }}
                           />
                         </label>
@@ -339,9 +382,9 @@ function GamePage() {
                             type="radio"
                             name="radio-10"
                             className="radio checked:bg-blue-500"
-                            checked={game?.mode == "manual"}
+                            checked={game?.mode === "manual"}
                             onClick={() => {
-                              if (game?.mode != "manual") toggleMode(game, "manual", token);
+                              if (game?.mode !== "manual") toggleMode(game, "manual", token);
                             }}
                           />
                         </label>
@@ -351,9 +394,9 @@ function GamePage() {
                             type="radio"
                             name="radio-10"
                             className="radio checked:bg-blue-500"
-                            checked={game?.mode == "brute"}
+                            checked={game?.mode === "brute"}
                             onClick={() => {
-                              if (game?.mode != "brute") toggleMode(game, "brute", token);
+                              if (game?.mode !== "brute") toggleMode(game, "brute", token);
                             }}
                           />
                         </label>
@@ -362,11 +405,11 @@ function GamePage() {
                   </div>
                   {screenwidth <= 768 && (
                     <div>
-                      <div className="font-bold py-2 border-y-white border-2 flex items-center px-4 justify-center my-2 ">
-                        <h1 className=" tracking-wide">PRIVATE KEY</h1>
+                      <div className="font-bold py-2 border-y-white border-2 flex items-center px-4 justify-center my-2">
+                        <h1 className="tracking-wide">PRIVATE KEY</h1>
                       </div>
                       <div className="flex items-center">
-                        <p className=" whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer w-[90%]">
+                        <p className="whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none cursor-pointer w-[90%]">
                           {Object.values(game?.hiddenPrivateKey)}
                         </p>
                         <div>
@@ -374,19 +417,19 @@ function GamePage() {
                             className="btn btn-sm btn-ghost tooltip tooltip-left"
                             data-tip="increase"
                             onClick={() => {
-                              varyHiddenPrivatekey(game, token, "increase");
+                              varyHiddenPrivatekey(game, token, "increase", loadBurnerSK().toString().substring(2));
                             }}
                           >
-                            <ChevronDoubleUpIcon className="text-xl font-bold  h-5 w-5 " aria-hidden="true" />
+                            <ChevronDoubleUpIcon className="text-xl font-bold h-5 w-5" aria-hidden="true" />
                           </button>
                           <button
                             className="btn btn-sm btn-ghost tooltip tooltip-left"
                             data-tip="decrease"
                             onClick={() => {
-                              varyHiddenPrivatekey(game, token, "decrease");
+                              varyHiddenPrivatekey(game, token, "decrease", loadBurnerSK().toString().substring(2));
                             }}
                           >
-                            <ChevronDoubleDownIcon className="text-xl font-bold h-5 w-5 " aria-hidden="true" />
+                            <ChevronDoubleDownIcon className="text-xl font-bold h-5 w-5" aria-hidden="true" />
                           </button>
                         </div>
                       </div>
@@ -399,7 +442,7 @@ function GamePage() {
                   Winner <Address address={game?.winner} />
                 </div>
               )}
-              {/* {isAdmin && game.winner && (
+              {isAdmin && game.winner && (
                 <button
                   className="btn btn-primary w-full"
                   onClick={() => {
@@ -408,14 +451,14 @@ function GamePage() {
                 >
                   Restart with New PK
                 </button>
-              )} */}
+              )}
             </div>
             {screenwidth > 768 && (
               <div className="md:w-2/3">
                 {isAdmin && (
                   <div>
-                    <div className="font-bold py-2 border-b-white border-2 flex items-center px-4  ">
-                      <h1 className=" tracking-wide md:text-xl text-lg md:text-left text-center ">PRIVATE KEY</h1>
+                    <div className="font-bold py-2 border-b-white border-2 flex items-center px-4">
+                      <h1 className="tracking-wide md:text-xl text-lg md:text-left text-center">PRIVATE KEY</h1>
                     </div>
                     <div className="flex items-center">
                       <p className="whitespace-normal break-words px-2 blur transition duration-500 ease-in-out hover:blur-none text-lg cursor-pointer w-[90%]">
@@ -426,19 +469,19 @@ function GamePage() {
                           className="btn btn-sm btn-ghost tooltip tooltip-left"
                           data-tip="increase"
                           onClick={() => {
-                            varyHiddenPrivatekey(game, token, "increase");
+                            varyHiddenPrivatekey(game, token, "increase", loadBurnerSK().toString().substring(2));
                           }}
                         >
-                          <ChevronDoubleUpIcon className="text-xl font-bold  h-5 w-5 " aria-hidden="true" />
+                          <ChevronDoubleUpIcon className="text-xl font-bold h-5 w-5" aria-hidden="true" />
                         </button>
                         <button
                           className="btn btn-sm btn-ghost tooltip tooltip-left"
                           data-tip="decrease"
                           onClick={() => {
-                            varyHiddenPrivatekey(game, token, "decrease");
+                            varyHiddenPrivatekey(game, token, "decrease", loadBurnerSK().toString().substring(2));
                           }}
                         >
-                          <ChevronDoubleDownIcon className="text-xl font-bold h-5 w-5 " aria-hidden="true" />
+                          <ChevronDoubleDownIcon className="text-xl font-bold h-5 w-5" aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -447,17 +490,15 @@ function GamePage() {
 
                 <div>
                   <div className="py-2 border-y-white border-2 px-4">
-                    <h1 className="font-bold md:text-xl text-lg  tracking-wide md:text-left text-center">
+                    <h1 className="font-bold md:text-xl text-lg tracking-wide md:text-left text-center">
                       PLAYERS: {game?.players.length}
                     </h1>
                   </div>
                   {isAdmin && (
-                    <div
-                      className={isAdmin ? "p-4 overflow-scroll max-h-[28rem]" : "p-4 overflow-scroll max-h-[15rem]"}
-                    >
+                    <div className="p-4 overflow-scroll" style={{ maxHeight: isAdmin ? "28rem" : "15rem" }}>
                       {game?.players?.map((player: string) => (
                         <div key={player} className="mb-4 flex justify-between">
-                          <Address format={"long"} address={player} />
+                          <Address format="long" address={player} />
                           {isAdmin && (
                             <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
                               kick
@@ -471,7 +512,6 @@ function GamePage() {
               </div>
             )}
           </div>
-
           {isPlayer && (
             <div className="flex flex-col items-center mt-6">
               <button
@@ -480,8 +520,8 @@ function GamePage() {
                   game.mode === "auto"
                     ? setAutoRolling(true)
                     : game.mode === "brute"
-                      ? setBruteRolling(true)
-                      : rollTheDice();
+                    ? setBruteRolling(true)
+                    : rollTheDice();
                 }}
                 disabled={
                   isRolling ||
@@ -505,40 +545,35 @@ function GamePage() {
                   </div>
                 )}
                 <div className="flex flex-wrap justify-center gap-2 mt-8 py-2">
-                  {rolls.map((value, index) =>
-                    rolled ? (
-                      isUnitRolling[index] || (isRolling && game.mode == "brute") ? (
-                        <Image
-                          className="transition duration-500 opacity-100 rounded-lg"
-                          key={index}
-                          src="/rolls-gif/Spin.gif"
-                          alt="spinning"
-                          width={length}
-                          height={length}
-                        />
-                      ) : (
-                        <Image
-                          className="transition  duration-500 ease-in rounded-lg"
-                          key={index}
-                          src={`/rolls-jpg/${value}.jpg`}
-                          alt="rolled"
-                          width={length}
-                          height={length}
-                        />
-                      )
-                    ) : (
+                  {Array.from({ length: game.diceCount }).map((_, index) => {
+                    let src, alt;
+
+                    if (rolled) {
+                      if (isUnitRolling[index] || (isRolling && game.mode === "brute")) {
+                        src = "/rolls-gif/Spin.gif";
+                        alt = "spinning";
+                      } else {
+                        src = `/rolls-jpg/${rolls[index]}.jpg`;
+                        alt = "rolled";
+                      }
+                    } else {
+                      src = `/rolls-jpg/0.jpg`;
+                      alt = "zero roll";
+                    }
+
+                    return (
                       <Image
-                        className="rounded-lg"
                         key={index}
-                        src={`/rolls-jpg/0.jpg`}
-                        alt="zero roll"
+                        className="transition duration-500 ease-in rounded-lg"
+                        src={src}
+                        alt={alt}
                         width={length}
                         height={length}
                       />
-                    ),
-                  )}
+                    );
+                  })}
                 </div>
-              </div>{" "}
+              </div>
               {(isHacked || game.winner) && (
                 <PlayerAnnouncement
                   isOpen={congratsOpen}
@@ -561,12 +596,12 @@ function GamePage() {
             <div className="md:w-2/3 rounded-xl border-white border-2 overflow-hidden mt-5">
               <div>
                 <div className="py-2 border-b-white border-2 px-4">
-                  <h1 className="font-bold md:text-xl text-lg  tracking-wide md:text-left text-center">PLAYERS</h1>
+                  <h1 className="font-bold md:text-xl text-lg tracking-wide md:text-left text-center">PLAYERS</h1>
                 </div>
                 <div className="p-4 max-h-[30rem] overflow-scroll">
-                  {game?.players?.map((player: string) => (
-                    <div key={player} className="mb-4 flex justify-between ">
-                      <Address format={"short"} address={player} />
+                  {game.players.map(player => (
+                    <div key={player} className="mb-4 flex justify-between">
+                      <Address format="short" address={player} />
                       {isAdmin && (
                         <button className="btn btn-xs btn-error" onClick={() => kickPlayer(game, token, player)}>
                           kick
@@ -585,11 +620,8 @@ function GamePage() {
     );
   } else {
     return (
-      <div className=" mt-20 lg:text-3xl lg:px-56 px-5 text-lg h-screen">
-        <p className="text-center">
-          Oops, it appears that you are attempting to access a game that doesn&apos;t exist or to which access has been
-          lost. Please return to the homepage to join a new game.
-        </p>
+      <div className=" mt-20 lg:text-2xl lg:px-56 px-5 text-lg h-screen">
+        <p className="text-center">Loading...</p>
       </div>
     );
   }

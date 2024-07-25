@@ -1,55 +1,95 @@
-# Dice Demonstration
+# PKDice
 
-Random numbers, dice images and animations can be taken from the dice challenge repo here:<br>
-https://github.com/scaffold-eth/se-2-challenges/tree/challenge-3-dice-game
+## Description
 
-Live view of this repo for context:<br>
-https://buidlguidl-g33iv38ol-brycehytans-projects.vercel.app/dice
+This game is designed to demonstrate the difficulty of guessing or brute-forcing a wallet's private key. A host creates a game with a reward and a concealed private key, and participants join the race to guess this hidden key.
 
-### Project Overview
-This will become a demonstration to use during presentations with a live audience using their phones to participate.  A host will control the metrics of the game, and control a private key that will contain some value the users are trying to win. The host determines how many dice can be rolled and what rolling mode the users will be using.  The users will try to roll their dice to match the hosts.  If they do, some of the prize money is sent to them along with a winning message.  Eventually the hosts number will have too many characters (dice) for the users to be able to match.  This will show the security of a 64 character private key.
+## Project Overview
+
+This project is a live demonstration intended for use during presentations with a live audience using their phones to participate. A host controls the game metrics and a private key that contains some value the users are trying to win. The host determines the number of dice that can be rolled and the rolling mode the users will use. Participants try to roll their dice to match the host's. If they succeed, they receive a portion of the prize money and a winning message. As the number of dice increases, it becomes increasingly difficult for users to match the host's dice, demonstrating the security of a 64-character private key.
+
+## Features
 
 ### Dice
-- Each dice will have a value in HEX (0-F)
-- Dice images and rolling animations can be grabbed from the Dice Challenge repo at the top of this page.
+- Each die has a value in HEX (0-F).
+- Dice images and rolling animations can be sourced from the Dice Challenge [repo](https://github.com/scaffold-eth/se-2-challenges/tree/challenge-3-dice-game).
 
 ### Host
-- The host can at any time change the number of dice, in a range from 1-64.
-- The host can update the rolling mode.
-- The host can enable/disable user rolling.  This may be necessary for updating the dice count and modes.
-- The host computer will be on display at the presentations.  What information is necessary to show/hide?
-- Maybe the host can do an initial roll on the big screen to get their number?
-- We should display winners on the host screen so everyone can see when there was a winner.
+- Can change the number of dice (1-64 range).
+- Can update the rolling mode.
+- Can enable/disable user rolling (useful for updating dice count and modes).
+- Host computer will be displayed during presentations.
+- Initial roll can be displayed on the big screen to generate the host's number.
+- Winner is displayed on the host screen for visibility.
 
 ### Users
-- Unsure of the number of users we will have at one time, a good guess is in the 10-30 range.
-- Users will get a burner wallet when they connect that we will use for display purposes, and to send any winnings.
-- The users should see a cool dice rolling display on their (phone) screens.  This will get tricky as more dice are added, up to a max of 64.
-- If they match the hosts, a cool winning message will be display and some of the value in the hosts private key will be sent to them.  Need a cool message they can show off to others.
-- All the user's dice will roll at the same time. e.g if the count of dice is currently 24, and example roll from a user would be F18053525893D3537EAB615C
-- They should see a cool animation when rolling
+- Each user gets a burner wallet upon connecting for display purposes and to receive winnings.
+- Users see a dice rolling display on their phones, which scales with the number of dice (up to 64).
+- Cool winning message and some value from the host's private key are sent to users upon winning.
+- All user dice roll simultaneously.
 
 ### Roll Modes
-- Users click a roll button to manually roll the dice once. This will mostly be used when there is a small number of dice.
-- Users click a button to start the continous rolling of dice.  It will automatically keep rolling until manually stopped or it finds the match.
-- Users click a button to start continous rolling, but this time all users are coordinating trying to guess different numbers of the hosts instead of racing.  Namespaces can be used here.  Austin can put together a quick algorithm to accompolish this, or feel free to tackle it yourself.
+- **Manual Roll:** Users click a roll button to manually roll the dice once. Best for a small number of dice.
+- **Auto Rolling:** Users click a button to start continuous rolling until manually stopped or a hidden character(s) are found.
+- **Brute Continuous Rolling:** Users click a button to start rolling continuously as quickly as possible, coordinating with each other to guess different numbers of the host’s dice.
 
-## Contributing
+## Instructions for Hosts
 
-Step by step "fork-and-pull" Github contributing using CLI refresher here:  
-https://gist.github.com/ZakGriffith/69d1eb8baebddd7d370b87a65a7e3ec0 
+1. **Setup:** Configure the number of dice and rolling mode.
+3. **Enable Rolling:** Allow users to start rolling.
+4. **Monitor:** Display winners on the host screen for everyone to see.
+5. **Adjust Settings:** Enable/disable user rolling as necessary to update dice count and modes.
+
+## Instructions for Users
+
+1. **Connect:** Join the game using your phone.
+2. **Burner Wallet:** Receive a burner wallet for display and receiving winnings.
+3. **Rolling Dice:** Click the roll button to roll the dice once.
+4. **Winning:** If your roll matches the host’s, receive a cool winning message and some of the host’s prize money.
+
+## Rolling Modes
+
+1. **Manual Roll:**
+   - Click to roll the dice once.
+2. **Auto Rolling:**
+   - Click to start rolling until stopped or a match is found.
+3. **Brute Rolling:**
+   - Click to start rolling as quickly as possible.
+
+## Credits
+
+- Dice images and rolling animations sourced from the Dice Challenge [repo](https://github.com/scaffold-eth/se-2-challenges/tree/challenge-3-dice-game).
+
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for more information.
 
 ---
 
+## Setting Up Locally
 
-### initial notes from austin:
 
-the essence of what I want to demonstrate is that technically you can guess someone's private key but if you use enough bytes randomness it becomes impossible 
+1. Clone this repo & install dependencies
 
-the idea comes from my buddy griffin who does a "guess the number" kind of game that is similar -- I want to use our amazing hex dice from mr dee and SE2 to make a pretty mobile experience that is controlled from and admin screen 
+```
+git clone https://github.com/Buidlguidl/private-key-dice.git
+cd private-key-dice
+yarn install
+```
 
-this would be a demo for technical groups and normies - I lock money up in a private key where we know all of the bytes except one and everyone has to click to roll the dice and if they land on the right hex character it makes a private key, checks if there is money on it, and sweeps it with a celebration screen 
+2. Run the backend in the first terminal:
 
-then from the admin side I lock up a little money and we roll two dice and then three and then four - we'll have to experiment with where it gets so difficult a room wont be able to get it and then we can allow them to upgrade their roller to *automatic roll* and *group brute force roll* where everyone works on different sections trying to find the solution  
+```
+yarn backend
+```
 
-the payoff is when I have 64 dice on a single screen and I show some smart contract with billions of dollars in it -- all your phone has to do is guess the right 64 hex characters and that billion dollars is yours 
+This command starts a local backend on port `6001` and can be used for testing and development. You can customize the configuration in `backend.config.ts` and add your very own `.env` file following the `packages/backend/.env.example`.
+
+3. On a third terminal, start your NextJS app:
+
+```
+yarn start
+```
+
+Visit your app on: `http://localhost:3000`. Change `isLocal` variable to `true` in the config in `packages/nextjs/server.config.ts`. You can also add your very own `.env.local` file following the `packages/nextjs/.env.example`.

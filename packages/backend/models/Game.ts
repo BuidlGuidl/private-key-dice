@@ -26,10 +26,6 @@ const gameSchema = new mongoose.Schema(
       enum: ["auto", "manual", "brute"],
       required: true,
     },
-    privateKey: {
-      type: String,
-      required: true,
-    },
     hiddenPrivateKey: {
       type: String,
       required: true,

@@ -2,8 +2,9 @@ import Game from "../models/Game";
 import { Response, Request } from "express";
 import jwt from "jsonwebtoken";
 import { ably } from "..";
+import backendConfig from "../backend.config";
 
-const JWT_SECRET = process.env.JWT_SECRET || "superhardstring";
+const JWT_SECRET = process.env.JWT_SECRET || backendConfig.jwt_secret;
 
 export const join = async (req: Request, res: Response) => {
   try {
@@ -36,8 +37,3 @@ export const join = async (req: Request, res: Response) => {
     res.status(500).json({ error: (err as Error).message });
   }
 };
-
-export const leave = () => {};
-
-export const sweepPrize = () => {};
-export const markSlotsAsFoundPerPlayer = () => {};

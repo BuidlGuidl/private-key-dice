@@ -5,7 +5,6 @@ export interface Game {
   inviteCode: string;
   diceCount: number;
   mode: "auto" | "manual" | "brute";
-  privateKey: string;
   hiddenPrivateKey: string;
   players: string[];
   winner?: string | null;
