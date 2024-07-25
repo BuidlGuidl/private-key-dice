@@ -8,6 +8,7 @@ import gameRoutes from "./routes/game";
 import http from "http";
 import Ably from "ably";
 import path = require("path");
+import backendConfig from "./backend.config";
 
 declare global {
   namespace Express {
@@ -28,12 +29,12 @@ app.use(cors());
 
 /**Ably Setup */
 
-export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY });
+export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY || backendConfig.ablyApi });
 
 const server = http.createServer(app);
 /* MONGOOSE SETUP */
-const PORT = process.env.PORT || 6001;
-const MONGO_URL = process.env.MONGO_URL || "";
+const PORT = process.env.PORT || backendConfig.port;
+const MONGO_URL = process.env.MONGO_URL || backendConfig.mongo_url;
 
 app.use("/admin", adminRoutes);
 app.use("/player", playerRoutes);
