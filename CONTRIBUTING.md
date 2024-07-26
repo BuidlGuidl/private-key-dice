@@ -55,6 +55,7 @@ cd private-key-dice
 ```
 
 2. Install Dependencies
+
 Install the necessary dependencies by running:
 
 ```
@@ -62,6 +63,7 @@ yarn install
 ```
 
 3. Configure Environment Variables(optional)
+
 Create a `.env` file in the directory `packages/backend` and add your MongoDB connection string and Ably API key:
 
 ```env
@@ -69,12 +71,14 @@ PORT=6001
 MONGO_URL=your_mongo_connection_string
 ABLY_API_KEY=your_ably_api_key
 ```
-Alternatively, you can stick with values of backend.config.ts for testing
+
+Alternatively, you can stick with values of `backend.config.ts` for testing
 
 - Get a `mongo_url` by signing up at [MongoDB](https://www.mongodb.com/) and creating an cluster. [Learn More](https://www.mongodb.com/docs/drivers/node/v3.6/fundamentals/connection/connect/)
 - Get an `ablyApiKey` by signing up at [Ably](https://ably.com/) and creating an application. [Learn More](https://ably.com/docs/connect)
 
 4. Run the Server
+
 Start the server using the following command:
 
 ```
@@ -86,7 +90,8 @@ The complete setup is in `packages/backend/index.ts`.
 
 ### MongoDB Setup
 
-The server uses Mongoose to connect to MongoDB. Ensure your MongoDB URL is correctly set in the .env file or backend.config.ts. The connection logic includes an automatic retry mechanism in case the initial connection fails.
+The server uses [Mongoose](https://mongoosejs.com/docs/) to connect to MongoDB. Ensure your MongoDB URL is correctly set in the `.env` file or `backend.config.ts`. The connection logic includes an automatic retry mechanism in case the initial connection fails.
+
 
 ```typescript
 const connectWithRetry = async () => {
@@ -112,7 +117,8 @@ connectWithRetry();
 Ably is configured to publish real-time updates to the `gameUpdate` channel whenever a game state is updated. This allows clients to receive updates instantaneously.
 
 ### Backend Ably Setup
-The Ably client is initialized with your API key:
+The Ably client is initialized with the API key at `packages/backend/index.ts`:
+
 
 ```typescript
 export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY || backendConfig.ablyApi });
@@ -151,8 +157,6 @@ useEffect(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [game, ablyApiKey]);
 ```
-
-Ensure your frontend application includes the Ably JavaScript SDK and correctly initializes the ablyApiKey.
 
 ### Additional Information
 
