@@ -1,86 +1,165 @@
-# Welcome to Scaffold-ETH 2 Contributing Guide
+# Welcome to PKDice Contributing Guide
 
-Thank you for investing your time in contributing to Scaffold-ETH 2!
-
-This guide aims to provide an overview of the contribution workflow to help us make the contribution process effective for everyone involved.
+This guide aims to provide an overview of understanding the backend configuration and its connection with the frontend to help us make the contribution process effective.
 
 ## About the Project
 
-Scaffold-ETH 2 is a minimal and forkable repo providing builders with a starter kit to build decentralized applications on Ethereum.
+PKDice is a game designed to demonstrate the difficulty of guessing or brute-forcing a wallet's private key.
 
 Read the [README](README.md) to get an overview of the project.
 
-### Vision
+## Understanding the Project
 
-The goal of Scaffold-ETH 2 is to provide the primary building blocks for a decentralized application.
+### Backend Setup Guide
 
-The repo can be forked to include integrations and more features, but we want to keep the master branch simple and minimal.
+The backend uses MongoDB for the database and Ably for real-time communication with the frontend. This guide provides comprehensive instructions on setting up MongoDB and Ably Realtime for the backend server. Follow the instructions carefully to get your development environment up and running.
 
-### Project Status
+**Project Structure**
 
-The project is under active development.
+```plaintext
+.
+├── controllers
+│   ├── Admin.ts
+│   └── Player.ts
+├── middleware
+│   └── auth.ts
+├── models
+│   └── Game.ts
+├── routes
+│   ├── admin.ts
+│   ├── player.ts
+│   └── game.ts
+├── .env
+├── backend.config.ts
+├── index.ts
+└── package.json
+```
 
-You can view the open Issues, follow the development process and contribute to the project.
+### Prerequisites
 
-## Getting started
+Ensure you have the following:
 
-You can contribute to this repo in many ways:
+- Node.js 
+- yarn (Node Package Manager)
+- [MongoDB Cluster](https://www.mongodb.com/)
+- [Ably Application (For realtime connection)](https://ably.com/)
 
-- Solve open issues
-- Report bugs or feature requests
-- Improve the documentation
+Setup Instructions
 
-Contributions are made via Issues and Pull Requests (PRs). A few general guidelines for contributions:
+1. Clone the Repository
+Clone the repository to your local machine using the following command:
 
-- Search for existing Issues and PRs before creating your own.
-- Contributions should only fix/add the functionality in the issue OR address style issues, not both.
-- If you're running into an error, please give context. Explain what you're trying to do and how to reproduce the error.
-- Please use the same formatting in the code repository. You can configure your IDE to do it by using the prettier / linting config files included in each package.
-- If applicable, please edit the README.md file to reflect the changes.
+```
+git clone https://github.com/BuidlGuidl/private-key-dice.git
+cd private-key-dice
+```
 
-### Issues
+2. Install Dependencies
+Install the necessary dependencies by running:
 
-Issues should be used to report problems, request a new feature, or discuss potential changes before a PR is created.
+```
+yarn install
+```
 
-#### Solve an issue
+3. Configure Environment Variables(optional)
+Create a `.env` file in the directory `packages/backend` and add your MongoDB connection string and Ably API key:
 
-Scan through our [existing issues](https://github.com/scaffold-eth/scaffold-eth-2/issues) to find one that interests you.
+```env
+PORT=6001
+MONGO_URL=your_mongo_connection_string
+ABLY_API_KEY=your_ably_api_key
+```
+Alternatively, you can stick with values of backend.config.ts for testing
 
-If a contributor is working on the issue, they will be assigned to the individual. If you find an issue to work on, you are welcome to assign it to yourself and open a PR with a fix for it.
+- Get a `mongo_url` by signing up at [MongoDB](https://www.mongodb.com/) and creating an cluster. [Learn More](https://www.mongodb.com/docs/drivers/node/v3.6/fundamentals/connection/connect/)
+- Get an `ablyApiKey` by signing up at [Ably](https://ably.com/) and creating an application. [Learn More](https://ably.com/docs/connect)
 
-#### Create a new issue
+4. Run the Server
+Start the server using the following command:
 
-If a related issue doesn't exist, you can open a new issue.
+```
+yarn backend
+```
 
-Some tips to follow when you are creating an issue:
+The server will automatically attempt to connect to MongoDB and Ably. If the connection fails, it will retry every 3 seconds until successful.
+The complete setup is in `packages/backend/index.ts`.
 
-- Provide as much context as possible. Over-communicate to give the most details to the reader.
-- Include the steps to reproduce the issue or the reason for adding the feature.
-- Screenshots, videos etc., are highly appreciated.
+### MongoDB Setup
 
-### Pull Requests
+The server uses Mongoose to connect to MongoDB. Ensure your MongoDB URL is correctly set in the .env file or backend.config.ts. The connection logic includes an automatic retry mechanism in case the initial connection fails.
 
-#### Pull Request Process
+```typescript
+const connectWithRetry = async () => {
+  await ably.connection.once("connected");
+  ably.channels.get(`gameUpdate`);
+  console.log("connecting");
+  mongoose
+    .connect(MONGO_URL)
+    .then(() => {
+      server.listen(PORT, () => console.log(`Server Connected, Port: ${PORT}`));
+    })
+    .catch(error => {
+      console.log(`${error} did not connect`);
+      setTimeout(connectWithRetry, 3000);
+    });
+};
 
-We follow the ["fork-and-pull" Git workflow](https://github.com/susam/gitpr)
+connectWithRetry();
+```
 
-1. Fork the repo
-2. Clone the project
-3. Create a new branch with a descriptive name
-4. Commit your changes to the new branch
-5. Push changes to your fork
-6. Open a PR in our repository and tag one of the maintainers to review your PR
+### Ably Realtime Setup
 
-Here are some tips for a high-quality pull request:
+Ably is configured to publish real-time updates to the `gameUpdate` channel whenever a game state is updated. This allows clients to receive updates instantaneously.
 
-- Create a title for the PR that accurately defines the work done.
-- Structure the description neatly to make it easy to consume by the readers. For example, you can include bullet points and screenshots instead of having one large paragraph.
-- Add the link to the issue if applicable.
-- Have a good commit message that summarises the work done.
+### Backend Ably Setup
+The Ably client is initialized with your API key:
 
-Once you submit your PR:
+```typescript
+export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY || backendConfig.ablyApi });
+```
 
-- We may ask questions, request additional information or ask for changes to be made before a PR can be merged. Please note that these are to make the PR clear for everyone involved and aims to create a frictionless interaction process.
-- As you update your PR and apply changes, mark each conversation resolved.
+Whenever an API call updates the game, Ably publishes the changes:
 
-Once the PR is approved, we'll "squash-and-merge" to keep the git commit history clean.
+The code snippet below is used after an API call that updates the data of a game. See controller functions in `packages/backend/controllers`.
+
+```typescript
+const channel = ably.channels.get(`gameUpdate`);
+channel.publish(`gameUpdate`, updatedGame);
+```
+
+### Frontend Ably Integration
+
+The frontend subscribes to the `gameUpdate` channel to receive real-time updates. Here's a React useEffect hook snippet in  `packages/nextjs/pages/game/[id].tsx` for subscribing to the updates:
+
+```typescript
+useEffect(() => {
+  if (!ablyApiKey) return;
+  const ably = new Ably.Realtime({ key: ablyApiKey });
+  const channel = ably.channels.get(`gameUpdate`);
+
+  channel.subscribe(message => {
+    if (game?._id === message.data._id) {
+      setGame(message.data);
+      updateGameState(JSON.stringify(message.data));
+    }
+  });
+
+  return () => {
+    channel.unsubscribe(`gameUpdate`);
+    ably.close();
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [game, ablyApiKey]);
+```
+
+Ensure your frontend application includes the Ably JavaScript SDK and correctly initializes the ablyApiKey.
+
+### Additional Information
+
+- Controllers: Game logic for admin and player operations.
+- Middleware: Authentication logic.
+- Models: Mongoose schemas for the game model.
+- Routes: API endpoints for admin and player interactions.
+For more details on specific implementations, refer to the respective files within the project at `packages/backend`.
+
+With these instructions, you should be able to set up and run the backend server with MongoDB and Ably Realtime integration. If you encounter any issues, consult the respective documentation for [Mongoose](https://mongoosejs.com/docs/) and [Ably](https://ably.com/docs).
