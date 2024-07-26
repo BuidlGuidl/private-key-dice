@@ -56,15 +56,6 @@ This project is a live demonstration intended for use during presentations with 
 3. **Brute Rolling:**
    - Click to start rolling as quickly as possible.
 
-## Credits
-
-- Dice images and rolling animations sourced from the Dice Challenge [repo](https://github.com/scaffold-eth/se-2-challenges/tree/challenge-3-dice-game).
-
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more information.
-
 ---
 
 ## Setting Up Locally
