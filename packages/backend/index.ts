@@ -21,7 +21,7 @@ declare global {
 export const envPath = path.resolve(__dirname, "./.env");
 dotenv.config({ path: envPath });
 
-/* CONFIGURATIONS */
+/* CONFIGURATIONS m*/
 
 export const app = express();
 app.use(express.json());
@@ -29,7 +29,7 @@ app.use(cors());
 
 /**Ably Setup */
 
-export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY || backendConfig.ablyApi });
+export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY || backendConfig.ablyApiKey });
 
 const server = http.createServer(app);
 /* MONGOOSE SETUP */
