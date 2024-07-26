@@ -117,7 +117,8 @@ connectWithRetry();
 Ably is configured to publish real-time updates to the `gameUpdate` channel whenever a game state is updated. This allows clients to receive updates instantaneously.
 
 ### Backend Ably Setup
-The Ably client is initialized with your API key:
+The Ably client is initialized with the API key at `packages/backend/index.ts`:
+
 
 ```typescript
 export const ably = new Ably.Realtime({ key: process.env.ABLY_API_KEY || backendConfig.ablyApi });
