@@ -15,7 +15,7 @@ const Home: NextPage = () => {
         </div> */}
 
         <div>
-          <div className="mx-auto mt-5 border p-6 rounded-md bg-base-100 shadow-2xl flex flex-col">
+          <div className="mx-auto mt-5  p-6 rounded-md bg-base-100 shadow-2xl flex flex-col">
             <div className="box">
               <WelcomeRoll />
             </div>
