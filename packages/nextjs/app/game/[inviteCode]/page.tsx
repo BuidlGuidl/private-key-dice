@@ -406,7 +406,7 @@ function GamePage() {
                   Winner <Address address={game?.winner} />
                 </div>
               )}
-              {isAdmin && game.winner && (
+              {/* {isAdmin && game.winner && (
                 <button
                   className="btn btn-primary w-full"
                   onClick={() => {
@@ -415,7 +415,7 @@ function GamePage() {
                 >
                   Restart with New PK
                 </button>
-              )}
+              )} */}
             </div>
             {screenwidth > 768 && (
               <div className="md:w-2/3">
