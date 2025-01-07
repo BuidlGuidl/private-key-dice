@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useGlobalState } from "~~/services/store/store";
 
@@ -7,7 +9,7 @@ type TPriceProps = {
 
 export const Price: React.FC<TPriceProps> = ({ value }: TPriceProps) => {
   const [dollarMode, setDollarMode] = useState(true);
-  const nativePrice = useGlobalState(state => state.nativeCurrencyPrice);
+  const nativePrice = useGlobalState(state => state.nativeCurrency.price);
 
   const isValueNaN = isNaN(value);
   let displayBalance = isValueNaN ? NaN : "Ξ " + value.toFixed(4);

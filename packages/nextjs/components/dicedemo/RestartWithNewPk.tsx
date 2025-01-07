@@ -17,7 +17,6 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
   const closePopup = () => {
     setIsOpen(false);
   };
-  const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
   const { loadGameState } = useGameData();
   const { token, game } = loadGameState();
   const [sliderValue, setSliderValue] = useState(1);
@@ -30,7 +29,7 @@ const RestartWithNewPk = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: D
   });
 
   const handleRestart = async () => {
-    const response = await fetch(`${serverUrl}/admin/restartwithnewpk/${game?._id}`, {
+    const response = await fetch(`api/admin/restartwithnewpk/${game?._id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,

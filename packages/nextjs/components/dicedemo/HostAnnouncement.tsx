@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Address } from "../scaffold-eth";
-import { Game } from "~~/types/game/game";
+import { Game } from "@prisma/client";
 
 const HostAnnouncement = ({
   isOpen,

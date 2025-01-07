@@ -1,0 +1,75 @@
+// This is your Prisma schema file
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Game {
+    id               String     @id @default(auto()) @map("_id") @db.ObjectId
+    adminAddress     String
+    status           GameStatus
+    inviteCode       String
+    diceCount        Int        @db.Int
+    mode             GameMode
+    hiddenPrivateKey String
+    players          String[]
+    winner           String?
+    createdAt        DateTime   @default(now())
+    updatedAt        DateTime   @updatedAt
+
+    @@map("games")
+}
+
+model Invites {
+    id    String   @id @default(auto()) @map("_id") @db.ObjectId
+    codes String[]
+
+    @@map("singleton")
+}
+
+model Player {
+    id        String       @id @default(auto()) @map("_id") @db.ObjectId
+    gameId    String
+    address   String
+    status    PlayerStatus
+    diceCount Int          @db.Int
+    mode      PlayerMode
+    type      Type?
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
+
+    @@map("players")
+}
+
+type Type {
+    key   String
+    value String
+}
+
+enum GameStatus {
+    lobby
+    ongoing
+    paused
+    finished
+}
+
+enum GameMode {
+    auto
+    manual
+    brute
+}
+
+enum PlayerStatus {
+    ongoing
+    paused
+    finished
+}
+
+enum PlayerMode {
+    auto
+    manual
+}

@@ -5,8 +5,7 @@
   "workspaces": {
     "packages": [
       "packages/hardhat",
-      "packages/nextjs",
-      "packages/backend"
+      "packages/nextjs"
     ]
   },
   "scripts": {
@@ -31,7 +30,7 @@
     "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
     "backend": "yarn workspace @se-2/backend backend"
   },
-  "packageManager": "yarn@3.2.3",
+  "packageManager": "yarn@4.6.0",
   "devDependencies": {
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3"
