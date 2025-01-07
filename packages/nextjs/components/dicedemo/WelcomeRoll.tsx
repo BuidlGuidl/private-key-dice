@@ -77,7 +77,7 @@ const WelcomeRoll = () => {
   }, [rolledResult]);
 
   return (
-    <div className="bg-white overflow-hidden h-fit">
+    <div className=" overflow-hidden h-fit">
       <div className="flex justify-center mt-2">
         <button className="btn btn-sm btn-primary " onClick={rollTheDice} disabled={isRolling || spinning || isHacked}>
           {spinning && <span className="loading loading-spinner"></span>}
