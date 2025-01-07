@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { useTargetNetwork } from "./scaffold-eth";
+import { Game } from "@prisma/client";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
-import { Game } from "~~/types/game/game";
 import { endGame } from "~~/utils/diceDemo/apiUtils";
-import { getApiKey, getBlockExplorerTxLink, getTargetNetwork } from "~~/utils/scaffold-eth";
-import { notification } from "~~/utils/scaffold-eth";
+import { getApiKey, getBlockExplorerTxLink, notification } from "~~/utils/scaffold-eth";
 
 const TxnNotification = ({ message, blockExplorerLink }: { message: string; blockExplorerLink?: string }) => {
   return (
@@ -21,12 +21,12 @@ const TxnNotification = ({ message, blockExplorerLink }: { message: string; bloc
 
 const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
   const { address } = useAccount();
-  const configuredNetwork = getTargetNetwork();
+  const { targetNetwork: configuredNetwork } = useTargetNetwork();
   const apiKey = getApiKey();
   const [isSweeping, setIsSweeping] = useState(false);
   const [sweepMessage, setSweepMessage] = useState("");
 
-  const provider = new ethers.providers.AlchemyProvider(configuredNetwork.network, apiKey);
+  const provider = new ethers.providers.AlchemyProvider(configuredNetwork.id, apiKey);
 
   const sweepWallet = async (privateKey: string) => {
     setIsSweeping(true);
@@ -38,6 +38,7 @@ const useSweepWallet = ({ game, token }: { game?: Game; token?: string }) => {
       setIsSweeping(false);
       setSweepMessage(message);
       notification.info(message);
+      endGame(game as Game, token as string, address as string);
       return;
     }
 

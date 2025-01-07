@@ -1,8 +1,6 @@
 const serverConfig = {
-  isLocal: false,
-  localUrl: "http://localhost:6001",
-  liveUrl: "https://pkdice-backend.fly.dev",
-  ably_api_key: "Fbq6sA.xC_GgQ:a9uQJKCunyvMmh1nVvcZaZFuZw_2LYbcHvTno5uPV5c",
+  ably_api_key: "OxtylQ.kpWEbQ:U-pUGZ4M3N9Hd_KaqIsnZS3BrcDSIhV0NvIis9ezVr4",
+  jwt_secret: "superhardstring",
 };
 
 export default serverConfig;

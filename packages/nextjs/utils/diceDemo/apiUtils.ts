@@ -1,88 +1,83 @@
 import { notification } from "../scaffold-eth";
 import { saveGameState } from "./game";
-import serverConfig from "~~/server.config";
-import { Game } from "~~/types/game/game";
+import { Game } from "@prisma/client";
+import axios from "axios";
 
-const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
+const api = axios.create({
+  baseURL: "/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 export const joinGame = async (invite: string, playerAddress: string) => {
-  const response = await fetch(`${serverUrl}/player/join`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ inviteCode: invite, playerAddress }),
-  });
+  try {
+    const { data } = await api.patch(
+      "/player/join",
+      { inviteCode: invite, playerAddress },
+      { headers: { Authorization: "Bearer" } },
+    );
 
-  const updatedGame = await response.json();
-  saveGameState(JSON.stringify(updatedGame));
-
-  if (updatedGame.error) {
-    notification.error(updatedGame.error);
+    saveGameState(JSON.stringify(data));
+    notification.success(`${data.message}`);
+    return { success: true, game: data.game, player: data.player, token: data.token };
+  } catch (error) {
+    notification.error("something went wrong");
     return;
   }
 };
 
 export const endGame = async (game: Game, token: string, address: string) => {
-  await fetch(`${serverUrl}/game/${game?._id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ winner: address }),
-  });
+  try {
+    await api.patch(
+      "/game/endgame",
+      { winner: address, id: game?.id },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    notification.success("Game ended");
+  } catch (error) {
+    notification.error("Something went wrong");
+  }
 };
 
 export const toggleMode = async (game: Game, mode: string, token: string) => {
-  const response = await fetch(`${serverUrl}/admin/changemode/${game?._id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ mode: mode }),
-  });
-
-  const responseData = await response.json();
-  if (responseData.error) {
-    notification.error(responseData.error);
-    return;
+  try {
+    await api.patch(
+      "/admin/changemode",
+      { mode: mode, id: game?.id },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    notification.success("Changed mode to " + mode);
+  } catch (error) {
+    notification.error("Something went wrong");
   }
 };
 
 export const pauseResumeGame = async (game: Game, token: string) => {
-  const response = await fetch(`${serverUrl}/admin/${game?.status == "ongoing" ? "pause" : "resume"}/${game?._id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const responseData = await response.json();
-  if (responseData.error) {
-    notification.error(responseData.error);
-    return;
+  try {
+    await api.patch(
+      "/admin/pauseresumegame",
+      {
+        status: game?.status === "ongoing" ? "paused" : "ongoing",
+        id: game?.id,
+      },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+  } catch (error) {
+    notification.error("Something went wrong");
   }
 };
 
 export const kickPlayer = async (game: Game, token: string, playerAddress: string) => {
-  const response = await fetch(`${serverUrl}/admin/kickplayer/${game?._id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ playerAddress: playerAddress }),
-  });
-
-  const responseData = await response.json();
-  notification.success("Kicked " + playerAddress);
-  if (responseData.error) {
-    notification.error(responseData.error);
-    return;
+  try {
+    await api.patch(
+      "/admin/kickplayer",
+      { playerAddress: playerAddress, id: game?.id },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    notification.success("Kicked " + playerAddress);
+  } catch (error) {
+    notification.error("Something went wrong");
   }
 };
 
@@ -109,18 +104,17 @@ export const varyHiddenPrivatekey = async (
   }
 
   try {
-    await fetch(`${serverUrl}/admin/varyhiddenprivatekey/${game?._id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+    await api.patch(
+      "/admin/varyhiddenprivatekey",
+      {
+        hiddenPrivateKey: hiddenPrivateKey,
+        diceCount: diceCount,
+        id: game?.id,
       },
-      body: JSON.stringify({ hiddenPrivateKey: hiddenPrivateKey, diceCount: diceCount }),
-    });
-
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
     notification.success("Updated hidden characters");
   } catch (error) {
-    notification.error((error as Error).message);
-    return;
+    notification.error("Something went wrong");
   }
 };
