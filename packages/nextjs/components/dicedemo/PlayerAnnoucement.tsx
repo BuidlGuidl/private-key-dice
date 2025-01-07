@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
-import { loadBurnerSK } from "~~/hooks/scaffold-eth";
-import { Game } from "~~/types/game/game";
+import { Game } from "@prisma/client";
+import { loadBurnerSK } from "~~/hooks/scaffold-eth/useBurnerWallet";
 
 const PlayerAnnouncement = ({
   isOpen,

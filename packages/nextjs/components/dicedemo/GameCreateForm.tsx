@@ -1,8 +1,9 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
-import { loadBurnerSK } from "~~/hooks/scaffold-eth";
-import serverConfig from "~~/server.config";
+import { loadBurnerSK } from "~~/hooks/scaffold-eth/useBurnerWallet";
 import { saveGameState } from "~~/utils/diceDemo/game";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -17,7 +18,6 @@ const GameCreationForm = () => {
   const router = useRouter();
   const { address: adminAddress } = useAccount();
 
-  const serverUrl = serverConfig.isLocal ? serverConfig.localUrl : serverConfig.liveUrl;
   const initialPrivateKey = loadBurnerSK().toString().substring(2);
 
   const [formData, setFormData] = useState<FormData>({
@@ -56,33 +56,31 @@ const GameCreationForm = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setloading(true);
-    const createGameResponse = await fetch(`${serverUrl}/admin/create`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
 
-    const createdGame = await createGameResponse.json();
-    setloading(false);
-    if (createdGame.error) {
-      notification.error(createdGame.error);
-      return;
+    try {
+      setloading(true);
+      const createGameResponse = await fetch(`api/admin/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const createdGame = await createGameResponse.json();
+      saveGameState(JSON.stringify(createdGame));
+      router.push(`/game/${createdGame.game.inviteCode}`);
+      notification.success("Created game successfully");
+    } catch (error) {
+      notification.error("Something went wrong");
+    } finally {
+      setloading(false);
+
+      setFormData({
+        diceCount: 0,
+        mode: "auto",
+        hiddenPrivateKey: "",
+        adminAddress,
+      });
     }
-
-    saveGameState(JSON.stringify(createdGame));
-    router.push({
-      pathname: `/game/[id]`,
-      query: { id: createdGame.game.inviteCode },
-    });
-    notification.success("Created game successfully");
-
-    setFormData({
-      diceCount: 0,
-      mode: "auto",
-      hiddenPrivateKey: "",
-      adminAddress,
-    });
   };
 
   useEffect(() => {
