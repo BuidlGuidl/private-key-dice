@@ -34,7 +34,7 @@ export const AdminComponent = ({ game, token, screenwidth }: AdminComponentProps
   }, []);
 
   return (
-    <div className="flex">
+    <div className="flex w-full">
       <div className="md:w-1/3 w-full">
         <div className="py-2">
           <div className="p-2 bg-base-200 mt-2 rounded-md px-4 w-[95%] mx-auto">
