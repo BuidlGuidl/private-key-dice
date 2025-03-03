@@ -102,12 +102,12 @@ function GamePage() {
 
   if (game) {
     return (
-      <div>
-        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto bg-secondary p-10 items-center justify-center md:text-8xl text-6xl rounded-md shadow-md">
+      <div className="max-w-5xl flex flex-col mx-auto px-3">
+        <div className="flex mt-5 flex-col gap-4 mx-auto w-full bg-secondary p-10 items-center justify-center md:text-8xl text-6xl rounded-md shadow-md">
           <Price value={Number(prize.data?.formatted)} />
         </div>
-        <div className="flex mt-5 flex-col gap-4 xs:w-4/5 xl:w-[55%] w-11/12 mx-auto rounded-xl bg-secondary shadow-md overflow-hidden">
-          <div className="flex md:flex-row flex-col rounded-xl overflow-hidden md:max-h-[40rem]">
+        <div className="flex mt-5 flex-col gap-4 mx-auto w-full rounded-xl bg-secondary shadow-md overflow-hidden">
+          <div className="flex md:flex-row flex-col rounded-xl overflow-hidden md:max-h-[40rem] w-full">
             {isAdmin && <AdminComponent game={game} token={token} screenwidth={screenwidth} />}
             {isPlayer && <PlayerComponent game={game} token={token} address={address} />}
             {!isAdmin && !isPlayer && <p className="text-center text-2xl p-10">You have been kicked</p>}
