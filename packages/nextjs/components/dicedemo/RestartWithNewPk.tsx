@@ -3,7 +3,6 @@ import { Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { generatePrivateKey } from "viem/accounts";
 import useGameData from "~~/hooks/useGameData";
-import serverConfig from "~~/server.config";
 import { updateGameState } from "~~/utils/diceDemo/game";
 import { notification } from "~~/utils/scaffold-eth";
 
