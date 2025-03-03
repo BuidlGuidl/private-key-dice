@@ -164,7 +164,7 @@ export const PlayerComponent = ({ game, token, address }: PlayerComponentProps) 
   }, [game?.mode]);
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex flex-col items-center mt-6">
         <button
           className="btn btn-primary px-10"
