@@ -1,5 +1,5 @@
 export const calculateLength = (count: number) => {
-  const maxLength = 150;
+  const maxLength = 120;
   const calculatedLength = Math.max(maxLength - (count - 1) * 3, 10);
   return calculatedLength;
 };
