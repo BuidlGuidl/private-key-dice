@@ -19,10 +19,10 @@ export const joinGame = async (invite: string, playerAddress: string) => {
     );
 
     saveGameState(JSON.stringify(data));
-    notification.success(`${data.message}`);
-    return { success: true, game: data.game, player: data.player, token: data.token };
+    // Avoid noisy toasts for automatic joins / re-joins; callers can decide what to show.
+    return { success: true, game: data.game, player: data.player, token: data.token, message: data.message };
   } catch (error) {
-    notification.error("something went wrong");
+    notification.error("Failed to join game");
     return;
   }
 };
@@ -36,7 +36,7 @@ export const endGame = async (game: Game, token: string, address: string) => {
     );
     notification.success("Game ended");
   } catch (error) {
-    notification.error("Something went wrong");
+    notification.error("Failed to end game");
   }
 };
 
@@ -47,9 +47,9 @@ export const toggleMode = async (game: Game, mode: string, token: string) => {
       { mode: mode, id: game?.id },
       { headers: { Authorization: `Bearer ${token}` } },
     );
-    notification.success("Changed mode to " + mode);
+    notification.success(`Mode set to ${mode}`);
   } catch (error) {
-    notification.error("Something went wrong");
+    notification.error("Failed to change mode");
   }
 };
 
@@ -64,7 +64,7 @@ export const pauseResumeGame = async (game: Game, token: string) => {
       { headers: { Authorization: `Bearer ${token}` } },
     );
   } catch (error) {
-    notification.error("Something went wrong");
+    notification.error("Failed to update game status");
   }
 };
 
@@ -75,9 +75,9 @@ export const kickPlayer = async (game: Game, token: string, playerAddress: strin
       { playerAddress: playerAddress, id: game?.id },
       { headers: { Authorization: `Bearer ${token}` } },
     );
-    notification.success("Kicked " + playerAddress);
+    notification.success("Player removed");
   } catch (error) {
-    notification.error("Something went wrong");
+    notification.error("Failed to remove player");
   }
 };
 
@@ -99,7 +99,7 @@ export const varyHiddenPrivatekey = async (
   }
 
   if (diceCount < 1 || diceCount > 64) {
-    notification.error("Invalid dice count.");
+    notification.error("Invalid dice count");
     return;
   }
 
@@ -113,8 +113,8 @@ export const varyHiddenPrivatekey = async (
       },
       { headers: { Authorization: `Bearer ${token}` } },
     );
-    notification.success("Updated hidden characters");
+    notification.success("Hidden characters updated");
   } catch (error) {
-    notification.error("Something went wrong");
+    notification.error("Failed to update hidden characters");
   }
 };

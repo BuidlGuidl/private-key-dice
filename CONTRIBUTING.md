@@ -12,27 +12,32 @@ Read the [README](README.md) to get an overview of the project.
 
 ### Backend Setup Guide
 
-The backend uses MongoDB for the database and Ably for real-time communication with the frontend. This guide provides comprehensive instructions on setting up MongoDB and Ably Realtime for the backend server. Follow the instructions carefully to get your development environment up and running.
+The backend is implemented using **Next.js App Router API routes** (under `packages/nextjs/app/api`) with **Prisma** as the ORM and **PostgreSQL** as the primary database. Ably is still used for real-time communication with the frontend.
 
-**Project Structure**
+**Current Backend Structure (Next.js + Prisma + PostgreSQL)**
 
 ```plaintext
-.
-├── controllers
-│   ├── Admin.ts
-│   └── Player.ts
-├── middleware
-│   └── auth.ts
-├── models
-│   └── Game.ts
-├── routes
-│   ├── admin.ts
-│   ├── player.ts
-│   └── game.ts
-├── .env
-├── backend.config.ts
-├── index.ts
-└── package.json
+packages/nextjs
+├── app
+│   └── api
+│       ├── admin
+│       │   ├── changemode
+│       │   ├── create
+│       │   ├── kickplayer
+│       │   ├── pauseresumegame
+│       │   └── varyhiddenprivatekey
+│       ├── game
+│       │   ├── [inviteCode]
+│       │   └── endgame
+│       └── player
+│           └── join
+├── lib
+│   ├── ably.ts
+│   ├── auth.ts
+│   └── db.ts        # PrismaClient (PostgreSQL)
+├── prisma
+│   └── schema.prisma # Prisma data models for Game, Invites, Player
+└── .env              # DATABASE_URL, ABLY_API_KEY, JWT_SECRET, etc.
 ```
 
 ### Prerequisites
@@ -41,7 +46,7 @@ Ensure you have the following:
 
 - Node.js 
 - yarn (Node Package Manager)
-- [MongoDB Cluster](https://www.mongodb.com/)
+- A PostgreSQL database (local or managed, e.g., Supabase, Railway, Neon)
 - [Ably Application (For realtime connection)](https://ably.com/)
 
 Setup Instructions
@@ -62,55 +67,28 @@ Install the necessary dependencies by running:
 yarn install
 ```
 
-3. Configure Environment Variables(optional)
+3. Configure Environment Variables (Next.js backend)
 
-Create a `.env` file in the directory `packages/backend` and add your MongoDB connection string and Ably API key:
+Create a `.env` file in the directory `packages/nextjs` and add your PostgreSQL connection string and Ably API key:
 
 ```env
-PORT=6001
-MONGO_URL=your_mongo_connection_string
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DB_NAME?schema=public"
 ABLY_API_KEY=your_ably_api_key
+JWT_SECRET=your_jwt_secret
 ```
 
-Alternatively, you can stick with values of `backend.config.ts` for testing
+- Get a `DATABASE_URL` by setting up a PostgreSQL database (local or managed).
+- Get an `ABLY_API_KEY` by signing up at [Ably](https://ably.com/) and creating an application. [Learn More](https://ably.com/docs/connect)
 
-- Get a `mongo_url` by signing up at [MongoDB](https://www.mongodb.com/) and creating an cluster. [Learn More](https://www.mongodb.com/docs/drivers/node/v3.6/fundamentals/connection/connect/)
-- Get an `ablyApiKey` by signing up at [Ably](https://ably.com/) and creating an application. [Learn More](https://ably.com/docs/connect)
+4. Run the Next.js App (Backend + Frontend)
 
-4. Run the Server
-
-Start the server using the following command:
+From the repository root:
 
 ```
-yarn backend
+yarn start
 ```
 
-The server will automatically attempt to connect to MongoDB and Ably. If the connection fails, it will retry every 3 seconds until successful.
-The complete setup is in `packages/backend/index.ts`.
-
-### MongoDB Setup
-
-The server uses [Mongoose](https://mongoosejs.com/docs/) to connect to MongoDB. Ensure your MongoDB URL is correctly set in the `.env` file or `backend.config.ts`. The connection logic includes an automatic retry mechanism in case the initial connection fails.
-
-
-```typescript
-const connectWithRetry = async () => {
-  await ably.connection.once("connected");
-  ably.channels.get(`gameUpdate`);
-  console.log("connecting");
-  mongoose
-    .connect(MONGO_URL)
-    .then(() => {
-      server.listen(PORT, () => console.log(`Server Connected, Port: ${PORT}`));
-    })
-    .catch(error => {
-      console.log(`${error} did not connect`);
-      setTimeout(connectWithRetry, 3000);
-    });
-};
-
-connectWithRetry();
-```
+This starts the Next.js development server, which serves both the frontend and the backend API routes. Prisma connects to PostgreSQL via `DATABASE_URL`, and Ably is used from the Next.js API layer for real-time updates.
 
 ### Ably Realtime Setup
 
@@ -160,10 +138,8 @@ useEffect(() => {
 
 ### Additional Information
 
-- Controllers: Game logic for admin and player operations.
-- Middleware: Authentication logic.
-- Models: Mongoose schemas for the game model.
-- Routes: API endpoints for admin and player interactions.
-For more details on specific implementations, refer to the respective files within the project at `packages/backend`.
+- API routes: Game logic for admin and player operations lives in `packages/nextjs/app/api`.
+- Database access: Implemented with Prisma and PostgreSQL, via `packages/nextjs/lib/db.ts` and `packages/nextjs/prisma/schema.prisma`.
+- Realtime: Ably is used by the API routes to broadcast game updates to clients.
 
-With these instructions, you should be able to set up and run the backend server with MongoDB and Ably Realtime integration. If you encounter any issues, consult the respective documentation for [Mongoose](https://mongoosejs.com/docs/) and [Ably](https://ably.com/docs).
+With these instructions, you should be able to set up and run the backend server with PostgreSQL, Prisma, and Ably Realtime integration. If you encounter any issues, consult the respective documentation for [Prisma](https://www.prisma.io/docs), [PostgreSQL](https://www.postgresql.org/docs/), and [Ably](https://ably.com/docs).

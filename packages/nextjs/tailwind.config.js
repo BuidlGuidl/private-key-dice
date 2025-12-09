@@ -10,22 +10,22 @@ module.exports = {
     themes: [
       {
         light: {
-          primary: "#93BBFB",
-          "primary-content": "#212638",
-          secondary: "#DAE8FF",
-          "secondary-content": "#212638",
-          accent: "#93BBFB",
-          "accent-content": "#212638",
-          neutral: "#212638",
-          "neutral-content": "#ffffff",
-          "base-100": "#ffffff",
-          "base-200": "#f4f8ff",
-          "base-300": "#DAE8FF",
-          "base-content": "#212638",
-          info: "#93BBFB",
-          success: "#34EEB6",
-          warning: "#FFCF72",
-          error: "#FF8863",
+          primary: "#6366F1", // indigo
+          "primary-content": "#0b1020",
+          secondary: "#0F172A", // slate-900
+          "secondary-content": "#E5E7EB",
+          accent: "#22C55E", // emerald
+          "accent-content": "#022C22",
+          neutral: "#020617",
+          "neutral-content": "#E5E7EB",
+          "base-100": "#020617",
+          "base-200": "#020617",
+          "base-300": "#020617",
+          "base-content": "#E5E7EB",
+          info: "#38BDF8",
+          success: "#22C55E",
+          warning: "#FACC15",
+          error: "#FB7185",
 
           "--rounded-btn": "9999rem",
 
@@ -42,22 +42,22 @@ module.exports = {
       },
       {
         dark: {
-          primary: "#212638",
-          "primary-content": "#F9FBFF",
-          secondary: "#323f61",
-          "secondary-content": "#F9FBFF",
-          accent: "#4969A6",
-          "accent-content": "#F9FBFF",
-          neutral: "#F9FBFF",
-          "neutral-content": "#385183",
-          "base-100": "#385183",
-          "base-200": "#2A3655",
-          "base-300": "#212638",
-          "base-content": "#F9FBFF",
-          info: "#385183",
-          success: "#34EEB6",
-          warning: "#FFCF72",
-          error: "#FF8863",
+          primary: "#6366F1",
+          "primary-content": "#0b1020",
+          secondary: "#020617",
+          "secondary-content": "#E5E7EB",
+          accent: "#22C55E",
+          "accent-content": "#022C22",
+          neutral: "#020617",
+          "neutral-content": "#E5E7EB",
+          "base-100": "#020617",
+          "base-200": "#020617",
+          "base-300": "#020617",
+          "base-content": "#E5E7EB",
+          info: "#38BDF8",
+          success: "#22C55E",
+          warning: "#FACC15",
+          error: "#FB7185",
 
           "--rounded-btn": "9999rem",
 
@@ -79,9 +79,28 @@ module.exports = {
     extend: {
       boxShadow: {
         center: "0 0 12px -2px rgb(0 0 0 / 0.05)",
+        "glow-primary": "0 0 35px rgba(99, 102, 241, 0.8)",
+        "glow-accent": "0 0 35px rgba(34, 197, 94, 0.8)",
+      },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+        "tilt-shift": {
+          "0%, 100%": { transform: "rotate(-1deg)" },
+          "50%": { transform: "rotate(1deg)" },
+        },
+        "pulse-soft": {
+          "0%, 100%": { opacity: 0.8 },
+          "50%": { opacity: 1 },
+        },
       },
       animation: {
         "pulse-fast": "pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        float: "float 3s ease-in-out infinite",
+        "tilt-slow": "tilt-shift 6s ease-in-out infinite",
+        "pulse-soft": "pulse-soft 2.5s ease-in-out infinite",
       },
     },
   },

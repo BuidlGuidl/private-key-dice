@@ -20,9 +20,13 @@ export async function PATCH(req: Request) {
       return new NextResponse("Game not found", { status: 404 });
     }
 
-    if (game.status !== "ongoing") {
-      return new NextResponse("Game is not ongoing", { status: 400 });
-    }
+  if (game.status !== "ongoing") {
+    return new NextResponse("Game is not ongoing", { status: 400 });
+  }
+
+  if ((game as any).kickedPlayers?.includes(playerAddress)) {
+    return new NextResponse("You have been kicked from this game", { status: 403 });
+  }
 
     if (game.players.includes(playerAddress)) {
       let token;
@@ -37,18 +41,38 @@ export async function PATCH(req: Request) {
       token = jwt.sign({ address: playerAddress }, JWT_SECRET);
     }
 
-    const updatedGame = await db.game.update({
-      where: {
-        id: game.id,
-      },
-      data: {
+  const result = await db.game.updateMany({
+    where: {
+      id: game.id,
+      status: "ongoing",
+      NOT: {
         players: {
-          push: playerAddress,
+          has: playerAddress,
         },
       },
-    });
+    },
+    data: {
+      players: {
+        push: playerAddress,
+      },
+    },
+  });
 
-    const channel = ably.channels.get(`gameUpdate`);
+  if (result.count === 0) {
+    return new NextResponse("Game is not ongoing", { status: 400 });
+  }
+
+  const updatedGame = await db.game.findUnique({
+    where: {
+      id: game.id,
+    },
+  });
+
+  if (!updatedGame) {
+    return new NextResponse("Game not found after join", { status: 404 });
+  }
+
+    const channel = ably.channels.get(`gameUpdate:${updatedGame.inviteCode}`);
     await channel.publish(`gameUpdate`, updatedGame);
 
     return NextResponse.json({ token, game: updatedGame, message: "Joined game" });

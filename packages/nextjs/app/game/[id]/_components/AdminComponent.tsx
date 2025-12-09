@@ -88,7 +88,7 @@ export const AdminComponent = ({ game, token, screenwidth }: AdminComponentProps
                     name="radio-10"
                     className="radio checked:bg-blue-500"
                     checked={game?.mode === "auto"}
-                    onClick={() => {
+                    onChange={() => {
                       if (game?.mode !== "auto") toggleMode(game, "auto", token);
                     }}
                   />
@@ -100,7 +100,7 @@ export const AdminComponent = ({ game, token, screenwidth }: AdminComponentProps
                     name="radio-10"
                     className="radio checked:bg-blue-500"
                     checked={game?.mode === "manual"}
-                    onClick={() => {
+                    onChange={() => {
                       if (game?.mode !== "manual") toggleMode(game, "manual", token);
                     }}
                   />
@@ -112,7 +112,7 @@ export const AdminComponent = ({ game, token, screenwidth }: AdminComponentProps
                     name="radio-10"
                     className="radio checked:bg-blue-500"
                     checked={game?.mode === "brute"}
-                    onClick={() => {
+                    onChange={() => {
                       if (game?.mode !== "brute") toggleMode(game, "brute", token);
                     }}
                   />

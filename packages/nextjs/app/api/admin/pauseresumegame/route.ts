@@ -24,7 +24,7 @@ export async function PATCH(req: Request) {
       data: { status: status },
     });
 
-    const channel = ably.channels.get(`gameUpdate`);
+    const channel = ably.channels.get(`gameUpdate:${game.inviteCode}`);
     channel.publish(`gameUpdate`, updatedGame);
 
     return NextResponse.json(updatedGame);
