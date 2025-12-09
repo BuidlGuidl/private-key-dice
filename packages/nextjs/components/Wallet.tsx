@@ -11,6 +11,9 @@ import { useAccount } from "wagmi";
 import {
   CheckCircleIcon,
   DocumentDuplicateIcon,
+  ExclamationTriangleIcon,
+  EyeIcon,
+  EyeSlashIcon,
   KeyIcon,
   PaperAirplaneIcon,
   QrCodeIcon,
@@ -53,6 +56,7 @@ export default function Wallet() {
   const [pk, setPK] = useState<Hex | string>("");
   const [pkCopied, setPkCopied] = useState(false);
   const [punkLinkCopied, setPunkLinkCopied] = useState(false);
+  const [showPk, setShowPk] = useState(false);
 
   const walletClient = createWalletClient({
     chain: targetNetwork,
@@ -86,38 +90,40 @@ export default function Wallet() {
       </div>
     );
   } else if (pk != "") {
-    const pk = localStorage.getItem("burnerWallet.pk");
-    const wallet = privateKeyToAccount(pk as Hex);
+    const storedPk = typeof window !== "undefined" ? localStorage.getItem("burnerWallet.pk") : null;
+    const wallet = storedPk ? privateKeyToAccount(storedPk as Hex) : null;
 
-    console.log(wallet.address, selectedAddress);
-
-    if (wallet.address !== selectedAddress) {
+    if (!wallet || wallet.address !== selectedAddress) {
       display = (
-        <div>
-          <b>*injected account*, private key unknown</b>
+        <div className="mt-4 rounded-2xl bg-base-200/80 px-4 py-3 text-sm">
+          <p className="font-semibold text-base-content/80">Private key not available</p>
+          <p className="mt-1 text-xs text-base-content/60">
+            The connected account does not match the local burner key, so its private key can&apos;t be shown here.
+          </p>
         </div>
       );
     } else {
       const extraPkDisplayAdded: {
         [key: string]: boolean;
       } = {};
-      const extraPkDisplay = [];
+      const extraPkDisplay: JSX.Element[] = [];
       extraPkDisplayAdded[wallet.address] = true;
       extraPkDisplay.push(
-        <div className="my-2" key={wallet.address}>
-          <span>
+        <div className="my-1" key={wallet.address}>
+          <span className="text-xs text-base-content/70">Current burner</span>
+          <div>
             <Address address={wallet.address} />
-          </span>
+          </div>
         </div>,
       );
       for (const key in localStorage) {
         if (key.indexOf("burnerWallet.pk_backup") >= 0) {
           const pastpk = localStorage.getItem(key);
           const pastwallet = privateKeyToAccount(pastpk as Hex);
-          if (!extraPkDisplayAdded[pastwallet.address] /* && selectedAddress!=pastwallet.address */) {
+          if (!extraPkDisplayAdded[pastwallet.address]) {
             extraPkDisplayAdded[pastwallet.address] = true;
             extraPkDisplay.push(
-              <div className="mb-2" key={pastwallet.address}>
+              <div className="mb-1" key={pastwallet.address}>
                 <span
                   className="cursor-pointer"
                   onClick={() => {
@@ -137,22 +143,43 @@ export default function Wallet() {
         }
       }
 
-      const fullLink = "https://punkwallet.io/pk#" + pk;
+      const fullLink = storedPk ? "https://punkwallet.io/pk#" + storedPk : "";
+      const maskedPk =
+        storedPk && storedPk.length > 10
+          ? `${storedPk.slice(0, 8)} • • • • • • • • • • • • ${storedPk.slice(-4)}`
+          : storedPk;
 
       display = (
-        <div className="mt-3">
-          <div>
-            <b>Private Key:</b>
-            <div className="flex items-center">
-              <span className="overflow-hidden overflow-ellipsis w-11/12 text-xs font-semibold">{pk}</span>
+        <div className="mt-3 space-y-5">
+          {/* Security warning */}
+          <div className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning">
+            <ExclamationTriangleIcon className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <p className="leading-snug">
+              This is your burner wallet&apos;s private key. Anyone with this key can control these funds. Only reveal
+              and copy it if you fully understand the risk.
+            </p>
+          </div>
+
+          {/* Private key card */}
+          <div className="space-y-2 rounded-2xl bg-base-200/80 px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-base-content/60">
+                Private key
+              </span>
+              <button type="button" className="btn btn-ghost btn-xs gap-1" onClick={() => setShowPk(v => !v)}>
+                {showPk ? <EyeSlashIcon className="h-3.5 w-3.5" /> : <EyeIcon className="h-3.5 w-3.5" />}
+                <span className="text-[11px] font-medium">{showPk ? "Hide" : "Reveal"}</span>
+              </button>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl bg-base-100/90 px-3 py-2">
+              <span className="w-full overflow-hidden break-all font-mono text-[11px]">
+                {showPk ? storedPk : maskedPk}
+              </span>
               {pkCopied ? (
-                <CheckCircleIcon
-                  className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
-                  aria-hidden="true"
-                />
+                <CheckCircleIcon className="h-4 w-4 text-success" aria-hidden="true" />
               ) : (
                 <CopyToClipboard
-                  text={pk || ""}
+                  text={storedPk || ""}
                   onCopy={() => {
                     setPkCopied(true);
                     setTimeout(() => {
@@ -160,25 +187,23 @@ export default function Wallet() {
                     }, 800);
                   }}
                 >
-                  <DocumentDuplicateIcon
-                    className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
-                    aria-hidden="true"
-                  />
+                  <button type="button" className="btn btn-ghost btn-xs px-1">
+                    <DocumentDuplicateIcon className="h-4 w-4 text-primary" aria-hidden="true" />
+                  </button>
                 </CopyToClipboard>
               )}
             </div>
+          </div>
 
-            <div className="text-clip">
-              <div>
-                <b>Punk Wallet:</b>
-              </div>
-              <div className="flex items-center">
-                <span className="overflow-hidden overflow-ellipsis w-11/12 text-xs font-semibold">{fullLink}</span>
+          {/* Punk Wallet card */}
+          {fullLink && (
+            <div className="space-y-3 rounded-2xl bg-base-200/80 px-4 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-base-content/60">
+                  Punk Wallet link
+                </span>
                 {punkLinkCopied ? (
-                  <CheckCircleIcon
-                    className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
-                    aria-hidden="true"
-                  />
+                  <CheckCircleIcon className="h-4 w-4 text-success" aria-hidden="true" />
                 ) : (
                   <CopyToClipboard
                     text={fullLink}
@@ -189,46 +214,49 @@ export default function Wallet() {
                       }, 800);
                     }}
                   >
-                    <DocumentDuplicateIcon
-                      className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
-                      aria-hidden="true"
-                    />
+                    <button type="button" className="btn btn-ghost btn-xs px-1">
+                      <DocumentDuplicateIcon className="h-4 w-4 text-primary" aria-hidden="true" />
+                    </button>
                   </CopyToClipboard>
                 )}
               </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  target="_blank"
+                  href={fullLink}
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-xs md:btn-sm normal-case"
+                >
+                  Open in Punk Wallet
+                </a>
+                <span className="text-[11px] text-base-content/60">Or scan the QR code below from your phone.</span>
+              </div>
+              <div
+                className="cursor-pointer pt-1"
+                onClick={() => {
+                  const el = document.createElement("textarea");
+                  el.value = fullLink;
+                  document.body.appendChild(el);
+                  el.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(el);
+                }}
+              >
+                <QRCodeSVG value={fullLink} className="mx-auto mt-1 h-full w-3/4" level="H" />
+              </div>
             </div>
+          )}
 
-            <br />
-            <i>
-              Point your phone camera at qr code to open in &nbsp;
-              <a target="_blank" href={fullLink} rel="noopener noreferrer" className="underline text-blue-500">
-                Punk Wallet
-              </a>
-              :
-            </i>
-
-            <div
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                const el = document.createElement("textarea");
-                el.value = fullLink;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand("copy");
-                document.body.removeChild(el);
-              }}
-            >
-              <QRCodeSVG value={fullLink} className="h-full mx-auto mt-2 w-3/4" level="H" />
+          {extraPkDisplay && extraPkDisplay.length > 0 && (
+            <div className="mt-4 space-y-2 rounded-2xl bg-base-200/80 px-4 py-3">
+              <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/60">
+                Known burner keys
+              </h2>
+              <p className="text-[11px] text-base-content/60">
+                Click an address below to switch this browser&apos;s burner wallet to that key.
+              </p>
+              <div className="space-y-1">{extraPkDisplay}</div>
             </div>
-          </div>
-
-          {extraPkDisplay ? (
-            <div className="mt-6">
-              <h2>Known Private Keys:</h2>
-              {extraPkDisplay}
-            </div>
-          ) : (
-            ""
           )}
         </div>
       );

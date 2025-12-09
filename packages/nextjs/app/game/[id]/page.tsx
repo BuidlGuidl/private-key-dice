@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAccount, useBalance } from "wagmi";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { notification } from "~~/utils/scaffold-eth";
 import useGameData from "~~/hooks/useGameData";
 import { useChannel } from "ably/react";
@@ -164,14 +165,11 @@ function GamePage() {
                   Private Key Heist
                 </span>
               </h1>
-              <p className="text-xs md:text-sm text-base-content/60">
-                Mode: <span className="font-semibold uppercase">{game.mode}</span> · Players:{" "}
-                <span className="font-semibold">{game.players.length}</span>
-              </p>
-            </div>
-
-            <div className="mt-2 md:mt-0">
-              <div className="relative rounded-3xl bg-gradient-to-r from-primary/40 via-secondary/70 to-accent/50 border border-primary/40 shadow-glow-primary px-6 py-4 md:px-8 md:py-5 text-center">
+              <div className="flex items-center gap-3 text-xs md:text-sm text-base-content/60">
+                <p className="m-0">
+                  Mode: <span className="font-semibold uppercase">{game.mode}</span> · Players:{" "}
+                  <span className="font-semibold">{game.players.length}</span>
+                </p>
                 <button
                   type="button"
                   onClick={async () => {
@@ -185,10 +183,21 @@ function GamePage() {
                       setIsSyncing(false);
                     }
                   }}
-                  className="absolute left-6 top-3 btn btn-xs btn-outline btn-ghost border-primary/40 text-xs normal-case"
+                  className="btn btn-ghost btn-xs tooltip tooltip-bottom border border-base-300/60 hover:border-primary/60"
+                  data-tip={isSyncing ? "Refreshing..." : "Re-sync game state"}
+                  disabled={isSyncing}
                 >
-                  {isSyncing ? "Syncing..." : "Re-sync"}
+                  {isSyncing ? (
+                    <span className="loading loading-spinner loading-xs" />
+                  ) : (
+                    <ArrowPathIcon className="h-4 w-4" />
+                  )}
                 </button>
+              </div>
+            </div>
+
+            <div className="mt-2 md:mt-0">
+              <div className="relative rounded-3xl bg-gradient-to-r from-primary/40 via-secondary/70 to-accent/50 border border-primary/40 shadow-glow-primary px-6 py-4 md:px-8 md:py-5 text-center">
                 <div className="absolute -top-2 right-6">
                   <span className="inline-flex items-center rounded-full bg-base-100/80 px-3 py-0.5 text-[10px] md:text-xs font-semibold uppercase tracking-[0.18em] text-base-content/70">
                     Prize pool
@@ -216,7 +225,9 @@ function GamePage() {
               )}
               {!isAdmin && !isPlayer && wasKicked && membershipResolved && (
                 <div className="flex flex-1 items-center justify-center bg-base-200/80 px-6 py-16 text-center">
-                  <p className="text-xl md:text-2xl font-semibold text-base-content/80">You have been kicked from this game.</p>
+                  <p className="text-xl md:text-2xl font-semibold text-base-content/80">
+                    You have been kicked from this game.
+                  </p>
                 </div>
               )}
             </div>

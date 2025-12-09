@@ -1,6 +1,7 @@
 export const calculateLength = (count: number) => {
   const maxLength = 120;
-  const calculatedLength = Math.max(maxLength - (count - 1) * 3, 10);
+  // Keep dice comfortably visible even with many hidden characters.
+  const calculatedLength = Math.max(maxLength - (count - 1) * 3, 40);
   return calculatedLength;
 };
 

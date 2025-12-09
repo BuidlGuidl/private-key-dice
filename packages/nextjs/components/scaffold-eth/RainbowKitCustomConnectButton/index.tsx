@@ -29,12 +29,9 @@ export const RainbowKitCustomConnectButton = () => {
         return (
           <>
             {(() => {
+              // Hide the connect button entirely; rely on burner auto-connect instead.
               if (!connected) {
-                return (
-                  <button className="btn btn-primary btn-sm" onClick={openConnectModal} type="button">
-                    Connect Wallet
-                  </button>
-                );
+                return null;
               }
 
               if (chain.unsupported || chain.id !== targetNetwork.id) {

@@ -5,7 +5,7 @@ import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { Toaster } from "react-hot-toast";
-import { WagmiProvider } from "wagmi";
+import { WagmiProvider, useAccount, useConnect } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
@@ -34,6 +34,21 @@ export const queryClient = new QueryClient({
   },
 });
 
+const BurnerAutoConnector = () => {
+  const { isConnected } = useAccount();
+  const { connectors, connect, status } = useConnect();
+
+  useEffect(() => {
+    if (isConnected || status === "pending") return;
+    const burner = connectors.find(connector => connector.name.toLowerCase().includes("burner"));
+    if (burner) {
+      connect({ connector: burner });
+    }
+  }, [connect, connectors, isConnected, status]);
+
+  return null;
+};
+
 export const ScaffoldEthAppWithProviders = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false);
 
@@ -44,6 +59,7 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
+        <BurnerAutoConnector />
         {mounted && <ProgressBar height="3px" color="#2299dd" />}
         <RainbowKitProvider avatar={BlockieAvatar} theme={darkTheme()}>
           <ScaffoldEthApp>{children}</ScaffoldEthApp>

@@ -90,7 +90,16 @@ export const PlayerComponent = ({ game, token, address }: PlayerComponentProps) 
     let pk;
 
     if (rolled && rolledResult.length > 0 && game?.hiddenPrivateKey) {
-      pk = `0x${rolledResult.join("")}${game?.hiddenPrivateKey.replaceAll("*", "")}` as `0x{string}`;
+      const visibleSuffix = game.hiddenPrivateKey.replaceAll("*", "");
+      const prefix = rolledResult.join("");
+      const combined = `${prefix}${visibleSuffix}`;
+
+      // Safety guard: private key must be exactly 32 bytes (64 hex chars).
+      if (combined.length !== 64) {
+        return;
+      }
+
+      pk = `0x${combined}` as `0x{string}`;
       const account = privateKeyToAccount(pk);
       isHiddenChars = account.address == game?.adminAddress;
     }
@@ -166,6 +175,12 @@ export const PlayerComponent = ({ game, token, address }: PlayerComponentProps) 
   return (
     <div className="w-full">
       <div className="flex flex-col items-center mt-6">
+        {game.status === "paused" && (
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-warning/50 bg-warning/10 px-4 py-1 text-[10px] md:text-xs font-semibold uppercase tracking-[0.22em] text-warning">
+            <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
+            <span>Game paused by host</span>
+          </div>
+        )}
         <button
           className="btn btn-primary px-10"
           onClick={() => {
@@ -206,6 +221,8 @@ export const PlayerComponent = ({ game, token, address }: PlayerComponentProps) 
 
               return (
                 <Image
+                  // index is fine; dice order is stable within a roll
+                  // eslint-disable-next-line react/no-array-index-key
                   key={index}
                   className="transition duration-500 ease-in rounded-lg"
                   src={src}
